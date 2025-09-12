@@ -11,6 +11,8 @@ services:
     volumes:
       - pgdata_stg:/var/lib/postgresql/data
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:${STAGING_DATABASE_PORT:-15432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${STAGING_DATABASE_USER} -d ${STAGING_DATABASE_NAME}"]
       interval: 5s

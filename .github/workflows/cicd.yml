@@ -27,7 +27,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: ghcr.io/<ORG_OR_USER>   # contoh: ghcr.io/postmaticdev
+  IMAGE_NAMESPACE: ghcr.io/postmaticdev
 
 jobs:
   build-and-push:

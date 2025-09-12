@@ -9,27 +9,32 @@ FROM node:24-slim AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 
-# (opsional kalau kamu pakai build-time env)
+# (opsional build-time env)
 ARG ENV_STAGE=staging
-# kalau kamu pakai “copy .env.${ENV_STAGE} -> .env.production”, taruh di sini sebelum build:
-COPY .env.${ENV_STAGE} .env.production
+ARG NEXT_PUBLIC_API_ORIGIN
+ARG API_ORIGIN
+ENV NEXT_PUBLIC_API_ORIGIN=${NEXT_PUBLIC_API_ORIGIN}
+ENV API_ORIGIN=${API_ORIGIN}
 
 COPY . .
-RUN npm run build # next.config.{js,ts} = { output: "standalone" }
+RUN npm run build # next.config.* = { output: 'standalone' }
 
 # ---------- runtime ----------
 FROM node:24-slim AS runner
 WORKDIR /app
-ENV NODE_ENV=production PORT=3000 HOST=0.0.0.0
+ENV NODE_ENV=production \
+PORT=3000 \
+HOSTNAME=0.0.0.0# <- pastikan bind ke semua interface
 
-# 👉 Salin seluruh .next & public dengan kepemilikan user node
+# copy seluruh .next & public dengan ownership user node
 COPY --from=build --chown=node:node /app/.next ./.next
 COPY --from=build --chown=node:node /app/public ./public
 
 USER node
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
-CMD node -e "require('http').get('http://127.0.0.1:'+process.env.PORT, r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
+# Healthcheck yang lebih toleran (HEAD /, timeout lebih lega)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
+CMD node -e "const http=require('http');const req=http.request({host:'127.0.0.1',port:process.env.PORT||3000,method:'HEAD',path:'/'},res=>process.exit(res.statusCode<500?0:1));req.on('error',()=>process.exit(1));req.end()"
 
 CMD ["node",".next/standalone/server.js"]

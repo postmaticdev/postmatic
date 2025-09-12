@@ -22,19 +22,20 @@ RUN npm run build # next.config.* = { output: 'standalone' }
 # ---------- runtime ----------
 FROM node:24-slim AS runner
 WORKDIR /app
-ENV NODE_ENV=production \
-PORT=3000 \
-HOSTNAME=0.0.0.0# <- pastikan bind ke semua interface
 
-# copy seluruh .next & public dengan ownership user node
+# ⬇️ tanpa inline comment, dan tambahkan HOST juga (beberapa runtime baca HOST)
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOST=0.0.0.0
+ENV HOSTNAME=0.0.0.0
+
+# salin seluruh .next & public dengan ownership user node
 COPY --from=build --chown=node:node /app/.next ./.next
 COPY --from=build --chown=node:node /app/public ./public
 
 USER node
 EXPOSE 3000
 
-# Healthcheck yang lebih toleran (HEAD /, timeout lebih lega)
+# Healthcheck: coba localhost & 127.0.0.1, anggap OK untuk status < 500
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
-CMD node -e "const http=require('http');const req=http.request({host:'127.0.0.1',port:process.env.PORT||3000,method:'HEAD',path:'/'},res=>process.exit(res.statusCode<500?0:1));req.on('error',()=>process.exit(1));req.end()"
-
-CMD ["node",".next/standalone/server.js"]
+CMD node -e "c

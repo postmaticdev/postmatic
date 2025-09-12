@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Masuk · Postmatic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <style>
+      :root {
+        --primary: oklch(51.59% 0.225 262.83);
+        --primary-foreground: oklch(0.4911 0.225 262.83);
+        --secondary: oklch(0.585 0.233 277.117);
+        --secondary-foreground: oklch(0.5 0.233 277.117);
+      }
+      .bg-primary {
+        background-color: var(--primary);
+      }
+      .text-primary-fg {
+        color: var(--primary-foreground);
+      }
+      .bg-secondary {
+        background-color: var(--secondary);
+      }
+      .text-secondary-fg {
+        color: var(--secondary-foreground);
+      }
+      .bg-brand-gradient {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+      }
+      .ring-brand:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 60%, #ffffff);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen bg-gray-50">
+    <div class="grid min-h-screen lg:grid-cols-2">
+      <!-- Panel Kiri -->
+      <aside
+        class="hidden lg:flex flex-col justify-between p-10 bg-brand-gradient text-white relative overflow-hidden"
+      >
+        <div>
+          <div class="flex items-center gap-3">
+            <div
+              class="h-12 w-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center overflow-hidden"
+            >
+              <img
+                src="/static/logo.png"
+                alt="Postmatic"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <div class="text-2xl font-semibold tracking-tight">Postmatic</div>
+          </div>
+
+          <h1 class="mt-16 text-4xl/normal font-semibold max-w-lg">
+            Selamat datang kembali.
+          </h1>
+          <p class="mt-4 text-white/90 max-w-xl">
+            Masuk dengan aman untuk mengakses dashboard, kampanye, dan analitik
+            Anda.
+          </p>
+
+          <div class="mt-10 grid grid-cols-2 gap-4 max-w-xl">
+            <div class="rounded-2xl bg-white/10 p-5">
+              <p class="text-sm font-medium">One Time Input Knowledge</p>
+              <p class="text-white/80 text-xs mt-1">
+                Cukup sekali input pengetahuan
+              </p>
+            </div>
+            <div class="rounded-2xl bg-white/10 p-5">
+              <p class="text-sm font-medium">Automate your social media</p>
+              <p class="text-white/80 text-xs mt-1">
+                Biarkan berjalan otomatis selamanya
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-white/80 text-sm">
+          &copy; <%= new Date().getFullYear() %> Postmatic. Hak cipta dilindungi
+          undang-undang.
+        </div>
+      </aside>
+
+      <!-- Panel Kanan -->
+      <main class="flex items-center justify-center p-6 sm:p-10">
+        <div class="w-full max-w-md">
+          <div class="bg-white shadow-xl rounded-2xl p-8">
+            <div class="text-center">
+              <div
+                class="mx-auto h-12 w-12 rounded-2xl bg-primary flex items-center justify-center overflow-hidden"
+              >
+                <img
+                  src="/static/logo.png"
+                  alt="Postmatic"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <h2 class="mt-5 text-2xl font-semibold text-gray-900">
+                Masuk ke Postmatic
+              </h2>
+              <p class="mt-2 text-sm text-gray-500">
+                Gunakan email Anda untuk melanjutkan
+              </p>
+            </div>
+
+            <!-- Masuk dengan Google -->
+            <a
+              class="mt-8 inline-flex w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white py-3 px-4 text-gray-700 hover:bg-gray-50 transition"
+              href="/api/auth/oauth/google"
+              title="Masuk dengan Google"
+              aria-label="Masuk dengan Google"
+              role="button"
+              id="google-signin"
+              data-action="google-signin"
+              data-method="GET"
+              data-redirect="/auth/signin"
+              data-analytics-event="click"
+              data-analytics-category="auth"
+              data-analytics-label="google-signin"
+            >
+              <img
+                id="google-icon"
+                src="/static/google.webp"
+                alt=""
+                class="h-5 w-5 object-cover"
+              />
+              <span class="google-label">Lanjutkan dengan Google</span>
+            </a>
+
+            <div class="relative my-6">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-200"></div>
+              </div>
+              <div class="relative flex justify-center">
+                <span
+                  class="bg-white px-3 text-xs uppercase tracking-wide text-gray-400"
+                  >atau</span
+                >
+              </div>
+            </div>
+
+            <!-- Form Email/Password -->
+            <form
+              class="space-y-5"
+              method="POST"
+              action="/api/auth/page/login"
+              novalidate
+              id="loginForm"
+            >
+              <input
+                type="hidden"
+                name="_csrf"
+                value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"
+              />
+
+              <% if (typeof redirect !== 'undefined' && redirect) { %>
+              <input type="hidden" name="redirect" value="<%= redirect %>" />
+              <% } %>
+
+              <div>
+                <label
+                  for="email"
+                  class="block text-sm font-medium text-gray-700"
+                  >Alamat email</label
+                >
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value="<%= typeof email !== 'undefined' ? email : '' %>"
+                  required
+                  autocomplete="email"
+                  class="mt-1 block w-full rounded-xl border <%= errors?.email ? 'border-red-300' : 'border-gray-300' %> bg-white px-3 py-2 shadow-sm focus:border-transparent ring-brand"
+                  aria-invalid="<%= errors?.email ? 'true' : 'false' %>"
+                  aria-describedby="email-error"
+                  placeholder="user@example.com"
+                />
+                <p
+                  id="email-error"
+                  class="mt-2 text-sm text-red-600 <%= errors?.email ? '' : 'hidden' %>"
+                >
+                  <%= errors?.email || '' %>
+                </p>
+              </div>
+
+              <div>
+                <label
+                  for="password"
+                  class="block text-sm font-medium text-gray-700"
+                  >Kata sandi</label
+                >
+                <div class="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    autocomplete="current-password"
+                    class="mt-1 block w-full rounded-xl border <%= errors?.password ? 'border-red-300' : 'border-gray-300' %> bg-white px-3 pr-10 py-2 shadow-sm ring-brand"
+                    aria-invalid="<%= errors?.password ? 'true' : 'false' %>"
+                    aria-describedby="password-error"
+                    placeholder="********"
+                  />
+                  <button
+                    type="button"
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                    style="--tw-ring-color: var(--secondary)"
+                    data-toggle-password
+                    data-target="password"
+                    aria-label="Tampilkan kata sandi"
+                    aria-pressed="false"
+                    title="Tampilkan kata sandi"
+                  >
+                    <!-- eye -->
+                    <svg
+                      class="icon-eye h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M2.2 12.3a1 1 0 0 1 0-.6C3.8 7.4 7.6 4.5 12 4.5s8.2 2.9 9.8 7.2a1 1 0 0 1 0 .6C20.2 16.9 16.4 19.5 12 19.5S3.8 16.6 2.2 12.3z"
+                      />
+                      <circle cx="12" cy="12" r="3" stroke-width="1.8" />
+                    </svg>
+                    <!-- eye-off -->
+                    <svg
+                      class="icon-eye-off h-5 w-5 hidden"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M2.2 12.3a1 1 0 0 1 0-.6C3.8 7.4 7.6 4.5 12 4.5s8.2 2.9 9.8 7.2a1 1 0 0 1 0 .6C20.2 16.9 16.4 19.5 12 19.5S3.8 16.6 2.2 12.3z"
+                      />
+                      <circle cx="12" cy="12" r="3" stroke-width="1.8" />
+                      <path
+                        d="M4 20L20 4"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    <span class="sr-only">Toggle password visibility</span>
+                  </button>
+                </div>
+                <p
+                  id="password-error"
+                  class="mt-2 text-sm text-red-600 <%= errors?.password ? '' : 'hidden' %>"
+                >
+                  <%= errors?.password || '' %>
+                </p>
+                <p
+                  id="password-error-client"
+                  class="mt-2 text-sm text-red-600 hidden"
+                ></p>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div></div>
+                <a
+                  href="/api/auth/page/reset-password"
+                  class="text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
+                  Lupa kata sandi?
+                </a>
+              </div>
+
+              <!-- Cooldown info (mirip reset-password) -->
+              <div class="space-y-3">
+                <p id="cooldownText" class="text-sm text-gray-600 hidden">
+                  Anda dapat mencoba lagi dalam
+                  <span id="cooldownTime" class="font-medium text-gray-900"
+                    >00:00</span
+                  >
+                </p>
+
+                <% if (TURNSTILE_ENABLED) { %>
+                <div class="w-full flex items-center justify-center">
+                  <div
+                    class="cf-turnstile"
+                    data-sitekey="<%= TURNSTILE_SITE_KEY %>"
+                    data-theme="auto"
+                    data-callback="pmOnTsOk"
+                    data-error-callback="pmOnTsErr"
+                    data-expired-callback="pmOnTsExp"
+                  ></div>
+                </div>
+                <!-- error/success line untuk captcha -->
+                <p
+                  id="captcha-error"
+                  class="mt-2 text-sm text-red-600 <%= errors?.captcha ? '' : 'hidden' %>"
+                >
+                  <%= errors?.captcha || '' %>
+                </p>
+                <p
+                  id="captcha-status"
+                  class="mt-2 text-sm text-green-600 hidden"
+                ></p>
+
+                <script
+                  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                  async
+                  defer
+                ></script>
+                <% } %>
+
+                <button
+                  type="submit"
+                  id="loginSubmitBtn"
+                  data-loading-text="Masuk..."
+                  class="w-full rounded-xl bg-brand-gradient py-2.5 text-white font-medium shadow hover:opacity-95 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  style="--tw-ring-color: var(--secondary)"
+                >
+                  <span class="inline-flex items-center justify-center gap-2">
+                    <svg
+                      class="spinner hidden animate-spin h-5 w-5 text-white"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                        fill="none"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v3.5a4.5 4.5 0 00-4.5 4.5H4z"
+                      ></path>
+                    </svg>
+                    <span class="btn-label">Masuk</span>
+                  </span>
+                </button>
+              </div>
+            </form>
+
+            <p class="mt-6 text-center text-sm text-gray-600">
+              Belum punya akun?
+              <a
+                href="/api/auth/page/register"
+                class="font-medium text-gray-900 hover:underline"
+                >Daftar sekarang</a
+              >
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <footer class="mt-6 text-center text-xs text-gray-500">
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/cookie-policy"
+              >Kebijakan Cookie</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/data-deletion"
+              >Penghapusan Data</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/privacy-policy"
+              >Kebijakan Privasi</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/terms-of-service"
+              >Syarat Layanan</a
+            >
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <!-- Zod -->
+    <script src="https://cdn.jsdelivr.net/npm/zod@3.23.8/lib/index.umd.min.js"></script>
+
+    <!-- Callback Turnstile (opsional, UX) -->
+    <script nonce="<%= cspNonce %>">
+      (function () {
+        var errEl = document.getElementById("captcha-error");
+        var statEl = document.getElementById("captcha-status");
+
+        function showErr(msg) {
+          if (statEl) {
+            statEl.textContent = "";
+            statEl.classList.add("hidden");
+          }
+          if (errEl) {
+            errEl.textContent = msg || "Captcha tidak valid.";
+            errEl.classList.remove("hidden");
+          }
+        }
+        function showOk(msg) {
+          if (errEl) {
+            errEl.textContent = "";
+            errEl.classList.add("hidden");
+          }
+          if (statEl) {
+            statEl.textContent = msg || "Captcha terverifikasi.";
+            statEl.classList.remove("hidden");
+          }
+        }
+
+        window.pmOnTsOk = function () {
+          showOk();
+        };
+        window.pmOnTsErr = function () {
+          showErr("Captcha gagal dimuat. Silakan muat ulang atau coba lagi.");
+        };
+        window.pmOnTsExp = function () {
+          showErr("Captcha kedaluwarsa. Silakan selesaikan ulang captcha.");
+        };
+      })();
+    </script>
+
+    <!-- Interaksi: toggle password + form login + google loading -->
+    <script nonce="<%= cspNonce %>">
+      (function () {
+        // === Toggle Password (single, robust) ===
+        document.querySelectorAll("[data-toggle-password]").forEach(function (btn) {
+          var targetId = btn.getAttribute("data-target");
+          var input = document.getElementById(targetId);
+          if (!input) return;
+
+          btn.addEventListener("click", function () {
+            var toText = input.type === "password";
+            input.type = toText ? "text" : "password";
+
+            var visible = toText; // sekarang visible kalau sebelumnya password
+            btn.setAttribute("aria-pressed", String(visible));
+            btn.setAttribute("aria-label", visible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi");
+            btn.title = visible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi";
+
+            var eye = btn.querySelector(".icon-eye");
+            var eyeOff = btn.querySelector(".icon-eye-off");
+            if (eye) eye.classList.toggle("hidden", visible);
+            if (eyeOff) eyeOff.classList.toggle("hidden", !visible);
+          });
+        });
+
+        // === Login: Validasi, Loading, Unified Error, + Countdown Throttling ===
+        var form = document.getElementById("loginForm");
+        if (!form) return;
+
+        var btn = form.querySelector("#loginSubmitBtn");
+        var spinner = btn ? btn.querySelector(".spinner") : null;
+        var label = btn ? btn.querySelector(".btn-label") : null;
+        var emailInput = form.querySelector("#email");
+        var passInput = form.querySelector("#password");
+        var emailErr = document.getElementById("email-error");
+        var passErr = document.getElementById("password-error");
+        var cooldownText = document.getElementById("cooldownText");
+        var cooldownTime = document.getElementById("cooldownTime");
+
+        var loadingText = (btn && btn.getAttribute("data-loading-text")) || "Masuk...";
+
+        // === Server-provided wait (detik) -> diambil dari errors.wait ===
+        var WAIT_SEC = <%- JSON.stringify((typeof errors !== 'undefined' && errors && typeof errors.wait === 'number') ? Number(errors.wait) : null) %>;
+        var WAIT_UNTIL = (typeof WAIT_SEC === "number" && WAIT_SEC > 0) ? (Date.now() + WAIT_SEC * 1000) : null;
+
+        var z = window.zod || window.Zod;
+        var Schema = z.object({
+          email: z.string().trim().min(1, "Email wajib diisi").email("Format email tidak valid"),
+          password: z.string().min(8, "Minimal 8 karakter"),
+        });
+
+        function setError(inputEl, errEl, msg) {
+          if (!inputEl || !errEl) return;
+          errEl.textContent = msg || "";
+          errEl.classList.toggle("hidden", !msg);
+          inputEl.setAttribute("aria-invalid", msg ? "true" : "false");
+          inputEl.classList.toggle("border-red-300", !!msg);
+          inputEl.classList.toggle("border-gray-300", !msg);
+        }
+        function clearError(inputEl, errEl) { setError(inputEl, errEl, ""); }
+
+        function fmt(ms) {
+          ms = Math.max(0, ms|0);
+          var s = Math.floor(ms/1000);
+          var mm = String(Math.floor(s/60)).padStart(2,"0");
+          var ss = String(s%60).padStart(2,"0");
+          return mm + ":" + ss;
+        }
+        function setBtnDisabled(disabled) {
+          if (!btn) return;
+          btn.disabled = disabled;
+          if (disabled) {
+            btn.classList.add("opacity-75", "cursor-not-allowed");
+            btn.setAttribute("aria-disabled", "true");
+          } else {
+            btn.classList.remove("opacity-75", "cursor-not-allowed");
+            btn.removeAttribute("aria-disabled");
+          }
+        }
+
+        var timer = null;
+        function startCountdown(until) {
+          if (!until || !btn) return;
+          var tick = function () {
+            var left = until - Date.now();
+            if (left <= 0) {
+              if (timer) { clearInterval(timer); timer = null; }
+              if (cooldownText) cooldownText.classList.add("hidden");
+              if (label) label.textContent = "Masuk";
+              setBtnDisabled(false);
+              return;
+            }
+            if (cooldownText) cooldownText.classList.remove("hidden");
+            if (cooldownTime) cooldownTime.textContent = fmt(left);
+            if (label) label.textContent = "Tunggu " + fmt(left);
+            setBtnDisabled(true);
+          };
+          tick();
+          timer = setInterval(tick, 250);
+        }
+
+        if (WAIT_UNTIL) {
+          startCountdown(WAIT_UNTIL);
+        } else {
+          if (cooldownText) cooldownText.classList.add("hidden");
+          setBtnDisabled(false);
+        }
+
+        var submitting = false;
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (submitting) return;
+          if (btn && btn.disabled) return;
+
+          clearError(emailInput, emailErr);
+          clearError(passInput, passErr);
+
+          var data = {
+            email: emailInput ? emailInput.value : "",
+            password: passInput ? passInput.value : "",
+          };
+          var result = Schema.safeParse(data);
+
+          if (!result.success) {
+            var issues = result.error.issues;
+            var eIssue = issues.find(function (i) { return i.path[0] === "email"; });
+            var pIssue = issues.find(function (i) { return i.path[0] === "password"; });
+            if (eIssue) { setError(emailInput, emailErr, eIssue.message); emailInput && emailInput.focus(); }
+            else if (pIssue) { setError(passInput, passErr, pIssue.message); passInput && passInput.focus(); }
+            return;
+          }
+
+          submitting = true;
+          if (btn) {
+            btn.disabled = true;
+            btn.setAttribute("aria-busy", "true");
+            btn.classList.add("opacity-75", "cursor-not-allowed");
+            if (spinner) spinner.classList.remove("hidden");
+            if (label) {
+              btn.setAttribute("data-original-text", label.textContent || "");
+              label.textContent = loadingText;
+            }
+          }
+
+          requestAnimationFrame(function () { form.submit(); });
+        });
+
+        emailInput && emailInput.addEventListener("input", function () { clearError(emailInput, emailErr); });
+        passInput && passInput.addEventListener("input", function () { clearError(passInput, passErr); });
+
+        window.addEventListener("pageshow", function (e) {
+          if (!e.persisted) return;
+          submitting = false;
+          if (btn) {
+            btn.disabled = false;
+            btn.removeAttribute("aria-busy");
+            btn.classList.remove("opacity-75", "cursor-not-allowed");
+            if (spinner) spinner.classList.add("hidden");
+            var original = btn.getAttribute("data-original-text");
+            if (label && original != null) label.textContent = original;
+          }
+          if (WAIT_UNTIL && Date.now() < WAIT_UNTIL) startCountdown(WAIT_UNTIL);
+        });
+
+        // === Google button: replace icon with spinner (not both) ===
+        var g = document.getElementById("google-signin");
+        if (g) {
+          g.addEventListener("click", function () {
+            g.classList.add("opacity-75", "cursor-wait", "pointer-events-none");
+            g.setAttribute("aria-busy", "true");
+
+            var img = g.querySelector("#google-icon");
+            // buat spinner
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 24 24");
+            svg.setAttribute("class", "animate-spin h-5 w-5");
+            svg.setAttribute("aria-hidden", "true");
+            svg.innerHTML =
+              '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>' +
+              '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v3.5a4.5 4.5 0 00-4.5 4.5H4z"></path>';
+
+            if (img) {
+              // ganti img -> spinner di posisi yang sama
+              img.replaceWith(svg);
+            } else {
+              // fallback: prepend kalau img tidak ditemukan
+              g.prepend(svg);
+            }
+          }, { once: true });
+        }
+      })();
+    </script>
+  </body>
+</html>

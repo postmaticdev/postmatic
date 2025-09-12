@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "DiscountCode" ADD COLUMN     "reward" DOUBLE PRECISION NOT NULL DEFAULT 0;

@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "PaymentPurchase" ALTER COLUMN "tokenImage" DROP DEFAULT,
+ALTER COLUMN "tokenLive" DROP DEFAULT,
+ALTER COLUMN "tokenVideo" DROP DEFAULT;

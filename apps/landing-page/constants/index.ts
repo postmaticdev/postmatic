@@ -1,0 +1,27 @@
+
+
+const TITLE_APP = process.env.NEXT_PUBLIC_APP_NAME || "POSTMATIC";
+const LANDINGPAGE_URL = process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://postmatic.id";
+const LOGIN_URL = process.env.NEXT_PUBLIC_LOGIN_URL || "#";
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || "#";
+const SIGNUP_URL = process.env.NEXT_PUBLIC_SIGNUP_URL || "#";
+const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "hZ2dX@example.com";
+const PHONE_NUMBER = process.env.NEXT_PUBLIC_PHONE_NUMBER || "+6281234567890";
+const ADDRESS = process.env.NEXT_PUBLIC_ADDRESS || "Jl. Contoh, Kota Contoh, Provinsi Contoh";
+const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "Contoh";
+
+
+const INSTAGRAM = process.env.NEXT_PUBLIC_INSTAGRAM || "#";
+const FACEBOOK = process.env.NEXT_PUBLIC_FACEBOOK || "#";
+const TWITTER = process.env.NEXT_PUBLIC_TWITTER || "#";
+const LINKEDIN = process.env.NEXT_PUBLIC_LINKEDIN || "#";
+
+const COMMUNITY_URL = process.env.NEXT_PUBLIC_COMMUNITY || INSTAGRAM;
+
+const VIDEO_TUTORIAL_URL = process.env.NEXT_PUBLIC_VIDEO_TUTORIAL_URL || "https://www.youtube.com/embed/ad79nYk2keg?rel=0&showinfo=0&autoplay=0";
+
+const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION || "";
+const YANDEX_SITE_VERIFICATION = process.env.YANDEX_SITE_VERIFICATION || "";
+const YAHOO_SITE_VERIFICATION = process.env.YAHOO_SITE_VERIFICATION || "";
+
+export { TITLE_APP, LANDINGPAGE_URL, LOGIN_URL, DASHBOARD_URL, SIGNUP_URL, EMAIL, PHONE_NUMBER, ADDRESS, COMPANY_NAME, INSTAGRAM, FACEBOOK, TWITTER, LINKEDIN, VIDEO_TUTORIAL_URL, COMMUNITY_URL, GOOGLE_SITE_VERIFICATION, YANDEX_SITE_VERIFICATION, YAHOO_SITE_VERIFICATION };

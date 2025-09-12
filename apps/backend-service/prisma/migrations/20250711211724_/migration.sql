@@ -1,0 +1,11 @@
+-- CreateTable
+CREATE TABLE "AppProductToken" (
+    "id" TEXT NOT NULL,
+    "token" DOUBLE PRECISION NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AppProductToken_pkey" PRIMARY KEY ("id")
+);

@@ -1,0 +1,75 @@
+name: ${PROD_COMPOSE_PROJECT:-postmatic_local_production}
+
+services:
+  db:
+    image: postgres:${PROD_POSTGRES_TAG:-15-alpine}
+    container_name: ${PROD_PREFIX:-postmatic_prod}_db
+    environment:
+      POSTGRES_DB: ${PROD_DATABASE_NAME}
+      POSTGRES_USER: ${PROD_DATABASE_USER}
+      POSTGRES_PASSWORD: ${PROD_DATABASE_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PROD_DATABASE_USER} -d ${PROD_DATABASE_NAME}"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "0.0.0.0:${PROD_DATABASE_PORT:-25432}:5432"
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:${PROD_REDIS_TAG:-7-alpine}
+    container_name: ${PROD_PREFIX:-postmatic_prod}_redis
+    command: ["redis-server","--save","","--appendonly","no","--requirepass","${PROD_REDIS_PASSWORD}"]
+    ports:
+      - "0.0.0.0:${PROD_REDIS_PORT:-26379}:6379"
+    restart: unless-stopped
+
+  api:
+    build: ../../apps/backend-service
+    container_name: ${PROD_PREFIX:-postmatic_prod}_api
+    env_file:
+      - ../../apps/backend-service/.env.production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "${PROD_API_PORT:-2001}:3000"
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ../../apps/dashboard
+      args:
+        ENV_STAGE: "${PROD_ENV_STAGE:-production}"
+        # server-to-server (SSG read at build; SSR runtime read juga akan konsisten kalau kamu set sama di env_file)
+        API_ORIGIN: "${PROD_API_ORIGIN_INTERNAL:-http://api:3000}"
+        # nilai publik untuk bundle client
+        NEXT_PUBLIC_API_ORIGIN: "${PROD_NEXT_PUBLIC_API_ORIGIN:-https://api.postmatic.id}"
+    container_name: ${PROD_PREFIX:-postmatic_prod}_dashboard
+    env_file:
+      - ../../apps/dashboard/.env.production
+    depends_on:
+      - api
+    ports:
+      - "${PROD_DASHBOARD_PORT:-2002}:3000"
+    restart: unless-stopped
+
+  landing:
+    build:
+      context: ../../apps/landing-page
+      args:
+        ENV_STAGE: "${PROD_ENV_STAGE:-production}"
+    container_name: ${PROD_PREFIX:-postmatic_prod}_landing
+    env_file:
+      - ../../apps/landing-page/.env.production
+    ports:
+      - "${PROD_LANDING_PORT:-2003}:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdata_prod:

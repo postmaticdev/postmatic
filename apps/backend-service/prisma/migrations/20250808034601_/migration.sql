@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "TemplateImageSaved" ALTER COLUMN "imageUrl" DROP DEFAULT,
+ALTER COLUMN "name" DROP DEFAULT;

@@ -1,0 +1,377 @@
+{
+  "introduction": {
+    "headline": "Apa itu",
+    "brand": "Postmatic",
+    "subHeadline": "Postmatic adalah platform AI yang otomatis membantu bisnis dalam mengelola social media mereka dari menganalisis tren, membuat konten, membuat caption, menjadwalkan posting, dan mengelola iklan hanya dengan sekali input informasi bisnis."
+  },
+  "comparison": {
+    "titleLine1": "Turn Your Social Media Content",
+    "titleLine2": "Into Magic"
+  },
+  "problemSection": {
+    "title": "Mengapa 83,46% UMKM Tertinggal di Era Digital?",
+    "subtitle": "Data INDEF 2024 menunjukkan fakta mengejutkan tentang kondisi UMKM Indonesia",
+
+    "stats": [
+      {
+        "icon": "TrendingDown",
+        "value": "83,46%",
+        "label": "UMKM tidak memiliki skill desain grafis & pemasaran digital",
+        "color": "red"
+      },
+      {
+        "icon": "Clock",
+        "value": "8+ Jam",
+        "label": "Waktu yang dibutuhkan untuk membuat 3-4 konten berkualitas",
+        "color": "orange"
+      },
+      {
+        "icon": "DollarSign",
+        "value": "4,5 Juta",
+        "label": "Rata-rata biaya agency/freelancer per bulan",
+        "color": "yellow"
+      },
+      {
+        "icon": "AlertTriangle",
+        "value": "342K+",
+        "label": "UMKM di Yogyakarta yang membutuhkan solusi",
+        "color": "purple"
+      }
+    ],
+
+    "fakeSolutionsTitle": "Mengapa Solusi yang Ada Belum Efektif?",
+
+    "existingTools": {
+      "title": "❌ Tools Content Creation",
+      "points": [
+        "Masih membutuhkan skill desain dan copywriting",
+        "Menghabiskan waktu berjam-jam untuk setup",
+        "Interface kompleks dan tidak user-friendly",
+        "Tidak memahami konteks bisnis lokal Indonesia"
+      ]
+    },
+
+    "agencyFreelancer": {
+      "title": "❌ Agency & Freelancer",
+      "points": [
+        "Biaya terlalu mahal untuk UMKM (Rp 4,5 juta/bulan)",
+        "Tidak scalable untuk 342.000+ UMKM",
+        "Komunikasi dan revisi yang memakan waktu",
+        "Tidak sustainable untuk jangka panjang"
+      ]
+    }
+  },
+  "solutionSection": {
+    "title": "Platform AI yang",
+    "titleHighlight": "Mengubah Segalanya",
+    "subtitle": "Solusi digital otomatis yang inklusif, mampu menjangkau jutaan pelaku usaha sekaligus membuka akses ke ekonomi dan pemasaran digital secara nyata.",
+
+    "steps": [
+      {
+        "icon": "Zap",
+        "title": "One Time Input",
+        "description": "Pengguna hanya cukup sekali memasukkan data bisnis (nama brand, logo, produk, deskripsi, foto produk, dsb).",
+        "benefit": "Mengatasi keterbatasan waktu dan skill",
+        "colors": "from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10"
+      },
+      {
+        "icon": "Target",
+        "title": "Automated Trend Analysis",
+        "description": "Sistem menganalisis ide dan tren konten/berita terkini.",
+        "benefit": "Tidak pernah ketinggalan tren",
+        "colors": "from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "AI-based Content Generation",
+        "description": "Menghasilkan visual konten promosi dan caption yang menarik serta relevan melalui model AI terdepan.",
+        "benefit": "Tanpa skill desain & copywriting",
+        "colors": "from-orange-50 to-red-50 dark:from-orange-900/10 dark:to-red-900/10"
+      },
+      {
+        "icon": "Calendar",
+        "title": "Scheduling Optimization",
+        "description": "Dapat mengatur dan merekomendasikan waktu posting konten social media.",
+        "benefit": "Timing posting yang optimal",
+        "colors": "from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "Auto-Boosting/Advertising",
+        "description": "Sistem dapat merekomendasikan konten layak iklan dan menjalankan iklan secara otomatis.",
+        "benefit": "Iklan tepat sasaran & profitable",
+        "colors": "from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10"
+      },
+      {
+        "icon": "CheckCircle",
+        "title": "Chat AI Assistant",
+        "description": "AI secara otomatis membalas DM, chat, dan komentar di media sosial dengan respon cepat, relevan, dan sesuai gaya bisnis.",
+        "benefit": "Meningkatkan engagement & hemat waktu",
+        "colors": "from-cyan-50 to-blue-50 dark:from-cyan-900/10 dark:to-blue-900/10"
+      }
+    ],
+
+    "impactTitle": "Wujudkan UMKM Indonesia yang Lebih Maju dan Efisien",
+    "impactStats": [
+      {
+        "value": "90%+",
+        "label": "Lebih efisien waktu & biaya dibanding model manual"
+      },
+      { "value": "20.000+", "label": "Target UMKM onboarding dalam 2 tahun" },
+      { "value": "1 Juta+", "label": "Konten social media yang akan dihasilkan secara otomatis " },
+      { "value": "156%", "label": "Peningkatan engagement bisnis pengguna" }
+    ]
+  },
+  "featuresSection": {
+    "title": "Fitur Lengkap untuk",
+    "titleHighlight": "Otomasi Marketing",
+    "subtitle": "Platform all-in-one yang dirancang khusus untuk kebutuhan UMKM Indonesia",
+
+    "features": [
+      {
+        "icon": "Bot",
+        "title": "AI Content Generator",
+        "description": "Generate konten visual dan copywriting berkualitas tinggi dengan teknologi AI terdepan",
+        "color": "from-blue-500 to-cyan-500"
+      },
+      {
+        "icon": "Target",
+        "title": "Trend Analysis",
+        "description": "Analisis tren real-time untuk memastikan konten selalu relevan dan viral",
+        "color": "from-green-500 to-emerald-500"
+      },
+      {
+        "icon": "Calendar",
+        "title": "Smart Scheduling",
+        "description": "Penjadwalan manual dan otomatis ke seluruh platform social media",
+        "color": "from-purple-500 to-pink-500"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "Auto Advertising",
+        "description": "Sistem iklan otomatis yang cerdas dengan targeting dan budget optimization",
+        "color": "from-orange-500 to-red-500"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "Analytics Dashboard",
+        "description": "Dashboard komprehensif dengan insights mendalam tentang performa marketing",
+        "color": "from-indigo-500 to-purple-500"
+      },
+      {
+        "icon": "Zap",
+        "title": "One-Click Setup",
+        "description": "Setup pengetahuan bisnis sekali saja, sistem bekerja otomatis selamanya",
+        "color": "from-yellow-500 to-orange-500"
+      },
+      {
+        "icon": "Shield",
+        "title": "Chat AI Assistant",
+        "description": "Respon cepat, relevan, dan sesuai gaya bisnis dari AI assistant secara otomatis",
+        "color": "from-cyan-500 to-blue-500"
+      },
+      {
+        "icon": "Users",
+        "title": "Multi-Platform",
+        "description": "Distribusi konten secara otomatis ke berbagai platform social media populer",
+        "color": "from-pink-500 to-red-500"
+      }
+    ],
+
+    "highlight": {
+      "title": "Kenapa POSTMATIC Berbeda?",
+      "points": [
+        {
+          "title": "Khusus untuk Bisnis Indonesia",
+          "description": "Memahami konteks bisnis lokal, budaya, dan preferensi konsumen Indonesia"
+        },
+        {
+          "title": "Zero Learning Curve",
+          "description": "Tidak perlu skill teknis apapun, semua berjalan otomatis setelah setup awal"
+        },
+        {
+          "title": "Affordable & Scalable",
+          "description": "Harga terjangkau dengan hasil setara agency premium"
+        },
+        {
+          "title": "Continuous Innovation",
+          "description": "AI terus belajar dan berkembang mengikuti tren terbaru"
+        }
+      ]
+    }
+  },
+  "endToEnd": {
+    "title": "Automation",
+    "highlight": "End-to-End",
+    "description": "AI membuat konten dan caption → menjadwalkan upload ke social media → mempromosikan konten → menyempurnakan siklus berikutnya.",
+    "steps": [
+      "Input brand assets once",
+      "AI analyses trends & audience",
+      "Generates visuals + copy",
+      "Schedules at optimal times",
+      "Runs paid ads automatically",
+      "Delivers analytics & learns"
+    ]
+  },
+  "introVideo": {
+    "title": "Kenalan dengan",
+    "brand": "POSTMATIC",
+    "subtitle": "Tonton video pendek berikut untuk melihat bagaimana POSTMATIC membantu Anda membuat marketing campaign yang lebih mudah, cepat, dan efektif.",
+    "windowTitle": "Postmatic"
+  },
+  "pricing": {
+    "title": "Pilih Paket yang",
+    "titleHighlight": "Tepat untuk Bisnis Anda",
+    "subtitle": "Dapatkan akses ke platform AI Social Media Automation terdepan dengan harga yang terjangkau untuk bisnis Anda",
+    "tabs": {
+      "subscription": "Paket Berlangganan",
+      "tokens": "Beli Token"
+    },
+    "badge": "Paling Populer",
+    "cta": {
+      "free": "Mulai Gratis",
+      "paid": "Pilih Paket",
+      "token": "Beli Token",
+      "sales": "Hubungi Sales"
+    },
+    "currency": "IDR",
+    "tokenUnit": "token",
+    "validFor": "Valid {days} hari",
+    "perToken": "{price} per token",
+    "saveBadge": "Hemat 20%",
+    "tokenTitle": "Token untuk Generate Konten",
+    "tokenSubtitle": "Beli token sesuai kebutuhan tanpa komitmen bulanan",
+    "enterpriseHelp": {
+      "title": "Butuh Token Lebih Banyak?",
+      "desc": "Hubungi tim kami untuk paket enterprise dengan harga khusus"
+    },
+    "plans": [
+      {
+        "id": "788cce03-7e8e-4bda-a211-554bc56ea937",
+        "name": "Free",
+        "icon": "Star",
+        "color": "from-gray-500 to-gray-600",
+        "bgColor": "bg-gray-50 border-gray-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "300 Token untuk Generate Konten",
+          "atau 3 Konten Terotomasi",
+          "Valid dalam 30 days"
+        ],
+        "items": [
+          {
+            "id": "f37c15ce-6a05-48ba-92e2-a4f01296504e",
+            "name": "Free",
+            "price": 0,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 1000,
+            "originalPrice": 0
+          }
+        ]
+      },
+      {
+        "id": "0cb0f83d-9868-417e-aed0-4bc7590ce8bc",
+        "name": "Professional",
+        "icon": "Zap",
+        "color": "from-blue-500 to-indigo-600",
+        "bgColor": "bg-blue-50 border-blue-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": true,
+        "benefits": [
+          "30.000 Token untuk Generate Konten",
+          "atau 100 Konten Terotomasi",
+          "Pemrosesan Lebih Cepat",
+          "Penyesuaian Lanjutan",
+          "Akses penuh ke semua fitur"
+        ],
+        "items": [
+          {
+            "id": "73cc0502-1ba3-4254-84fc-f3cfd236649b",
+            "name": "Monthly",
+            "price": 299000,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 30000,
+            "originalPrice": 299000
+          },
+          {
+            "id": "3031f5f5-e84e-498c-9878-186b4c735dd2",
+            "name": "Annually",
+            "price": 2870400,
+            "description": "Save 20% with annual billing",
+            "tokenValidFor": 365,
+            "tokenImage": 180000,
+            "originalPrice": 3588000
+          }
+        ]
+      },
+      {
+        "id": "1f5d87d8-0f93-4ebe-a9c9-333df9ec500b",
+        "name": "Enterprise",
+        "icon": "Crown",
+        "color": "from-purple-500 to-pink-600",
+        "bgColor": "bg-purple-50 border-purple-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "100.000 Token untuk Generate Konten",
+          "atau 500 Konten Terotomasi",
+          "Pemrosesan Lebih Cepat",
+          "Penyesuaian Lanjutan",
+          "Akses penuh ke semua fitur"
+        ],
+        "items": [
+          {
+            "id": "d2ec82c2-c2ed-4fe5-bf6c-2afa26fff14b",
+            "name": "Monthly",
+            "price": 800000,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 100000,
+            "originalPrice": 800000
+          },
+          {
+            "id": "ff318282-b0ba-4ef6-ab5c-80d9a91825b7",
+            "name": "Annually",
+            "price": 7680000,
+            "description": "Save 20% with annual billing",
+            "tokenValidFor": 60,
+            "tokenImage": 600000,
+            "originalPrice": 9600000
+          }
+        ]
+      }
+    ],
+    "tokens": [
+      {
+        "id": "b858d06e-9e88-4e31-bf89-bb7a74f39e99",
+        "price": 32835,
+        "token": 500,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "e5eb12df-d347-4c23-bba9-9d379d85adf7",
+        "price": 57585,
+        "token": 1000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "96552efd-6e6f-4bda-a234-92774120883e",
+        "price": 98835,
+        "token": 2000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "0c42705d-8c6c-4f4c-9b9c-8e23ae34f0a2",
+        "price": 164835,
+        "token": 5000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "24945acc-3998-4ade-9bfb-edbf88b17617",
+        "price": 313335,
+        "token": 10000,
+        "tokenValidFor": 30
+      }
+    ]
+  }
+}

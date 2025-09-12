@@ -1,0 +1,767 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// This schema defines the data models for a knowledge 
+
+model BusinessKnowledge {
+  id            String  @id @default(uuid())
+  primaryLogo   String  @db.Text()
+  secondaryLogo String? @db.Text()
+  name          String
+  category      String
+  description   String  @db.Text()
+
+  uniqueSellingPoint String  @db.Text()
+  website            String?
+  visionMission      String  @db.Text()
+  location           String
+
+  rootBusinessId String       @unique
+  rootBusinesses RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model ProductKnowledge {
+  id          String @id @default(uuid())
+  name        String
+  category    String
+  description String @db.Text()
+
+  currency String
+  price    Float
+
+  composition String? @db.Text()
+  benefit     String? @db.Text()
+  allergen    String? @db.Text()
+
+  images String[]
+
+  rootBusinessId         String
+  rootBusinesses         RootBusiness            @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+  generatedImageContents GeneratedImageContent[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model RoleKnowledge {
+  id              String   @id @default(uuid())
+  targetAudience  String
+  tone            String
+  audiencePersona String
+  hashtags        String[]
+  callToAction    String
+  goals           String   @db.Text()
+  platforms       String[]
+
+  rootBusinessId String       @unique
+  rootBusinesses RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model RssKnowledge {
+  id       String  @id @default(uuid())
+  title    String
+  isActive Boolean
+
+  masterRssId String
+  masterRss   MasterRss @relation(fields: [masterRssId], references: [id], onDelete: Cascade)
+
+  rootBusinessId String
+  rootBusinesses RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// Root Business For Its Requirements
+
+model RootBusiness {
+  id          String  @id @default(uuid())
+  name        String
+  description String? @db.Text()
+  logo        String? @db.Text()
+
+  members Member[]
+
+  businessKnowledge BusinessKnowledge?
+  productKnowledges ProductKnowledge[]
+  roleKnowledge     RoleKnowledge?
+  rssKnowledges     RssKnowledge[]
+
+  socialLinkedIn          SocialLinkedIn?
+  socialFacebookPage      SocialFacebookPage?
+  socialInstagramBusiness SocialInstagramBusiness?
+
+  generatedImageContents        GeneratedImageContent[]
+  historyGeneratedImageContents HistoryGeneratedImageContent[]
+  postedImageContents           PostedImageContent[]
+
+  schedulerAutoPreference SchedulerAutoPreference?
+  schedulerAutoPostings   SchedulerAutoPosting[]
+  schedulerManualPostings SchedulerManualPosting[]
+  schedulerTimeZone       SchedulerTimeZone?
+
+  tokenUsages  TokenUsage[]
+  tokenIncomes TokenIncome[]
+
+  paymentPurchases PaymentPurchase[]
+  discountUsages   DiscountUsage[] // Using
+
+  templateImageSaved TemplateImageSaved[]
+
+  deletedAt            DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @default(now()) @updatedAt
+  socialFacebookPageId String?
+}
+
+model Member {
+  id String @id @default(uuid())
+
+  status     MemberStatus
+  role       MemberRole
+  answeredAt DateTime?
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+enum MemberRole {
+  Owner
+  Admin
+  Member
+}
+
+enum MemberStatus {
+  Pending
+  Accepted
+  Rejected
+  Left
+  Kicked
+}
+
+// User & Profile
+
+model Profile {
+  id          String  @id @default(uuid())
+  name        String
+  email       String  @unique
+  image       String?
+  description String? @db.Text()
+  countryCode String  @default("+62")
+  phone       String  @default("")
+
+  users User[]
+
+  members          Member[]
+  paymentPurchases PaymentPurchase[]
+
+  discountCodes  DiscountCode[] // Promoting
+  discountUsages DiscountUsage[] // Using
+
+  templateImageContents TemplateImageContent[] // published template images
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model User {
+  id         String  @id @default(uuid())
+  email      String
+  password   String?
+  provider   String
+  isVerified Boolean @default(false)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// Master Data RSS
+
+model MasterRss {
+  id        String @id @default(uuid())
+  title     String
+  url       String @db.Text()
+  publisher String
+
+  masterRssCategoryId String
+  masterRssCategory   MasterRssCategory @relation(fields: [masterRssCategoryId], references: [id], onDelete: Cascade)
+
+  rssKnowledges RssKnowledge[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model MasterRssCategory {
+  id   String @id @default(uuid())
+  name String
+
+  masterRsses MasterRss[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// User Image Generated Content
+
+model GeneratedImageContent {
+  id          String   @id @default(uuid())
+  images      String[]
+  ratio       String
+  category    String
+  designStyle String?
+  caption     String?  @db.Text()
+  readyToPost Boolean
+
+  productKnowledgeId String
+  productKnowledge   ProductKnowledge @relation(fields: [productKnowledgeId], references: [id], onDelete: Cascade)
+  rootBusinessId     String
+  rootBusiness       RootBusiness     @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  postedImageContents     PostedImageContent[]
+  schedulerManualPostings SchedulerManualPosting?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// History Image Content
+// id: string;
+//   type: ImageGenJobType;
+//   rootBusinessId: string;
+//   status: ImageGenJobStatus;
+//   createdAt: string;
+//   updatedAt: string;
+//   progress: number;
+//   input: Input;
+//   result: Result | null;
+//   error: {
+//     message: string;
+//     stack?: string;
+//     attempt?: number;
+//     op?: string;
+//   } | null;
+//   /** >>> simpan product Partial<ProductKnowledge> di job */
+//   product: Partial<ProductKnowledge>;
+//   stage: Stage;
+//   attempt: number;
+//   tokenUsed: number;
+
+model HistoryGeneratedImageContent {
+  id   String          @id @default(uuid())
+  type ImageGenJobType
+
+  status    ImageGenJobStatus
+  createdAt DateTime
+  updatedAt DateTime
+  progress  Int
+  input     Json
+  result    Json?
+  error     Json?
+  product   Json              @default("{}")
+  stage     ImageGenJobStage
+  attempt   Int
+  tokenUsed Int
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+}
+
+enum ImageGenJobType {
+  genBasedOnKnowledge
+  genBasedOnRss
+  regenerate
+  mask
+  mock
+  mock_regenerate
+  mock_rss
+}
+
+enum ImageGenJobStatus {
+  queued
+  processing
+  done
+  error
+  retrying
+  waiting_before_retry
+}
+
+enum ImageGenJobStage {
+  queued
+  processing
+  verifying_business_information
+  preparing_knowledge
+  preparing_assets
+  generating_images
+  uploading
+  generating_caption
+  preparing_rss_image
+  writing_temp
+  error
+  done
+  retrying
+  waiting_before_retry
+}
+
+// Posted Image Content
+
+model PostedImageContent {
+  id       String         @id @default(uuid())
+  platform SocialPlatform
+  url      String
+  caption  String         @db.Text()
+  images   String[]
+  postId   String?
+
+  generatedImageContentId String
+  generatedImageContent   GeneratedImageContent @relation(fields: [generatedImageContentId], references: [id], onDelete: Cascade)
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// Scheduler
+
+model SchedulerAutoPreference {
+  id Int @id @default(autoincrement())
+
+  isAutoPosting         Boolean                @default(false)
+  schedulerAutoPostings SchedulerAutoPosting[]
+
+  rootBusinessId String       @unique
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+}
+
+model SchedulerAutoPosting {
+  id       Int      @id @default(autoincrement())
+  day      String
+  isActive Boolean  @default(false)
+  times    String[] // HH:MM
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  schedulerAutoPreferenceId Int
+  schedulerAutoPreference   SchedulerAutoPreference @relation(fields: [schedulerAutoPreferenceId], references: [id], onDelete: Cascade)
+}
+
+model SchedulerManualPosting {
+  id        Int              @id @default(autoincrement())
+  date      DateTime
+  platforms SocialPlatform[]
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  generatedImageContentId String                @unique
+  generatedImageContent   GeneratedImageContent @relation(fields: [generatedImageContentId], references: [id], onDelete: Cascade)
+}
+
+model SchedulerTimeZone {
+  id       String @id @default(uuid())
+  timezone String
+
+  rootBusinessId String       @unique
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// Token
+
+model TokenUsage {
+  id    String    @id @default(uuid())
+  total Float
+  type  TokenType
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum TokenType {
+  Image
+  Video
+  LiveStream
+}
+
+model TokenIncome {
+  id     String @id @default(uuid())
+  amount Float
+
+  tokenType TokenType
+
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id])
+  rootBusinessId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// Product (from admin / app)
+
+model AppProductSubscription {
+  id       String   @id @default(uuid())
+  name     String
+  benefits String[]
+
+  appProductSubscriptionItems AppProductSubscriptionItem[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model AppProductSubscriptionItem {
+  id                   String  @id @default(uuid())
+  name                 String
+  description          String? @db.Text()
+  price                Float
+  subscriptionValidFor Int
+  tokenImage           Float
+  tokenVideo           Float
+  tokenLive            Float
+
+  appProductSubscription   AppProductSubscription @relation(fields: [appProductSubscriptionId], references: [id], onDelete: Cascade)
+  appProductSubscriptionId String
+
+  paymentPurchases PaymentPurchase[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model AppProductToken {
+  id        String    @id @default(uuid())
+  token     Float
+  price     Float
+  tokenType TokenType
+
+  paymentPurchases PaymentPurchase[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model AppPaymentMethod {
+  id        String              @id @default(uuid())
+  code      String              @unique
+  name      String
+  type      String
+  image     String?
+  adminType AppPaymentAdminType
+  adminFee  Float
+  taxFee    Float
+
+  isActive Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+enum AppPaymentAdminType {
+  Fixed
+  Percentage
+}
+
+// Payment
+model PaymentPurchase {
+  id          String             @id @default(uuid())
+  midtransId  String?
+  productName String             @default("")
+  productType PaymentProductType
+  totalAmount Float              @default(0)
+  method      String
+
+  expiredAt      DateTime?
+  status         PaymentStatus
+  paymentActions PaymentAction[]
+  paymentDetails PaymentDetail[]
+
+  subscriptionValidFor Int
+
+  appProductSubscriptionItemId String?
+  appProductSubscriptionItem   AppProductSubscriptionItem? @relation(fields: [appProductSubscriptionItemId], references: [id], onDelete: Cascade)
+
+  appProductTokenId String?
+  appProductToken   AppProductToken? @relation(fields: [appProductTokenId], references: [id], onDelete: Cascade)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  discountUsage DiscountUsage?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+enum PaymentProductType {
+  token
+  subscription
+}
+
+enum PaymentStatus {
+  Pending
+  Success
+  Failed
+  Canceled
+  Refunded
+  Expired
+  Denied
+}
+
+model PaymentAction {
+  id     String     @id @default(uuid())
+  action String
+  type   ActionType @default(redirect)
+  value  String
+
+  paymentPurchaseId String
+  paymentPurchase   PaymentPurchase @relation(fields: [paymentPurchaseId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+enum ActionType {
+  image
+  redirect
+  text
+  claim
+}
+
+model PaymentDetail {
+  id    String @id @default(uuid())
+  name  String
+  price Float
+
+  paymentPurchaseId String
+  paymentPurchase   PaymentPurchase @relation(fields: [paymentPurchaseId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// Discount
+
+model DiscountCode {
+  id          String       @id @default(uuid())
+  name        String
+  description String?      @db.Text()
+  discount    Float
+  type        DiscountType
+  code        String       @unique
+  isReusable  Boolean
+  maxDiscount Float?
+  maxUses     Int?
+
+  reward Float
+
+  profileId String? //Promotor
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  discountUsages DiscountUsage[]
+
+  expiredAt DateTime?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+enum DiscountType {
+  Fixed
+  Percentage
+}
+
+model DiscountUsage {
+  id             String       @id @default(uuid())
+  discountCodeId String
+  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id], onDelete: Cascade)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  paymentPurchaseId String?          @unique
+  paymentPurchase   PaymentPurchase? @relation(fields: [paymentPurchaseId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+// Template Image
+
+model TemplateImageCategory {
+  id   String @id @default(uuid())
+  name String
+
+  templateImageContents TemplateImageContent[]
+}
+
+model TemplateImageContent {
+  id          String  @id @default(uuid())
+  name        String
+  imageUrl    String
+  isPublished Boolean
+
+  templateImageCategories TemplateImageCategory[]
+
+  publisherId String?
+  publisher   Profile? @relation(fields: [publisherId], references: [id], onDelete: Cascade) // publisher
+
+  templateImageSaved TemplateImageSaved[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model TemplateImageSaved {
+  id       String   @id @default(uuid())
+  imageUrl String
+  name     String
+  category String[] @default([])
+
+  templateImageContentId String
+  templateImageContent   TemplateImageContent @relation(fields: [templateImageContentId], references: [id], onDelete: Cascade)
+
+  rootBusinessId String
+  rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// Social Account For Business
+
+model SocialLinkedIn {
+  id          String @id @default(uuid())
+  linkedInId  String @unique
+  authorUrn   String @unique
+  accessToken String @db.Text()
+
+  name    String
+  picture String? @db.Text()
+
+  scopes         String
+  tokenExpiredAt DateTime?
+
+  rootBusinessId String?       @unique
+  rootBusiness   RootBusiness? @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model SocialFacebookPage {
+  id             String @id @default(uuid())
+  facebookPageId String @unique
+  accessToken    String @db.Text()
+
+  name    String
+  picture String? @db.Text()
+
+  tokenExpiredAt DateTime?
+  rootBusinessId String?       @unique
+  rootBusiness   RootBusiness? @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+model SocialInstagramBusiness {
+  id                  String @id @default(uuid())
+  instagramBusinessId String @unique
+  accessToken         String @db.Text()
+
+  name    String
+  picture String? @db.Text()
+
+  tokenExpiredAt DateTime?
+  rootBusinessId String?       @unique
+  rootBusiness   RootBusiness? @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}
+
+enum SocialPlatform {
+  linked_in
+  facebook_page
+  instagram_business
+  whatsapp_business
+  tiktok
+  youtube
+  twitter
+  pinterest
+}
+
+model AppSocialPlatform {
+  id       String         @id @default(uuid())
+  platform SocialPlatform @unique
+  logo     String
+  name     String
+  hint     String         @db.Text()
+
+  isActive Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+}

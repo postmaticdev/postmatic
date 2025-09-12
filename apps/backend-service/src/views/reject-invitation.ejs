@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Undangan Ditolak · Postmatic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <style>
+      :root {
+        --primary: oklch(51.59% 0.225 262.83);
+        --primary-foreground: oklch(0.4911 0.225 262.83);
+        --secondary: oklch(0.585 0.233 277.117);
+        --secondary-foreground: oklch(0.5 0.233 277.117);
+      }
+      .bg-primary {
+        background-color: var(--primary);
+      }
+      .bg-secondary {
+        background-color: var(--secondary);
+      }
+      .bg-brand-gradient {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+      }
+      .ring-brand:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 60%, #ffffff);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen bg-gray-50">
+    <div class="grid min-h-screen lg:grid-cols-2">
+      <!-- Panel Kiri -->
+      <aside
+        class="hidden lg:flex flex-col justify-between p-10 bg-brand-gradient text-white"
+      >
+        <div>
+          <div class="flex items-center gap-3">
+            <div
+              class="h-12 w-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center"
+            >
+              <img
+                src="/static/logo.png"
+                alt="Postmatic"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <div class="text-2xl font-semibold tracking-tight">Postmatic</div>
+          </div>
+
+          <h1 class="mt-16 text-4xl font-semibold max-w-lg">
+            Undangan telah ditolak.
+          </h1>
+          <p class="mt-4 text-white/90 max-w-xl">
+            Anda memilih untuk tidak bergabung dengan tim. Jika ini tidak
+            disengaja, minta pemilik tim untuk mengirim ulang undangan.
+          </p>
+
+          <div class="mt-10 grid grid-cols-2 gap-4 max-w-xl">
+            <div class="rounded-2xl bg-white/10 p-5">
+              <p class="text-sm font-medium">Status</p>
+              <p class="text-white/80 text-xs mt-1">Undangan ditolak</p>
+            </div>
+            <div class="rounded-2xl bg-white/10 p-5">
+              <p class="text-sm font-medium">Tindakan berikutnya</p>
+              <p class="text-white/80 text-xs mt-1">
+                Hubungi pemilik tim untuk undangan baru
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-white/80 text-sm">
+          &copy; <%= new Date().getFullYear() %> Postmatic. Hak cipta dilindungi
+          undang-undang.
+        </div>
+      </aside>
+
+      <!-- Panel Kanan -->
+      <main class="flex items-center justify-center p-6 sm:p-10">
+        <div class="w-full max-w-md">
+          <div class="bg-white shadow-xl rounded-2xl p-8 text-center">
+            <div
+              class="mx-auto h-12 w-12 rounded-2xl bg-yellow-500 flex items-center justify-center overflow-hidden"
+            >
+              <img
+                src="/static/logo.png"
+                alt="Postmatic"
+                class="h-full w-full object-cover"
+              />
+            </div>
+
+            <h2 class="mt-5 text-2xl font-semibold text-gray-900">
+              Undangan Ditolak
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+              Anda telah menolak undangan untuk bergabung dengan tim.
+            </p>
+
+            <div
+              class="mt-6 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 text-left"
+            >
+              Jika ini tidak disengaja, Anda bisa meminta pemilik tim untuk
+              mengirim ulang undangan.
+            </div>
+
+            <a
+              href="/api/auth/page/login"
+              class="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-brand-gradient py-2.5 text-sm font-medium text-white shadow hover:opacity-95 transition ring-brand"
+            >
+              Kembali ke Halaman Masuk
+            </a>
+
+            <p class="mt-6 text-xs text-gray-500">
+              Hubungi admin tim jika Anda membutuhkan bantuan lebih lanjut.
+            </p>
+          </div>
+
+          <!-- Footer Kebijakan -->
+          <footer class="mt-6 text-center text-xs text-gray-500">
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/cookie-policy"
+              >Kebijakan Cookie</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/data-deletion"
+              >Penghapusan Data</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/privacy-policy"
+              >Kebijakan Privasi</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/terms-of-service"
+              >Syarat Layanan</a
+            >
+          </footer>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

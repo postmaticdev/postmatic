@@ -1,0 +1,85 @@
+{
+  "stats": {
+    "totalContent": 2847,
+    "engagementRate": "156%",
+    "totalReach": "24.5K",
+    "newFollowers": 3247,
+    "conversionRate": "4.2%"
+  },
+  "recentContent": [
+    {
+      "id": "1",
+      "title": "Promo Valentine Special - Bunga Mawar Premium",
+      "platform": "Instagram",
+      "status": "Published",
+      "engagement": "2.4K likes, 89 comments",
+      "thumbnail": "https://images.pexels.com/photos/1029622/pexels-photo-1029622.jpeg?auto=compress&cs=tinysrgb&w=400"
+    },
+    {
+      "id": "2", 
+      "title": "Tips Merawat Bunga Segar di Rumah",
+      "platform": "Facebook",
+      "status": "Scheduled",
+      "engagement": "Posting pada 14:00",
+      "thumbnail": "https://images.pexels.com/photos/1164985/pexels-photo-1164985.jpeg?auto=compress&cs=tinysrgb&w=400"
+    },
+    {
+      "id": "3",
+      "title": "Behind The Scene - Proses Penataan Buket",
+      "platform": "TikTok", 
+      "status": "Processing",
+      "engagement": "AI sedang generate video",
+      "thumbnail": "https://images.pexels.com/photos/1420440/pexels-photo-1420440.jpeg?auto=compress&cs=tinysrgb&w=400"
+    },
+    {
+      "id": "4",
+      "title": "Koleksi Bunga Musim Semi Terbaru",
+      "platform": "Instagram",
+      "status": "Draft",
+      "engagement": "Menunggu approval",
+      "thumbnail": "https://images.pexels.com/photos/1458398/pexels-photo-1458398.jpeg?auto=compress&cs=tinysrgb&w=400"
+    }
+  ],
+  "insights": [
+    {
+      "type": "trending",
+      "icon": "⚡",
+      "title": "Trending Topic",
+      "message": "#BungaValentine sedang trending. Buat konten sekarang!",
+      "color": "blue"
+    },
+    {
+      "type": "timing",
+      "icon": "📅", 
+      "title": "Optimal Posting Time",
+      "message": "Audience paling aktif pada 14:00-16:00 hari ini",
+      "color": "green"
+    },
+    {
+      "type": "advertising",
+      "icon": "🎯",
+      "title": "Ad Opportunity", 
+      "message": "Konten 'Promo Valentine' cocok untuk boosting ads",
+      "color": "orange"
+    },
+    {
+      "type": "performance",
+      "icon": "📈",
+      "title": "Performance Alert",
+      "message": "Engagement meningkat 23% dari minggu lalu",
+      "color": "purple"
+    }
+  ],
+  "businessProfile": {
+    "name": "Toko Bunga Mawar",
+    "industry": "Florist & Gift Shop",
+    "location": "Yogyakarta, Indonesia",
+    "joinDate": "Januari 2024"
+  },
+  "campaignMetrics": {
+    "activeCampaigns": 12,
+    "totalSpend": "Rp 2,450,000",
+    "averageCPC": "Rp 850",
+    "roas": "4.2x"
+  }
+}

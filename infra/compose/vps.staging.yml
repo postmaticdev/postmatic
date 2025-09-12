@@ -29,12 +29,20 @@ services:
     networks: [default, traefik_proxy]
     labels:
       - "traefik.enable=true"
+
+      # HTTP (80) -> redirect ke HTTPS
+      - "traefik.http.routers.api-stg-web.rule=Host(`api-staging.postmatic.id`)"
+      - "traefik.http.routers.api-stg-web.entrypoints=web"
+      - "traefik.http.routers.api-stg-web.middlewares=redirect-https@file"
+
+      # HTTPS (443)
       - "traefik.http.routers.api-stg.rule=Host(`api-staging.postmatic.id`)"
       - "traefik.http.routers.api-stg.entrypoints=websecure"
       - "traefik.http.routers.api-stg.tls=true"
       - "traefik.http.routers.api-stg.tls.certresolver=le-http"
       - "traefik.http.routers.api-stg.middlewares=security-headers@file,compress@file,limit-20mb@file"
       - "traefik.http.services.api-stg.loadbalancer.server.port=3000"
+
     restart: unless-stopped
 
   dashboard:
@@ -52,12 +60,18 @@ services:
     networks: [default, traefik_proxy]
     labels:
       - "traefik.enable=true"
+
+      - "traefik.http.routers.dashboard-stg-web.rule=Host(`dashboard-staging.postmatic.id`)"
+      - "traefik.http.routers.dashboard-stg-web.entrypoints=web"
+      - "traefik.http.routers.dashboard-stg-web.middlewares=redirect-https@file"
+
       - "traefik.http.routers.dashboard-stg.rule=Host(`dashboard-staging.postmatic.id`)"
       - "traefik.http.routers.dashboard-stg.entrypoints=websecure"
       - "traefik.http.routers.dashboard-stg.tls=true"
       - "traefik.http.routers.dashboard-stg.tls.certresolver=le-http"
       - "traefik.http.routers.dashboard-stg.middlewares=security-headers@file,compress@file"
       - "traefik.http.services.dashboard-stg.loadbalancer.server.port=3000"
+
     restart: unless-stopped
 
   landing:
@@ -71,12 +85,18 @@ services:
     networks: [default, traefik_proxy]
     labels:
       - "traefik.enable=true"
+
+      - "traefik.http.routers.landing-stg-web.rule=Host(`landing-staging.postmatic.id`)"
+      - "traefik.http.routers.landing-stg-web.entrypoints=web"
+      - "traefik.http.routers.landing-stg-web.middlewares=redirect-https@file"
+
       - "traefik.http.routers.landing-stg.rule=Host(`landing-staging.postmatic.id`)"
       - "traefik.http.routers.landing-stg.entrypoints=websecure"
       - "traefik.http.routers.landing-stg.tls=true"
       - "traefik.http.routers.landing-stg.tls.certresolver=le-http"
       - "traefik.http.routers.landing-stg.middlewares=security-headers@file,compress@file"
       - "traefik.http.services.landing-stg.loadbalancer.server.port=3000"
+
     restart: unless-stopped
 
 networks:

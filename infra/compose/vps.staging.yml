@@ -11,6 +11,11 @@ services:
     volumes:
       - pgdata_stg:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${STAGING_DATABASE_USER} -d ${STAGING_DATABASE_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   redis:
     image: redis:${STAGING_REDIS_TAG:-7-alpine}
@@ -24,8 +29,10 @@ services:
     env_file:
       - ../../apps/backend-service/.env.staging
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks: [default, traefik_proxy]
     labels:
       - "traefik.enable=true"

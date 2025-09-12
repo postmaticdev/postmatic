@@ -1,9 +1,28 @@
-# hapus/ubah blok ini
-# env:
-#   REGISTRY: ghcr.io
-#   IMAGE_NAMESPACE: ghcr.io/postmaticdev
+name: CI/CD Postmatic
 
-# ganti dengan:
+on:
+  push:
+    branches:
+      - stg        # staging
+      - main       # production
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment (staging|production)"
+        required: true
+        default: "staging"
+      ref:
+        description: "Git ref (branch/tag/sha) to build"
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: postmatic-${{ github.ref_name }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
 
@@ -57,7 +76,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ===== API =====
       - name: Build & push API
         uses: docker/build-push-action@v6
         with:
@@ -68,7 +86,6 @@ jobs:
             ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
 
-      # ===== DASHBOARD =====
       - name: Build & push Dashboard
         uses: docker/build-push-action@v6
         with:
@@ -81,7 +98,6 @@ jobs:
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
 
-      # ===== LANDING =====
       - name: Build & push Landing
         uses: docker/build-push-action@v6
         with:
@@ -93,3 +109,41 @@ jobs:
           tags: |
             ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: ${{ needs.build-and-push.outputs.ENV_NAME }}
+    steps:
+      - name: SSH into VPS & deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_SSH_USER }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            export COMPOSE_FILE="${{ secrets.COMPOSE_FILE }}"
+            export COMPOSE_PROJECT="${{ secrets.COMPOSE_PROJECT }}"
+            export ENVFILE="${{ secrets.ENVFILE }}"
+            export IMAGE_TAG="${{ secrets.IMAGE_TAG }}"
+
+            echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_READ_USERNAME }}" --password-stdin
+            cd /srv/postmatic
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" pull api dashboard landing
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" up -d api dashboard landing
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
+
+            if [ "${{ needs.build-and-push.outputs.ENV_NAME }}" = "staging" ]; then
+              curl -fsS https://api-staging.postmatic.id/ >/dev/null
+              curl -fsS https://dashboard-staging.postmatic.id/ >/dev/null
+              curl -fsS https://landing-staging.postmatic.id/ >/dev/null
+            else
+              curl -fsS https://api.postmatic.id/ >/dev/null
+              curl -fsS https://dashboard.postmatic.id/ >/dev/null
+              curl -fsS https://postmatic.id/ >/dev/null
+            fi
+
+            docker image prune -f

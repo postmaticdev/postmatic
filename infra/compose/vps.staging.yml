@@ -1,4 +1,3 @@
-tee /srv/postmatic/infra/compose/vps.staging.yml >/dev/null <<'YAML'
 name: ${STAGING_COMPOSE_PROJECT:-postmatic_vps_staging}
 
 services:

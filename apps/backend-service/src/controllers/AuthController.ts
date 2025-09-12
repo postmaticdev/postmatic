@@ -89,19 +89,31 @@ export class AuthController extends BaseController {
     try {
       const data = req.body as SignInDTO;
       if (req.turnstile?.ok === false) {
-        return this.renderView(req, res, "sign-in", {
-          email: data.email,
-          errors: { captcha: req.turnstile?.message || "Captcha tidak valid" },
-        });
+        console.log("captcha tidak valid");
+        console.log({ turnstile: req.turnstile });
+        return this.renderView(
+          req,
+          res,
+          "sign-in",
+          {
+            email: data.email,
+            errors: {
+              captcha: req.turnstile?.message || "Captcha tidak valid",
+            },
+          },
+          400
+        );
       }
       const ip = req.ip || "";
       const user = await this.authService.signIn(data, ip);
       const { redirect = "", type } = req.query;
       if (user.success === false) {
+        console.log("user tidak valid");
+        console.log({ user });
         return this.renderView(req, res, "sign-in", {
           email: data.email,
           errors: user.errors,
-        });
+        }, 400);
       }
 
       const mappedUser: AppUser = {
@@ -135,8 +147,12 @@ export class AuthController extends BaseController {
         return this.sendSuccess(res, { ...mappedUser, token, refreshToken });
       }
 
+      console.log("redirect to client");
+      console.log({ redirect: `/${redirect}?token=${token}` });
       return this.redirectToClient(res, `/${redirect}?token=${token}`);
     } catch (error) {
+      console.log("error signIn SERVER ERROR");
+      console.log({ error });
       this.renderViewError(req, res);
     }
   };

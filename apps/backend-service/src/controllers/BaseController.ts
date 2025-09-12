@@ -126,10 +126,11 @@ export class BaseController {
     req: Request,
     res: Response,
     view: string,
-    data: Record<string, any> = {}
+    data: Record<string, any> = {},
+    statusCode: number = 200
   ) {
     try {
-      return res.render(view, {
+      return res.status(statusCode).render(view, {
         ...data,
         DASHBOARD_URL,
         LANDINGPAGE_URL,
@@ -140,7 +141,7 @@ export class BaseController {
       });
     } catch (error) {
       console.error("ERROR : ", error);
-      return res.render(view, {
+      return res.status(statusCode).render(view, {
         ...data,
         DASHBOARD_URL,
         LANDINGPAGE_URL,
@@ -157,10 +158,16 @@ export class BaseController {
     res: Response,
     data: ErrorViewData = {}
   ) {
-    return this.renderView(req, res, "error", {
-      ...data,
-      metaData: this.metaData(data.code || 500),
-    });
+    return this.renderView(
+      req,
+      res,
+      "error",
+      {
+        ...data,
+        metaData: this.metaData(data.code || 500),
+      },
+      data.code || 500
+    );
   }
 }
 

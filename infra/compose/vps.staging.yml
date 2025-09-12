@@ -24,6 +24,8 @@ services:
     container_name: ${STAGING_PREFIX:-postmatic_stg}_redis
     command: ["redis-server","--save","","--appendonly","no","--requirepass","${STAGING_REDIS_PASSWORD}"]
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:${STAGING_REDIS_PORT:-16379}:6379"
 
   api:
     build: ../../apps/backend-service

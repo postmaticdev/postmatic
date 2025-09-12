@@ -24,6 +24,8 @@ services:
     container_name: ${PROD_PREFIX:-postmatic_prod}_redis
     command: ["redis-server","--save","","--appendonly","no","--requirepass","${PROD_REDIS_PASSWORD}"]
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PROD_REDIS_PORT:-26379}:6379"
 
   api:
     build: ../../apps/backend-service

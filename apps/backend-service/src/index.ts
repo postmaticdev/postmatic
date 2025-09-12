@@ -96,7 +96,7 @@ app.use(
 useHelmet(app);
 
 // ------- Routes -------
-app.get("/", (req, res) => res.redirect(LANDINGPAGE_URL));
+app.get("/", (req, res) => res.send("Hello World CI/CD Works!"));
 
 app.use("/api", router);
 

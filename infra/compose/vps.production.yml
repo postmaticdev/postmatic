@@ -1,4 +1,4 @@
-name: ${PROD_COMPOSE_PROJECT:-postmatic_vps_production}
+name: ${PROD_COMPOSE_PROJECT:-postmatic_vps_prod}
 
 services:
   db:
@@ -36,6 +36,13 @@ services:
     networks: [default, traefik_proxy]
     labels:
       - "traefik.enable=true"
+
+      # HTTP (80) -> redirect ke HTTPS
+      - "traefik.http.routers.api-prod-web.rule=Host(`api.postmatic.id`)"
+      - "traefik.http.routers.api-prod-web.entrypoints=web"
+      - "traefik.http.routers.api-prod-web.middlewares=redirect-https@file"
+
+      # HTTPS (443)
       - "traefik.http.routers.api-prod.rule=Host(`api.postmatic.id`)"
       - "traefik.http.routers.api-prod.entrypoints=websecure"
       - "traefik.http.routers.api-prod.tls=true"
@@ -59,6 +66,11 @@ services:
     networks: [default, traefik_proxy]
     labels:
       - "traefik.enable=true"
+
+      - "traefik.http.routers.dashboard-prod-web.rule=Host(`dashboard.postmatic.id`)"
+      - "traefik.http.routers.dashboard-prod-web.entrypoints=web"
+      - "traefik.http.routers.dashboard-prod-web.middlewares=redirect-https@file"
+
       - "traefik.http.routers.dashboard-prod.rule=Host(`dashboard.postmatic.id`)"
       - "traefik.http.routers.dashboard-prod.entrypoints=websecure"
       - "traefik.http.routers.dashboard-prod.tls=true"
@@ -78,6 +90,18 @@ services:
     networks: [default, traefik_proxy]
     labels:
       - "traefik.enable=true"
+
+      # HTTP (80) apex
+      - "traefik.http.routers.landing-prod-web.rule=Host(`postmatic.id`)"
+      - "traefik.http.routers.landing-prod-web.entrypoints=web"
+      - "traefik.http.routers.landing-prod-web.middlewares=redirect-https@file"
+
+      # HTTP (80) www -> redirect ke apex+https (pakai middleware regex yg sudah kamu buat)
+      - "traefik.http.routers.landing-www-prod-web.rule=Host(`www.postmatic.id`)"
+      - "traefik.http.routers.landing-www-prod-web.entrypoints=web"
+      - "traefik.http.routers.landing-www-prod-web.middlewares=landing-www-redirect@file"
+
+      # HTTPS apex (serve)
       - "traefik.http.routers.landing-prod.rule=Host(`postmatic.id`)"
       - "traefik.http.routers.landing-prod.entrypoints=websecure"
       - "traefik.http.routers.landing-prod.tls=true"
@@ -85,11 +109,12 @@ services:
       - "traefik.http.routers.landing-prod.middlewares=security-headers@file,compress@file"
       - "traefik.http.services.landing-prod.loadbalancer.server.port=3000"
 
-      - "traefik.http.routers.landing-www.rule=Host(`www.postmatic.id`)"
-      - "traefik.http.routers.landing-www.entrypoints=websecure"
-      - "traefik.http.routers.landing-www.tls=true"
-      - "traefik.http.routers.landing-www.tls.certresolver=le-http"
-      - "traefik.http.routers.landing-www.middlewares=landing-www-redirect@file"
+      # HTTPS www (redirect ke apex)
+      - "traefik.http.routers.landing-www-prod.rule=Host(`www.postmatic.id`)"
+      - "traefik.http.routers.landing-www-prod.entrypoints=websecure"
+      - "traefik.http.routers.landing-www-prod.tls=true"
+      - "traefik.http.routers.landing-www-prod.tls.certresolver=le-http"
+      - "traefik.http.routers.landing-www-prod.middlewares=landing-www-redirect@file"
     restart: unless-stopped
 
 networks:

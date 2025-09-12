@@ -8,11 +8,11 @@ services:
       POSTGRES_DB: ${STAGING_DATABASE_NAME}
       POSTGRES_USER: ${STAGING_DATABASE_USER}
       POSTGRES_PASSWORD: ${STAGING_DATABASE_PASSWORD}
+    ports:
+      - "127.0.0.1:${STAGING_DATABASE_PORT:-15432}:5432"   # hanya loopback VPS
     volumes:
       - pgdata_stg:/var/lib/postgresql/data
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:${STAGING_DATABASE_PORT:-15432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${STAGING_DATABASE_USER} -d ${STAGING_DATABASE_NAME}"]
       interval: 5s
@@ -22,13 +22,18 @@ services:
   redis:
     image: redis:${STAGING_REDIS_TAG:-7-alpine}
     container_name: ${STAGING_PREFIX:-postmatic_stg}_redis
-    command: ["redis-server","--save","","--appendonly","no","--requirepass","${STAGING_REDIS_PASSWORD}"]
-    restart: unless-stopped
+    command: ["redis-server","--save","","--appendonly","no","--protected-mode","yes","--requirepass","${STAGING_REDIS_PASSWORD}"]
     ports:
-      - "127.0.0.1:${STAGING_REDIS_PORT:-16379}:6379"
+      - "127.0.0.1:${STAGING_REDIS_PORT:-16379}:6379"      # hanya loopback VPS
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${STAGING_REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
   api:
-    build: ../../apps/backend-service
+    image: ${STAGING_API_IMAGE:-ghcr.io/postmaticdev/postmatic-api}:${IMAGE_TAG:-staging}
     container_name: ${STAGING_PREFIX:-postmatic_stg}_api
     env_file:
       - ../../apps/backend-service/.env.staging
@@ -53,16 +58,10 @@ services:
       - "traefik.http.routers.api-stg.tls.certresolver=le-http"
       - "traefik.http.routers.api-stg.middlewares=security-headers@file,compress@file,limit-20mb@file"
       - "traefik.http.services.api-stg.loadbalancer.server.port=3000"
-
     restart: unless-stopped
 
   dashboard:
-    build:
-      context: ../../apps/dashboard
-      args:
-        ENV_STAGE: "${STAGING_ENV_STAGE:-staging}"
-        API_ORIGIN: "${STAGING_API_ORIGIN_INTERNAL:-http://api:3000}"
-        NEXT_PUBLIC_API_ORIGIN: "${STAGING_NEXT_PUBLIC_API_ORIGIN:-https://api-staging.postmatic.id}"
+    image: ${STAGING_DASH_IMAGE:-ghcr.io/postmaticdev/postmatic-dashboard}:${IMAGE_TAG:-staging}
     container_name: ${STAGING_PREFIX:-postmatic_stg}_dashboard
     env_file:
       - ../../apps/dashboard/.env.staging
@@ -82,14 +81,10 @@ services:
       - "traefik.http.routers.dashboard-stg.tls.certresolver=le-http"
       - "traefik.http.routers.dashboard-stg.middlewares=security-headers@file,compress@file"
       - "traefik.http.services.dashboard-stg.loadbalancer.server.port=3000"
-
     restart: unless-stopped
 
   landing:
-    build:
-      context: ../../apps/landing-page
-      args:
-        ENV_STAGE: "${STAGING_ENV_STAGE:-staging}"
+    image: ${STAGING_LAND_IMAGE:-ghcr.io/postmaticdev/postmatic-landing}:${IMAGE_TAG:-staging}
     container_name: ${STAGING_PREFIX:-postmatic_stg}_landing
     env_file:
       - ../../apps/landing-page/.env.staging
@@ -107,7 +102,6 @@ services:
       - "traefik.http.routers.landing-stg.tls.certresolver=le-http"
       - "traefik.http.routers.landing-stg.middlewares=security-headers@file,compress@file"
       - "traefik.http.services.landing-stg.loadbalancer.server.port=3000"
-
     restart: unless-stopped
 
 networks:

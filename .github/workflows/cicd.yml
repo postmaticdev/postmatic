@@ -1,0 +1,151 @@
+name: CI/CD Postmatic
+
+on:
+  push:
+    branches:
+      - stg        # staging (rekomendasi)
+      - main       # production (rekomendasi)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment (staging|production)"
+        required: true
+        default: "staging"
+      ref:
+        description: "Git ref (branch/tag/sha) to build"
+        required: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ghcr.io/<ORG_OR_USER>
+  API_IMAGE: ${{ env.IMAGE_NAMESPACE }}/postmatic-api
+  DASH_IMAGE: ${{ env.IMAGE_NAMESPACE }}/postmatic-dashboard
+  LAND_IMAGE: ${{ env.IMAGE_NAMESPACE }}/postmatic-landing
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      ENV_NAME: ${{ steps.meta.outputs.ENV_NAME }}
+      SHORT_SHA: ${{ steps.meta.outputs.SHORT_SHA }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Derive environment
+        id: meta
+        run: |
+          # tentukan ENV_NAME dari branch atau input manual
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            ENV_NAME="${{ github.event.inputs.environment }}"
+          else
+            case "${GITHUB_REF_NAME}" in
+              stg)  ENV_NAME="staging" ;;
+              main) ENV_NAME="production" ;;
+              master) ENV_NAME="staging" ;; # fallback aman kalau masih master
+              *)    echo "Unknown branch; set via workflow_dispatch"; exit 1 ;;
+            esac
+          fi
+          SHORT_SHA=$(git rev-parse --short=8 HEAD)
+          echo "ENV_NAME=$ENV_NAME"   | tee -a $GITHUB_OUTPUT
+          echo "SHORT_SHA=$SHORT_SHA" | tee -a $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ===== API =====
+      - name: Build & push API
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/backend-service
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.API_IMAGE }}:${{ steps.meta.outputs.ENV_NAME }}
+            ${{ env.API_IMAGE }}:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
+      # ===== DASHBOARD =====
+      - name: Build & push Dashboard
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/dashboard
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
+          tags: |
+            ${{ env.DASH_IMAGE }}:${{ steps.meta.outputs.ENV_NAME }}
+            ${{ env.DASH_IMAGE }}:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
+      # ===== LANDING =====
+      - name: Build & push Landing
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/landing-page
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
+          tags: |
+            ${{ env.LAND_IMAGE }}:${{ steps.meta.outputs.ENV_NAME }}
+            ${{ env.LAND_IMAGE }}:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: ${{ needs.build-and-push.outputs.ENV_NAME }}
+    steps:
+      - name: Pick env secrets
+        id: pick
+        run: |
+          echo "ENV_NAME=${{ needs.build-and-push.outputs.ENV_NAME }}" >> $GITHUB_OUTPUT
+
+      - name: SSH into VPS & deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_SSH_USER }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            export COMPOSE_FILE="${{ secrets.COMPOSE_FILE }}"
+            export COMPOSE_PROJECT="${{ secrets.COMPOSE_PROJECT }}"
+            export IMAGE_TAG="${{ secrets.IMAGE_TAG }}"
+            export ENVFILE="${{ secrets.ENVFILE }}"
+
+            echo "Logging in to GHCR..."
+            echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_READ_USERNAME }}" --password-stdin
+
+            cd /srv/postmatic
+
+            echo "[Pull images]"
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" pull api dashboard landing
+
+            echo "[Up containers]"
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" up -d api dashboard landing
+
+            echo "[Prisma migrate deploy]"
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
+
+            echo "[Smoke tests]"
+            # ganti /healthz jika sudah ada; sementara cek root
+            curl -fsS https://api${{ needs.build-and-push.outputs.ENV_NAME == 'staging' && '-staging' || '' }}.postmatic.id/ || exit 18
+            curl -fsS https://dashboard${{ needs.build-and-push.outputs.ENV_NAME == 'staging' && '-staging' || '' }}.postmatic.id/ || exit 19
+            curl -fsS https://${{ needs.build-and-push.outputs.ENV_NAME == 'staging' && 'landing-staging.postmatic.id' || 'postmatic.id' }}/ || exit 20
+
+            echo "[Cleanup old images]"
+            docker image prune -f

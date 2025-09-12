@@ -8,11 +8,11 @@ services:
       POSTGRES_DB: ${PROD_DATABASE_NAME}
       POSTGRES_USER: ${PROD_DATABASE_USER}
       POSTGRES_PASSWORD: ${PROD_DATABASE_PASSWORD}
+    ports:
+      - "127.0.0.1:${PROD_DATABASE_PORT:-25432}:5432"
     volumes:
       - pgdata_prod:/var/lib/postgresql/data
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:${PROD_DATABASE_PORT:-25432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${PROD_DATABASE_USER} -d ${PROD_DATABASE_NAME}"]
       interval: 5s
@@ -22,13 +22,18 @@ services:
   redis:
     image: redis:${PROD_REDIS_TAG:-7-alpine}
     container_name: ${PROD_PREFIX:-postmatic_prod}_redis
-    command: ["redis-server","--save","","--appendonly","no","--requirepass","${PROD_REDIS_PASSWORD}"]
-    restart: unless-stopped
+    command: ["redis-server","--save","","--appendonly","no","--protected-mode","yes","--requirepass","${PROD_REDIS_PASSWORD}"]
     ports:
       - "127.0.0.1:${PROD_REDIS_PORT:-26379}:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${PROD_REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
   api:
-    build: ../../apps/backend-service
+    image: ${PROD_API_IMAGE:-ghcr.io/postmaticdev/postmatic-api}:${IMAGE_TAG:-production}
     container_name: ${PROD_PREFIX:-postmatic_prod}_api
     env_file:
       - ../../apps/backend-service/.env.production
@@ -41,12 +46,10 @@ services:
     labels:
       - "traefik.enable=true"
 
-      # HTTP (80) -> redirect ke HTTPS
       - "traefik.http.routers.api-prod-web.rule=Host(`api.postmatic.id`)"
       - "traefik.http.routers.api-prod-web.entrypoints=web"
       - "traefik.http.routers.api-prod-web.middlewares=redirect-https@file"
 
-      # HTTPS (443)
       - "traefik.http.routers.api-prod.rule=Host(`api.postmatic.id`)"
       - "traefik.http.routers.api-prod.entrypoints=websecure"
       - "traefik.http.routers.api-prod.tls=true"
@@ -56,12 +59,7 @@ services:
     restart: unless-stopped
 
   dashboard:
-    build:
-      context: ../../apps/dashboard
-      args:
-        ENV_STAGE: "${PROD_ENV_STAGE:-production}"
-        API_ORIGIN: "${PROD_API_ORIGIN_INTERNAL:-http://api:3000}"
-        NEXT_PUBLIC_API_ORIGIN: "${PROD_NEXT_PUBLIC_API_ORIGIN:-https://api.postmatic.id}"
+    image: ${PROD_DASH_IMAGE:-ghcr.io/postmaticdev/postmatic-dashboard}:${IMAGE_TAG:-production}
     container_name: ${PROD_PREFIX:-postmatic_prod}_dashboard
     env_file:
       - ../../apps/dashboard/.env.production
@@ -84,10 +82,7 @@ services:
     restart: unless-stopped
 
   landing:
-    build:
-      context: ../../apps/landing-page
-      args:
-        ENV_STAGE: "${PROD_ENV_STAGE:-production}"
+    image: ${PROD_LAND_IMAGE:-ghcr.io/postmaticdev/postmatic-landing}:${IMAGE_TAG:-production}
     container_name: ${PROD_PREFIX:-postmatic_prod}_landing
     env_file:
       - ../../apps/landing-page/.env.production
@@ -95,17 +90,12 @@ services:
     labels:
       - "traefik.enable=true"
 
-      # HTTP (80) apex
-      - "traefik.http.routers.landing-prod-web.rule=Host(`postmatic.id`)"
+      # HTTP (80) → redirect ke HTTPS
+      - "traefik.http.routers.landing-prod-web.rule=Host(`postmatic.id`,`www.postmatic.id`)"
       - "traefik.http.routers.landing-prod-web.entrypoints=web"
       - "traefik.http.routers.landing-prod-web.middlewares=redirect-https@file"
 
-      # HTTP (80) www -> redirect ke apex+https (pakai middleware regex yg sudah kamu buat)
-      - "traefik.http.routers.landing-www-prod-web.rule=Host(`www.postmatic.id`)"
-      - "traefik.http.routers.landing-www-prod-web.entrypoints=web"
-      - "traefik.http.routers.landing-www-prod-web.middlewares=landing-www-redirect@file"
-
-      # HTTPS apex (serve)
+      # HTTPS (443) apex → service
       - "traefik.http.routers.landing-prod.rule=Host(`postmatic.id`)"
       - "traefik.http.routers.landing-prod.entrypoints=websecure"
       - "traefik.http.routers.landing-prod.tls=true"
@@ -113,12 +103,12 @@ services:
       - "traefik.http.routers.landing-prod.middlewares=security-headers@file,compress@file"
       - "traefik.http.services.landing-prod.loadbalancer.server.port=3000"
 
-      # HTTPS www (redirect ke apex)
-      - "traefik.http.routers.landing-www-prod.rule=Host(`www.postmatic.id`)"
-      - "traefik.http.routers.landing-www-prod.entrypoints=websecure"
-      - "traefik.http.routers.landing-www-prod.tls=true"
-      - "traefik.http.routers.landing-www-prod.tls.certresolver=le-http"
-      - "traefik.http.routers.landing-www-prod.middlewares=landing-www-redirect@file"
+      # HTTPS www → redirect ke apex (middleware file sudah kamu buat)
+      - "traefik.http.routers.landing-prod-www.rule=Host(`www.postmatic.id`)"
+      - "traefik.http.routers.landing-prod-www.entrypoints=websecure"
+      - "traefik.http.routers.landing-prod-www.tls=true"
+      - "traefik.http.routers.landing-prod-www.tls.certresolver=le-http"
+      - "traefik.http.routers.landing-prod-www.middlewares=landing-www-redirect@file"
     restart: unless-stopped
 
 networks:

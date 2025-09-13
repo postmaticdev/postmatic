@@ -12,6 +12,11 @@ COPY prisma ./prisma
 # optional: generate untuk typecheck; tidak dipakai runtime
 RUN npx -y prisma@5.22.0 generate
 COPY . .
+
+ARG GIT_SHA=dev
+ARG ENV_NAME=local
+ENV GIT_SHA=$GIT_SHA ENV_NAME=$ENV_NAME
+
 RUN npm run build
 
 # ---------- runtime ----------

@@ -97,6 +97,9 @@ useHelmet(app);
 
 // ------- Routes -------
 app.get("/", (req, res) => res.send("Hello World CI/CD Works!"));
+app.get('/__version', (req,res)=>res.json({
+  env: process.env.ENV_NAME, sha: process.env.GIT_SHA
+}));
 
 app.use("/api", router);
 

@@ -48,13 +48,13 @@ jobs:
             case "${GITHUB_REF_NAME}" in
               stg)  ENV_NAME="staging" ;;
               main) ENV_NAME="production" ;;
-              master) ENV_NAME="staging" ;;
-              *) echo "Unknown branch"; exit 1 ;;
+              *)    echo "Unknown branch: ${GITHUB_REF_NAME}. Use workflow_dispatch with inputs.environment"; exit 1 ;;
             esac
           fi
           SHORT_SHA=$(git rev-parse --short=8 HEAD)
-          echo "ENV_NAME=$ENV_NAME"   >> $GITHUB_OUTPUT
-          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "ENV_NAME=$ENV_NAME"   | tee -a $GITHUB_OUTPUT
+          echo "SHORT_SHA=$SHORT_SHA" | tee -a $GITHUB_OUTPUT
+
 
       - name: Compute image namespace (GHCR)
         id: ns
@@ -117,7 +117,9 @@ jobs:
           platforms: linux/amd64
           push: true
           build-args: |
-            ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
+            GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
+            ENV_NAME=${{ steps.meta.outputs.ENV_NAME }}
+
           tags: |
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
@@ -149,25 +151,45 @@ jobs:
           script_stop: true
           script: |
             set -euo pipefail
+
             export COMPOSE_FILE="${{ secrets.COMPOSE_FILE }}"
             export COMPOSE_PROJECT="${{ secrets.COMPOSE_PROJECT }}"
             export ENVFILE="${{ secrets.ENVFILE }}"
-            export IMAGE_TAG="${{ secrets.IMAGE_TAG }}"
+            export IMAGE_TAG="${{ secrets.IMAGE_TAG }}"   # harus 'staging' utk env staging
 
+            echo "[Context] COMPOSE_FILE=$COMPOSE_FILE COMPOSE_PROJECT=$COMPOSE_PROJECT ENVFILE=$ENVFILE IMAGE_TAG=$IMAGE_TAG"
+
+            echo "Login GHCR (read-only) di VPS..."
             echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_READ_USERNAME }}" --password-stdin
+
             cd /srv/postmatic
-            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" pull api dashboard landing
-            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" up -d api dashboard landing
+
+            echo "[Render compose utk verifikasi image/tag]"
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" config | \
+              sed -n '/services:/,/networks:/p' | grep -E "image:|services:|api:|dashboard:|landing:" -n || true
+
+            echo "[Turunkan stack lama]"
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" down --remove-orphans || true
+
+            echo "[Pull images (digest terbaru)]"
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" pull api dashboard landing
+
+            echo "[Naikkan ulang (force recreate)]"
+            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" up -d --force-recreate api dashboard landing
+
+            echo "[Prisma migrate deploy]"
             docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
 
+            echo "[Smoke tests]"
             if [ "${{ needs.build-and-push.outputs.ENV_NAME }}" = "staging" ]; then
               curl -fsS https://api-staging.postmatic.id/ >/dev/null
               curl -fsS https://dashboard-staging.postmatic.id/ >/dev/null
-              curl -fsS https://landing-staging.postmatic.id/ >/dev/null
+              curl -fsS https://landing-staging.postmatic.id/  >/dev/null
             else
               curl -fsS https://api.postmatic.id/ >/dev/null
               curl -fsS https://dashboard.postmatic.id/ >/dev/null
               curl -fsS https://postmatic.id/ >/dev/null
             fi
 
+            echo "[Cleanup old images]"
             docker image prune -f

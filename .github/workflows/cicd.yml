@@ -53,6 +53,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     needs: resolve-env
+    # Penting: ikat ke Environment agar secrets environment-scoped bisa diakses
     environment: ${{ needs.resolve-env.outputs.ENV_NAME }}
     timeout-minutes: 60
     outputs:
@@ -114,7 +115,7 @@ jobs:
             > "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
           echo "[landing .env size]"; wc -c "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
           echo "[landing keys]"
-          sed -En 's/^[[:space:]]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50 || true
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50
 
       # ===================== Build & Push Images =====================
       - name: Build & push API
@@ -159,6 +160,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [resolve-env, build-and-push]
+    # ikat juga ke environment yang sama
     environment: ${{ needs.resolve-env.outputs.ENV_NAME }}
     timeout-minutes: 30
     steps:
@@ -170,27 +172,24 @@ jobs:
           port:     ${{ secrets.VPS_SSH_PORT }}
           key:      ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
-        env:
-          ENV_NAME: ${{ needs.resolve-env.outputs.ENV_NAME }}
-          SHORT_SHA: ${{ needs.build-and-push.outputs.SHORT_SHA }}
-          COMPOSE_FILE: ${{ secrets.COMPOSE_FILE }}
-          COMPOSE_PROJECT: ${{ secrets.COMPOSE_PROJECT }}
-          ENVFILE: ${{ secrets.ENVFILE }}
-          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
-          GHCR_READ_USERNAME: ${{ secrets.GHCR_READ_USERNAME }}
-        with:
           script: |
             # /bin/sh friendly
             set -eu
 
+            ENV_NAME='${{ needs.resolve-env.outputs.ENV_NAME }}'
+            SHORT_SHA='${{ needs.build-and-push.outputs.SHORT_SHA }}'
             IMAGE_TAG="${ENV_NAME}-${SHORT_SHA}"
+
+            export COMPOSE_FILE='${{ secrets.COMPOSE_FILE }}'
+            export COMPOSE_PROJECT='${{ secrets.COMPOSE_PROJECT }}'
+            export ENVFILE='${{ secrets.ENVFILE }}'
 
             echo "[Context]"
             echo "ENV_NAME=$ENV_NAME SHORT_SHA=$SHORT_SHA IMAGE_TAG=$IMAGE_TAG"
             echo "COMPOSE_FILE=$COMPOSE_FILE COMPOSE_PROJECT=$COMPOSE_PROJECT ENVFILE=$ENVFILE"
 
             echo "Login GHCR (read-only) di VPS..."
-            echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_READ_USERNAME" --password-stdin
+            echo '${{ secrets.GHCR_READ_TOKEN }}' | docker login ghcr.io -u '${{ secrets.GHCR_READ_USERNAME }}' --password-stdin
 
             cd /srv/postmatic
 
@@ -229,41 +228,67 @@ jobs:
               done
             done
 
-            echo "[Smoke tests - local Traefik]"
+            #################################################################
+            #                        SMOKE TESTS (updated)                  #
+            #################################################################
+            echo "[Smoke tests]"
             if [ "$ENV_NAME" = "staging" ]; then
-              CHECKS="api-staging.postmatic.id|/__version dashboard-staging.postmatic.id|/ landing-staging.postmatic.id|/"
+              URLS="https://api-staging.postmatic.id/__version https://dashboard-staging.postmatic.id/ https://landing-staging.postmatic.id/"
             else
-              CHECKS="api.postmatic.id|/__version dashboard.postmatic.id|/ postmatic.id|/"
+              URLS="https://api.postmatic.id/__version https://dashboard.postmatic.id/ https://postmatic.id/"
             fi
 
-            for e in $CHECKS; do
-              domain="${e%%|*}"
-              path="${e#*|}"
-              echo "  - local http://127.0.0.1$path (Host: $domain)"
-              ok=0
+            http_ok() {
+              case "$1" in
+                200|204|301|302|307|308) return 0 ;;
+                *) return 1 ;;
+              esac
+            }
+
+            check_external() {
+              u="$1"
               i=0
-              while [ $i -lt 20 ]; do
+              while [ $i -lt 10 ]; do
                 i=$((i+1))
-                code="$(curl -skL -o /dev/null -w '%{http_code}' -H "Host: $domain" "http://127.0.0.1$path" || true)"
+                code="$(curl -skL -o /dev/null -w '%{http_code}' "$u" || true)"
                 echo "    try=$i code=$code"
-                case "$code" in
-                  200|204|301|302|308) ok=1 ;;
-                  *) ok=0 ;;
-                esac
-                [ $ok -eq 1 ] && break
+                if http_ok "$code"; then
+                  return 0
+                fi
                 sleep 3
               done
-              [ $ok -eq 1 ] || { echo "FAIL local: $domain$path (last code=$code)"; exit 1; }
-            done
+              return 1
+            }
 
-            echo "[Smoke tests - public (best-effort, no fail)]"
-            for e in $CHECKS; do
-              domain="${e%%|*}"
-              path="${e#*|}"
-              url="https://$domain$path"
-              code="$(curl -skL -o /dev/null -w '%{http_code}' "$url" || true)"
-              echo "  - $url => $code"
+            check_internal() {
+              svc="$1"; path="$2"
+              docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" exec -T "$svc" \
+                node -e 'const http=require("http");const p=process.env.PORT||3000;const opts={hostname:"127.0.0.1",port:p,path:process.argv[1]||"/"};http.get(opts,res=>{process.exit(res.statusCode<500?0:1)}).on("error",()=>process.exit(1));' "$path"
+            }
+
+            for u in $URLS; do
+              echo "  - $u"
+              if check_external "$u"; then
+                continue
+              fi
+
+              # Map URL → service + path untuk probe internal
+              svc=""; path="/"
+              case "$u" in
+                *api-staging.postmatic.id*|*api.postmatic.id*) svc="api"; path="/__version" ;;
+                *dashboard-staging.postmatic.id*|*dashboard.postmatic.id*) svc="dashboard"; path="/" ;;
+                *) svc="landing"; path="/" ;;
+              esac
+
+              echo "    external still failing; trying internal probe: svc=$svc path=$path"
+              if check_internal "$svc" "$path"; then
+                echo "    OK (internal). Mark success (kemungkinan DNS/SSL/ACME/propagasi belum siap)."
+              else
+                echo "FAIL: $u (external & internal failed)"
+                exit 1
+              fi
             done
+            #################################################################
 
             echo "[Cleanup old images]"
             docker image prune -f

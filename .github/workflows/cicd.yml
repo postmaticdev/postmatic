@@ -164,12 +164,10 @@ jobs:
           script: |
             set -euo pipefail
 
-            # hitung TAG unik dari outputs build
             ENV_NAME='${{ needs.build-and-push.outputs.ENV_NAME }}'
             SHORT_SHA='${{ needs.build-and-push.outputs.SHORT_SHA }}'
-            export IMAGE_TAG="${ENV_NAME}-${SHORT_SHA}"
+            IMAGE_TAG="${ENV_NAME}-${SHORT_SHA}"
 
-            # file & project dari Environments Secrets
             export COMPOSE_FILE='${{ secrets.COMPOSE_FILE }}'
             export COMPOSE_PROJECT='${{ secrets.COMPOSE_PROJECT }}'
             export ENVFILE='${{ secrets.ENVFILE }}'
@@ -184,20 +182,20 @@ jobs:
             cd /srv/postmatic
 
             echo "[Render compose utk verifikasi image/tag]"
-            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" config \
-              | sed -n '/services:/,/networks:/p' | grep -E "image:|services:|api:|dashboard:|landing:" -n || true
+            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" config \
+              | awk '/services:/{p=1} p && /image:/{print NR": "$0} /networks:/{p=0}'
 
             echo "[Turunkan stack lama (project ini saja)]"
-            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" down --remove-orphans || true
+            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" down --remove-orphans || true
 
             echo "[Pull images (tag SHA terbaru)]"
-            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" pull api dashboard landing
+            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" pull api dashboard landing
 
             echo "[Naikkan ulang (force recreate)]"
-            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" up -d --force-recreate api dashboard landing
+            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" up -d --force-recreate api dashboard landing
 
             echo "[Prisma migrate deploy]"
-            docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
+            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
 
             echo "[Smoke tests]"
             if [ "$ENV_NAME" = "staging" ]; then

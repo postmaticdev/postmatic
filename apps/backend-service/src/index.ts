@@ -13,6 +13,7 @@ import path from "path";
 import useragent from "express-useragent";
 import http from "http";
 import cookieParser from "cookie-parser";
+import fs from "fs";
 
 import {
   APP_NAME,
@@ -97,9 +98,16 @@ useHelmet(app);
 
 // ------- Routes -------
 app.get("/", (req, res) => res.send("Hello World CI/CD Works!"));
-app.get('/__version', (req,res)=>res.json({
-  env: process.env.ENV_NAME, sha: process.env.GIT_SHA
-}));
+
+app.get("/__version", (_req, res) => {
+  try {
+    const p = path.join(__dirname, "version.json");
+    const raw = fs.readFileSync(p, "utf8");
+    res.type("application/json").send(raw);
+  } catch {
+    res.json({ sha: process.env.GIT_SHA || "unknown" });
+  }
+});
 
 app.use("/api", router);
 

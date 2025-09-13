@@ -18,12 +18,16 @@ ARG ENV_NAME=local
 ENV GIT_SHA=$GIT_SHA ENV_NAME=$ENV_NAME
 
 RUN npm run build
+RUN mkdir -p dist && echo "{\"sha\":\"$GIT_SHA\"}" > dist/version.json
 
 # ---------- runtime ----------
 FROM node:24-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 HOST=0.0.0.0
 RUN apt-get update && apt-get install -y --no-install-recommends libssl3 ca-certificates && rm -rf /var/lib/apt/lists/*
+ARG GIT_SHA=unknown
+ENV GIT_SHA=$GIT_SHA
+LABEL org.opencontainers.image.revision=$GIT_SHA
 
 # 👉 Install HANYA prod deps
 COPY --chown=node:node package*.json ./

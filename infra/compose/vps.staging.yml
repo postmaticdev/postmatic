@@ -3,7 +3,6 @@ name: ${STAGING_COMPOSE_PROJECT:-postmatic_vps_staging}
 services:
   db:
     image: postgres:${STAGING_POSTGRES_TAG:-15-alpine}
-    container_name: ${STAGING_PREFIX:-postmatic_stg}_db
     environment:
       POSTGRES_DB: ${STAGING_DATABASE_NAME}
       POSTGRES_USER: ${STAGING_DATABASE_USER}
@@ -21,7 +20,6 @@ services:
 
   redis:
     image: redis:${STAGING_REDIS_TAG:-7-alpine}
-    container_name: ${STAGING_PREFIX:-postmatic_stg}_redis
     command: ["redis-server","--save","","--appendonly","no","--protected-mode","yes","--requirepass","${STAGING_REDIS_PASSWORD}"]
     ports:
       - "127.0.0.1:${STAGING_REDIS_PORT:-16379}:6379"      # hanya loopback VPS
@@ -34,7 +32,6 @@ services:
 
   api:
     image: ${STAGING_API_IMAGE:-ghcr.io/postmaticdev/postmatic-api}:${IMAGE_TAG:-staging}
-    container_name: ${STAGING_PREFIX:-postmatic_stg}_api
     env_file:
       - ../../apps/backend-service/.env.staging
     depends_on:
@@ -62,7 +59,6 @@ services:
 
   dashboard:
     image: ${STAGING_DASH_IMAGE:-ghcr.io/postmaticdev/postmatic-dashboard}:${IMAGE_TAG:-staging}
-    container_name: ${STAGING_PREFIX:-postmatic_stg}_dashboard
     env_file:
       - ../../apps/dashboard/.env.staging
     depends_on:
@@ -85,7 +81,6 @@ services:
 
   landing:
     image: ${STAGING_LAND_IMAGE:-ghcr.io/postmaticdev/postmatic-landing}:${IMAGE_TAG:-staging}
-    container_name: ${STAGING_PREFIX:-postmatic_stg}_landing
     env_file:
       - ../../apps/landing-page/.env.staging
     networks: [default, traefik_proxy]

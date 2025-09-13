@@ -7,18 +7,22 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 # ---------- build ----------
 FROM node:24-slim AS build
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-
-# Salin source dulu
-COPY . .
-
-# Pilih env file untuk build Next (default: staging)
+ENV NODE_ENV=production
 ARG ENV_STAGE=staging
 
-# Pakai .env.local agar selalu dibaca Next saat build
-COPY .env.${ENV_STAGE} .env.production
+# deps siap dulu
+COPY --from=deps /app/node_modules ./node_modules
+# salin source
+COPY . .
 
-RUN npm run build   # next.config.* = { output: 'standalone' }
+# Pakai .env.local supaya SELALU dibaca Next saat build
+# (kalau file tidak ada, gagal; itu yang kita mau biar ketahuan)
+RUN cp -f ".env.${ENV_STAGE}" .env.local \
+ && echo "[Next build uses .env.local] ENV_STAGE=${ENV_STAGE}" \
+ && (echo "[.env.local] keys:" && sed -n 's/^\([A-Z0-9_]\+\)=.*/\1/p' .env.local | sort -u)
+
+# Build (output: standalone)
+RUN npm run build # next.config.* = { output: 'standalone' }
 
 # ---------- runtime ----------
 FROM node:24-slim AS runner
@@ -28,7 +32,7 @@ ENV PORT=3000
 ENV HOST=0.0.0.0
 ENV HOSTNAME=0.0.0.0
 
-# Pola Next standalone yang stabil
+# Pola Next standalone
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
@@ -37,6 +41,6 @@ USER node
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
-  CMD node -e "const http=require('http');const p=process.env.PORT||3000;function t(h){http.get({hostname:h,port:p,path:'/'},r=>process.exit(r.statusCode<500?0:1)).on('error',()=>h==='localhost'?t('127.0.0.1'):process.exit(1));}t('localhost');"
+CMD node -e "const http=require('http');const p=process.env.PORT||3000;http.get({host:'127.0.0.1',port:p,path:'/'},r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
 
 CMD ["node","server.js"]

@@ -117,8 +117,8 @@ jobs:
           platforms: linux/amd64
           push: true
           build-args: |
+            ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
             GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
-            ENV_NAME=${{ steps.meta.outputs.ENV_NAME }}
           tags: |
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
@@ -130,11 +130,12 @@ jobs:
           platforms: linux/amd64
           push: true
           build-args: |
+            ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
             GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
-            ENV_NAME=${{ steps.meta.outputs.ENV_NAME }}
           tags: |
             ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
 
   deploy:
     runs-on: ubuntu-latest

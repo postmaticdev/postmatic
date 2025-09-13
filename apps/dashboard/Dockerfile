@@ -13,9 +13,13 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Pilih env file untuk build Next (default: staging)
+ARG NEXT_PUBLIC_API_ORIGIN
+ARG API_ORIGIN
 ARG ENV_STAGE=staging
 # Pakai .env.local agar selalu dibaca Next saat build
-COPY .env.${ENV_STAGE} .env.production
+RUN printf "NEXT_PUBLIC_API_ORIGIN=%s\nAPI_ORIGIN=%s\n" \
+  "$NEXT_PUBLIC_API_ORIGIN" "$API_ORIGIN" > .env.production
+
 
 RUN npm run build   # next.config.* = { output: 'standalone' }
 

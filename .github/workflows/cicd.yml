@@ -26,7 +26,6 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  # Tentukan ENV_NAME sekali, supaya bisa dipakai untuk 'environment:' di job lain
   resolve-env:
     runs-on: ubuntu-latest
     outputs:
@@ -53,7 +52,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     needs: resolve-env
-    # Penting: ikat ke Environment agar secrets environment-scoped bisa diakses
     environment: ${{ needs.resolve-env.outputs.ENV_NAME }}
     timeout-minutes: 60
     outputs:
@@ -160,7 +158,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [resolve-env, build-and-push]
-    # ikat juga ke environment yang sama
     environment: ${{ needs.resolve-env.outputs.ENV_NAME }}
     timeout-minutes: 30
     steps:
@@ -210,20 +207,39 @@ jobs:
             IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
 
             echo "[Wait for containers healthy]"
-            for s in api dashboard landing; do
+            for s in api dashboard landing
+            do
               echo "  - waiting $s ..."
               cid="$(docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" ps -q "$s")"
               i=0
-              while :; do
+              while true
+              do
                 i=$((i+1))
                 st="$(docker inspect "$cid" --format='{{.State.Status}}' 2>/dev/null || true)"
                 hc="$(docker inspect "$cid" --format='{{if .State.Health}}{{.State.Health.Status}}{{end}}' 2>/dev/null || true)"
                 echo "    status=$st health=$hc try=$i"
-                if [ "$st" = "running" ]; then
-                  if [ -z "$hc" ] || [ "$hc" = "healthy" ]; then break; fi
-                  if [ "$hc" = "starting" ] && [ "$i" -ge 5 ]; then break; fi
+
+                if [ "$st" = "running" ]
+                then
+                  if [ -z "$hc" ]
+                  then
+                    break
+                  fi
+                  if [ "$hc" = "healthy" ]
+                  then
+                    break
+                  fi
+                  if [ "$hc" = "starting" ] && [ "$i" -ge 5 ]
+                  then
+                    break
+                  fi
                 fi
-                [ "$i" -lt 40 ] || { echo "    timeout waiting $s"; exit 1; }
+
+                if [ "$i" -ge 40 ]
+                then
+                  echo "    timeout waiting $s"
+                  exit 1
+                fi
                 sleep 3
               done
             done
@@ -232,14 +248,16 @@ jobs:
             #                        SMOKE TESTS (updated)                  #
             #################################################################
             echo "[Smoke tests]"
-            if [ "$ENV_NAME" = "staging" ]; then
+            if [ "$ENV_NAME" = "staging" ]
+            then
               URLS="https://api-staging.postmatic.id/__version https://dashboard-staging.postmatic.id/ https://landing-staging.postmatic.id/"
             else
               URLS="https://api.postmatic.id/__version https://dashboard.postmatic.id/ https://postmatic.id/"
             fi
 
             http_ok() {
-              case "$1" in
+              code="$1"
+              case "$code" in
                 200|204|301|302|307|308) return 0 ;;
                 *) return 1 ;;
               esac
@@ -248,11 +266,13 @@ jobs:
             check_external() {
               u="$1"
               i=0
-              while [ $i -lt 10 ]; do
+              while [ $i -lt 10 ]
+              do
                 i=$((i+1))
                 code="$(curl -skL -o /dev/null -w '%{http_code}' "$u" || true)"
                 echo "    try=$i code=$code"
-                if http_ok "$code"; then
+                if http_ok "$code"
+                then
                   return 0
                 fi
                 sleep 3
@@ -261,27 +281,37 @@ jobs:
             }
 
             check_internal() {
-              svc="$1"; path="$2"
+              svc="$1"
+              path="$2"
               docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" exec -T "$svc" \
                 node -e 'const http=require("http");const p=process.env.PORT||3000;const opts={hostname:"127.0.0.1",port:p,path:process.argv[1]||"/"};http.get(opts,res=>{process.exit(res.statusCode<500?0:1)}).on("error",()=>process.exit(1));' "$path"
             }
 
-            for u in $URLS; do
+            for u in $URLS
+            do
               echo "  - $u"
-              if check_external "$u"; then
+              if check_external "$u"
+              then
                 continue
               fi
 
-              # Map URL → service + path untuk probe internal
-              svc=""; path="/"
+              svc=""
+              path="/"
               case "$u" in
-                *api-staging.postmatic.id*|*api.postmatic.id*) svc="api"; path="/__version" ;;
-                *dashboard-staging.postmatic.id*|*dashboard.postmatic.id*) svc="dashboard"; path="/" ;;
-                *) svc="landing"; path="/" ;;
+                *api-staging.postmatic.id*|*api.postmatic.id*)
+                  svc="api"; path="/__version"
+                  ;;
+                *dashboard-staging.postmatic.id*|*dashboard.postmatic.id*)
+                  svc="dashboard"; path="/"
+                  ;;
+                *)
+                  svc="landing"; path="/"
+                  ;;
               esac
 
               echo "    external still failing; trying internal probe: svc=$svc path=$path"
-              if check_internal "$svc" "$path"; then
+              if check_internal "$svc" "$path"
+              then
                 echo "    OK (internal). Mark success (kemungkinan DNS/SSL/ACME/propagasi belum siap)."
               else
                 echo "FAIL: $u (external & internal failed)"

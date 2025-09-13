@@ -161,7 +161,7 @@ jobs:
     environment: ${{ needs.resolve-env.outputs.ENV_NAME }}
     timeout-minutes: 30
     steps:
-      - name: SSH into VPS & deploy
+      - name: SSH into VPS & deploy (heredoc)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host:     ${{ secrets.VPS_HOST }}
@@ -170,20 +170,23 @@ jobs:
           key:      ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
           script: |
-            # /bin/sh friendly
-            set -eu
+            # Jalankan seluruh script dalam 1 proses bash agar action tidak menyisipkan sentinel di tengah baris
+            bash -eo pipefail <<'EOSH'
+            set -euo pipefail
 
             ENV_NAME='${{ needs.resolve-env.outputs.ENV_NAME }}'
             SHORT_SHA='${{ needs.build-and-push.outputs.SHORT_SHA }}'
             IMAGE_TAG="${ENV_NAME}-${SHORT_SHA}"
 
-            export COMPOSE_FILE='${{ secrets.COMPOSE_FILE }}'
-            export COMPOSE_PROJECT='${{ secrets.COMPOSE_PROJECT }}'
-            export ENVFILE='${{ secrets.ENVFILE }}'
+            COMPOSE_FILE='${{ secrets.COMPOSE_FILE }}'
+            COMPOSE_PROJECT='${{ secrets.COMPOSE_PROJECT }}'
+            ENVFILE='${{ secrets.ENVFILE }}'
+
+            export COMPOSE_FILE COMPOSE_PROJECT ENVFILE IMAGE_TAG
 
             echo "[Context]"
-            echo "ENV_NAME=$ENV_NAME SHORT_SHA=$SHORT_SHA IMAGE_TAG=$IMAGE_TAG"
-            echo "COMPOSE_FILE=$COMPOSE_FILE COMPOSE_PROJECT=$COMPOSE_PROJECT ENVFILE=$ENVFILE"
+            echo "ENV_NAME=\$ENV_NAME SHORT_SHA=\$SHORT_SHA IMAGE_TAG=\$IMAGE_TAG"
+            echo "COMPOSE_FILE=\$COMPOSE_FILE COMPOSE_PROJECT=\$COMPOSE_PROJECT ENVFILE=\$ENVFILE"
 
             echo "Login GHCR (read-only) di VPS..."
             echo '${{ secrets.GHCR_READ_TOKEN }}' | docker login ghcr.io -u '${{ secrets.GHCR_READ_USERNAME }}' --password-stdin
@@ -191,64 +194,61 @@ jobs:
             cd /srv/postmatic
 
             echo "[Render compose utk verifikasi image/tag]"
-            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" config \
+            docker compose --env-file "\$ENVFILE" -f "\$COMPOSE_FILE" -p "\$COMPOSE_PROJECT" config \
               | awk '/services:/{p=1} p && /image:/{print NR": "$0} /networks:/{p=0}'
 
             echo "[Down stack lama]"
-            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" down --remove-orphans || true
+            docker compose --env-file "\$ENVFILE" -f "\$COMPOSE_FILE" -p "\$COMPOSE_PROJECT" down --remove-orphans || true
 
             echo "[Pull images]"
-            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" pull api dashboard landing
+            docker compose --env-file "\$ENVFILE" -f "\$COMPOSE_FILE" -p "\$COMPOSE_PROJECT" pull api dashboard landing
 
             echo "[Up (force-recreate)]"
-            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" up -d --force-recreate api dashboard landing
+            docker compose --env-file "\$ENVFILE" -f "\$COMPOSE_FILE" -p "\$COMPOSE_PROJECT" up -d --force-recreate api dashboard landing
 
             echo "[Prisma migrate deploy]"
-            IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
+            docker compose --env-file "\$ENVFILE" -f "\$COMPOSE_FILE" -p "\$COMPOSE_PROJECT" run --rm api npx -y prisma@5.22.0 migrate deploy
 
             echo "[Wait for containers healthy]"
             for s in api dashboard landing
             do
-              echo "  - waiting $s ..."
-              cid="$(docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" ps -q "$s")"
+              echo "  - waiting \$s ..."
+              cid="$(docker compose --env-file "\$ENVFILE" -f "\$COMPOSE_FILE" -p "\$COMPOSE_PROJECT" ps -q "\$s")"
               i=0
               while true
               do
-                i=$((i+1))
-                st="$(docker inspect "$cid" --format='{{.State.Status}}' 2>/dev/null || true)"
-                hc="$(docker inspect "$cid" --format='{{if .State.Health}}{{.State.Health.Status}}{{end}}' 2>/dev/null || true)"
-                echo "    status=$st health=$hc try=$i"
+                i=\$((i+1))
+                st="$(docker inspect "\$cid" --format='{{.State.Status}}' 2>/dev/null || true)"
+                hc="$(docker inspect "\$cid" --format='{{if .State.Health}}{{.State.Health.Status}}{{end}}' 2>/dev/null || true)"
+                echo "    status=\$st health=\$hc try=\$i"
 
-                if [ "$st" = "running" ]
+                if [ "\$st" = "running" ]
                 then
-                  if [ -z "$hc" ]
+                  if [ -z "\$hc" ]
                   then
                     break
                   fi
-                  if [ "$hc" = "healthy" ]
+                  if [ "\$hc" = "healthy" ]
                   then
                     break
                   fi
-                  if [ "$hc" = "starting" ] && [ "$i" -ge 5 ]
+                  if [ "\$hc" = "starting" ] && [ "\$i" -ge 5 ]
                   then
                     break
                   fi
                 fi
 
-                if [ "$i" -ge 40 ]
+                if [ "\$i" -ge 40 ]
                 then
-                  echo "    timeout waiting $s"
+                  echo "    timeout waiting \$s"
                   exit 1
                 fi
                 sleep 3
               done
             done
 
-            #################################################################
-            #                        SMOKE TESTS (updated)                  #
-            #################################################################
             echo "[Smoke tests]"
-            if [ "$ENV_NAME" = "staging" ]
+            if [ "\$ENV_NAME" = "staging" ]
             then
               URLS="https://api-staging.postmatic.id/__version https://dashboard-staging.postmatic.id/ https://landing-staging.postmatic.id/"
             else
@@ -256,22 +256,22 @@ jobs:
             fi
 
             http_ok() {
-              code="$1"
-              case "$code" in
+              code="\$1"
+              case "\$code" in
                 200|204|301|302|307|308) return 0 ;;
                 *) return 1 ;;
               esac
             }
 
             check_external() {
-              u="$1"
+              u="\$1"
               i=0
-              while [ $i -lt 10 ]
+              while [ \$i -lt 10 ]
               do
-                i=$((i+1))
-                code="$(curl -skL -o /dev/null -w '%{http_code}' "$u" || true)"
-                echo "    try=$i code=$code"
-                if http_ok "$code"
+                i=\$((i+1))
+                code="$(curl -skL -o /dev/null -w '%{http_code}' "\$u" || true)"
+                echo "    try=\$i code=\$code"
+                if http_ok "\$code"
                 then
                   return 0
                 fi
@@ -281,44 +281,47 @@ jobs:
             }
 
             check_internal() {
-              svc="$1"
-              path="$2"
-              docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" exec -T "$svc" \
-                node -e 'const http=require("http");const p=process.env.PORT||3000;const opts={hostname:"127.0.0.1",port:p,path:process.argv[1]||"/"};http.get(opts,res=>{process.exit(res.statusCode<500?0:1)}).on("error",()=>process.exit(1));' "$path"
+              svc="\$1"
+              path="\$2"
+              docker compose --env-file "\$ENVFILE" -f "\$COMPOSE_FILE" -p "\$COMPOSE_PROJECT" exec -T "\$svc" \
+                node -e 'const http=require("http");const p=process.env.PORT||3000;const opts={hostname:"127.0.0.1",port:p,path:process.argv[1]||"/"};http.get(opts,res=>{process.exit(res.statusCode<500?0:1)}).on("error",()=>process.exit(1));' "\$path"
             }
 
-            for u in $URLS
+            for u in \$URLS
             do
-              echo "  - $u"
-              if check_external "$u"
+              echo "  - \$u"
+              if check_external "\$u"
               then
                 continue
               fi
 
               svc=""
               path="/"
-              case "$u" in
+              case "\$u" in
                 *api-staging.postmatic.id*|*api.postmatic.id*)
-                  svc="api"; path="/__version"
+                  svc="api"
+                  path="/__version"
                   ;;
                 *dashboard-staging.postmatic.id*|*dashboard.postmatic.id*)
-                  svc="dashboard"; path="/"
+                  svc="dashboard"
+                  path="/"
                   ;;
                 *)
-                  svc="landing"; path="/"
+                  svc="landing"
+                  path="/"
                   ;;
               esac
 
-              echo "    external still failing; trying internal probe: svc=$svc path=$path"
-              if check_internal "$svc" "$path"
+              echo "    external still failing; trying internal probe: svc=\$svc path=\$path"
+              if check_internal "\$svc" "\$path"
               then
                 echo "    OK (internal). Mark success (kemungkinan DNS/SSL/ACME/propagasi belum siap)."
               else
-                echo "FAIL: $u (external & internal failed)"
+                echo "FAIL: \$u (external & internal failed)"
                 exit 1
               fi
             done
-            #################################################################
 
             echo "[Cleanup old images]"
             docker image prune -f
+            EOSH

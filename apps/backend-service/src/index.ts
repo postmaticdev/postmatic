@@ -97,7 +97,7 @@ app.use(
 useHelmet(app);
 
 // ------- Routes -------
-app.get("/", (req, res) => res.send("Hello World CI/CD Works!, Newest Change"));
+app.get("/", (req, res) => res.send("Hello World CI/CD Works!, Newest Change, おめでとうございます"));
 
 app.get("/__version", (_req, res) => {
   try {

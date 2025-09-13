@@ -1,11 +1,8 @@
-# .github/workflows/cicd.yml
 name: CI/CD Postmatic
 
 on:
   push:
-    branches:
-      - stg        # staging
-      - main       # production
+    branches: [stg, main]   # stg = staging, main = production
   workflow_dispatch:
     inputs:
       environment:
@@ -28,6 +25,118 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      ENV_NAME:  ${{ steps.meta.outputs.ENV_NAME }}
+      SHORT_SHA: ${{ steps.meta.outputs.SHORT_SHA }}
+      NS:        ${{ steps.ns.outputs.NS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Derive environment
+        id: meta
+        shell: bash
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            ENV_NAME="${{ github.event.inputs.environment }}"
+          else
+            case "${GITHUB_REF_NAME}" in
+              stg)  ENV_NAME="staging" ;;
+              main) ENV_NAME="production" ;;
+              *)    echo "Unknown branch: ${GITHUB_REF_NAME}. Use workflow_dispatch with inputs.environment"; exit 1 ;;
+            esac
+          fi
+          SHORT_SHA="$(git rev-parse --short=8 HEAD)"
+          echo "ENV_NAME=$ENV_NAME"   | tee -a "$GITHUB_OUTPUT"
+          echo "SHORT_SHA=$SHORT_SHA" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Compute image namespace (GHCR)
+        id: ns
+        shell: bash
+        run: |
+          echo "NS=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+          echo "Using namespace: ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ===== Tulis env FE dari Secrets agar Next.js baca saat build =====
+      - name: Write dashboard env (staging)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
+        run: |
+          printf "%s" "${{ secrets.DASHBOARD_ENV_STAGING }}" > apps/dashboard/.env.staging
+
+      - name: Write dashboard env (production)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
+        run: |
+          printf "%s" "${{ secrets.DASHBOARD_ENV_PRODUCTION }}" > apps/dashboard/.env.production
+
+      - name: Write landing env (staging)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
+        run: |
+          printf "%s" "${{ secrets.LANDING_ENV_STAGING }}" > apps/landing-page/.env.staging
+
+      - name: Write landing env (production)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
+        run: |
+          printf "%s" "${{ secrets.LANDING_ENV_PRODUCTION }}" > apps/landing-page/.env.production
+
+      # ===================== Build & Push Images =====================
+
+      - name: Build & push API
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/backend-service
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
+            ENV_NAME=${{ steps.meta.outputs.ENV_NAME }}
+          tags: |
+            ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}
+            ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
+      - name: Build & push Dashboard
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/dashboard
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
+            ENV_NAME=${{ steps.meta.outputs.ENV_NAME }}
+          tags: |
+            ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}
+            ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
+      - name: Build & push Landing
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/landing-page
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
+            ENV_NAME=${{ steps.meta.outputs.ENV_NAME }}
+          tags: |
+            ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}
+            ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30

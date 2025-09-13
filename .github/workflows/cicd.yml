@@ -190,17 +190,29 @@ jobs:
             echo "[Wait for containers healthy]"
             for s in api dashboard landing; do
               echo "  - waiting $s ..."
-              cid="$(docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" ps -q $s)"
+              cid="$(docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" ps -q "$s")"
+              # tunggu maks 40 * 3s ≈ 2 menit
               for i in $(seq 1 40); do
                 st="$(docker inspect "$cid" --format='{{.State.Status}}' 2>/dev/null || true)"
                 hc="$(docker inspect "$cid" --format='{{if .State.Health}}{{.State.Health.Status}}{{end}}' 2>/dev/null || true)"
                 echo "    status=$st health=$hc try=$i"
-                if [ "$st" = "running" ] && { [ -z "$hc" ] || [ "$hc" = "healthy" ] || [ "$hc" = "starting" -a $i -ge 5 ]; }; then
+
+                ok=0
+                if [ "$st" = "running" ]; then
+                  if [ -z "$hc" ] || [ "$hc" = "healthy" ]; then
+                    ok=1
+                  elif [ "$hc" = "starting" ] && [ "$i" -ge 5 ]; then
+                    ok=1
+                  fi
+                fi
+
+                if [ $ok -eq 1 ]; then
                   break
                 fi
                 sleep 3
               done
             done
+
 
             echo "[Smoke tests]"
             if [ "$ENV_NAME" = "staging" ]; then
@@ -215,7 +227,7 @@ jobs:
                 code="$(curl -skL -o /dev/null -w '%{http_code}' "$u" || true)"
                 echo "    try=$i code=$code"
                 case "$code" in
-                  200|204|301|302) ok=1; break;;
+                  200|204|301|302|308) ok=1; break;;
                   *) sleep 3;;
                 esac
               done

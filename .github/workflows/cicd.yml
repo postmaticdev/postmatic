@@ -151,7 +151,7 @@ jobs:
           key:      ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
           script: |
-            # Pakai /bin/sh yang portable
+            # Pure /bin/sh compatible script
             set -eu
 
             ENV_NAME='${{ needs.build-and-push.outputs.ENV_NAME }}'
@@ -192,7 +192,7 @@ jobs:
               echo "  - waiting $s ..."
               cid="$(docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" ps -q "$s")"
               i=0
-              while :; do
+              while true; do
                 i=$((i+1))
                 st="$(docker inspect "$cid" --format='{{.State.Status}}' 2>/dev/null || true)"
                 hc="$(docker inspect "$cid" --format='{{if .State.Health}}{{.State.Health.Status}}{{end}}' 2>/dev/null || true)"
@@ -219,6 +219,7 @@ jobs:
             else
               URLS="https://api.postmatic.id/__version https://dashboard.postmatic.id/ https://postmatic.id/"
             fi
+
             for u in $URLS; do
               echo "  - $u"
               ok=0
@@ -227,9 +228,10 @@ jobs:
                 i=$((i+1))
                 code="$(curl -skL -o /dev/null -w '%{http_code}' "$u" || true)"
                 echo "    try=$i code=$code"
-                case "$code" in
-                  200|204|301|302) ok=1; break ;;
-                esac
+                if [ "$code" = "200" ] || [ "$code" = "204" ] || [ "$code" = "301" ] || [ "$code" = "302" ]; then
+                  ok=1
+                  break
+                fi
                 sleep 3
               done
               if [ $ok -ne 1 ]; then

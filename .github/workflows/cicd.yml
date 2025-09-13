@@ -1,8 +1,9 @@
+# .github/workflows/cicd.yml
 name: CI/CD Postmatic
 
 on:
   push:
-    branches: [stg, main]   # stg = staging, main = production
+    branches: [stg, main]   # stg=staging, main=production
   workflow_dispatch:
     inputs:
       environment:
@@ -25,35 +26,51 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  # Tentukan ENV_NAME sekali, supaya bisa dipakai untuk 'environment:' di job lain
+  resolve-env:
+    runs-on: ubuntu-latest
+    outputs:
+      ENV_NAME: ${{ steps.setenv.outputs.ENV_NAME }}
+      REF: ${{ steps.setenv.outputs.REF }}
+    steps:
+      - id: setenv
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.environment }}" ]]; then
+            ENV_NAME="${{ inputs.environment }}"
+            REF="${{ inputs.ref || github.ref }}"
+          else
+            case "${{ github.ref_name }}" in
+              stg)  ENV_NAME="staging" ;;
+              main) ENV_NAME="production" ;;
+              *)    echo "Unsupported branch: ${{ github.ref_name }}"; exit 1 ;;
+            esac
+            REF="${{ github.ref }}"
+          fi
+          echo "ENV_NAME=$ENV_NAME" >> "$GITHUB_OUTPUT"
+          echo "REF=$REF"           >> "$GITHUB_OUTPUT"
+
   build-and-push:
     runs-on: ubuntu-latest
+    needs: resolve-env
+    # Penting: ikat ke Environment agar secrets environment-scoped bisa diakses
+    environment: ${{ needs.resolve-env.outputs.ENV_NAME }}
     timeout-minutes: 60
     outputs:
-      ENV_NAME:  ${{ steps.meta.outputs.ENV_NAME }}
+      ENV_NAME:  ${{ needs.resolve-env.outputs.ENV_NAME }}
       SHORT_SHA: ${{ steps.meta.outputs.SHORT_SHA }}
       NS:        ${{ steps.ns.outputs.NS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.ref || github.ref }}
+          ref: ${{ needs.resolve-env.outputs.REF }}
 
-      - name: Derive environment
+      - name: Compute metadata
         id: meta
         shell: bash
         run: |
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            ENV_NAME="${{ github.event.inputs.environment }}"
-          else
-            case "${GITHUB_REF_NAME}" in
-              stg)  ENV_NAME="staging" ;;
-              main) ENV_NAME="production" ;;
-              *)    echo "Unknown branch: ${GITHUB_REF_NAME}. Use workflow_dispatch with inputs.environment"; exit 1 ;;
-            esac
-          fi
-          SHORT_SHA="$(git rev-parse --short=8 HEAD)"
-          echo "ENV_NAME=$ENV_NAME"   | tee -a "$GITHUB_OUTPUT"
-          echo "SHORT_SHA=$SHORT_SHA" | tee -a "$GITHUB_OUTPUT"
+          echo "SHORT_SHA=$(git rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Compute image namespace (GHCR)
         id: ns
@@ -75,64 +92,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ===== Tulis env FE dari Secrets agar Next.js baca saat build =====
-      # DASHBOARD (staging)
-      - name: Write dashboard env (staging)
-        if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
+      # ===== Tulis file .env FE dari secrets environment-scoped =====
+      - name: Write dashboard env
         run: |
           mkdir -p apps/dashboard
-          printf "%s" "${{ secrets.DASHBOARD_ENV_STAGING }}" \
-          | sed -E 's/\r$//' \
-          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
-          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
-          > apps/dashboard/.env.staging
+          printf "%s" "${{ secrets.DASHBOARD_ENV }}" \
+            | sed -E 's/\r$//' \
+            | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
+            | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
+            > "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          echo "[dashboard .env file] apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          wc -c "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          echo "[dashboard keys]"
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50 || true
 
-          echo "[dashboard .env.staging size]"; wc -c apps/dashboard/.env.staging
-          echo "[dashboard .env.staging keys]"
-          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/dashboard/.env.staging | sort -u | head -n 50
-
-      # DASHBOARD (production)
-      - name: Write dashboard env (production)
-        if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
-        run: |
-          mkdir -p apps/dashboard
-          printf "%s" "${{ secrets.DASHBOARD_ENV_PRODUCTION }}" \
-          | sed -E 's/\r$//' \
-          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
-          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
-          > apps/dashboard/.env.production
-          echo "[dashboard .env.production size]"; wc -c apps/dashboard/.env.production
-          echo "[dashboard .env.production keys]"
-          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/dashboard/.env.production | sort -u | head -n 50
-
-      # LANDING (staging)
-      - name: Write landing env (staging)
-        if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
+      - name: Write landing env
         run: |
           mkdir -p apps/landing-page
-          printf "%s" "${{ secrets.LANDING_ENV_STAGING }}" \
-          | sed -E 's/\r$//' \
-          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
-          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
-          > apps/landing-page/.env.staging
-          echo "[landing .env.staging size]"; wc -c apps/landing-page/.env.staging
-          echo "[landing .env.staging keys]"
-          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/landing-page/.env.staging | sort -u | head -n 50
-
-      # LANDING (production)
-      - name: Write landing env (production)
-        if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
-        run: |
-          mkdir -p apps/landing-page
-          printf "%s" "${{ secrets.LANDING_ENV_PRODUCTION }}" \
-          | sed -E 's/\r$//' \
-          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
-          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
-          > apps/landing-page/.env.production
-          echo "[landing .env.production size]"; wc -c apps/landing-page/.env.production
-          echo "[landing .env.production keys]"
-          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/landing-page/.env.production | sort -u | head -n 50
-
+          printf "%s" "${{ secrets.LANDING_ENV }}" \
+            | sed -E 's/\r$//' \
+            | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
+            | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
+            > "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          echo "[landing .env file] apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          wc -c "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          echo "[landing keys]"
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50 || true
 
       # ===================== Build & Push Images =====================
       - name: Build & push API
@@ -143,10 +128,10 @@ jobs:
           push: true
           build-args: |
             GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
-            ENV_NAME=${{ steps.meta.outputs.ENV_NAME }}
+            ENV_NAME=${{ needs.resolve-env.outputs.ENV_NAME }}
           tags: |
-            ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}
-            ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+            ${{ steps.ns.outputs.NS }}/postmatic-api:${{ needs.resolve-env.outputs.ENV_NAME }}
+            ${{ steps.ns.outputs.NS }}/postmatic-api:${{ needs.resolve-env.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
 
       - name: Build & push Dashboard
         uses: docker/build-push-action@v6
@@ -155,11 +140,11 @@ jobs:
           platforms: linux/amd64
           push: true
           build-args: |
-            ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
             GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
+            ENV_STAGE=${{ needs.resolve-env.outputs.ENV_NAME }}
           tags: |
-            ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}
-            ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
+            ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ needs.resolve-env.outputs.ENV_NAME }}
+            ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ needs.resolve-env.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
 
       - name: Build & push Landing
         uses: docker/build-push-action@v6
@@ -168,18 +153,18 @@ jobs:
           platforms: linux/amd64
           push: true
           build-args: |
-            ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
             GIT_SHA=${{ steps.meta.outputs.SHORT_SHA }}
+            ENV_STAGE=${{ needs.resolve-env.outputs.ENV_NAME }}
           tags: |
-            ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}
-            ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
-
+            ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ needs.resolve-env.outputs.ENV_NAME }}
+            ${{ steps.ns.outputs.NS }}/postmatic-landing:${{ needs.resolve-env.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
 
   deploy:
     runs-on: ubuntu-latest
+    needs: [resolve-env, build-and-push]
+    # ikat juga ke environment yang sama
+    environment: ${{ needs.resolve-env.outputs.ENV_NAME }}
     timeout-minutes: 30
-    needs: build-and-push
-    environment: ${{ needs.build-and-push.outputs.ENV_NAME }}
     steps:
       - name: SSH into VPS & deploy
         uses: appleboy/ssh-action@v1.2.0
@@ -190,10 +175,10 @@ jobs:
           key:      ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
           script: |
-            # Pure /bin/sh compatible script
+            # /bin/sh friendly
             set -eu
 
-            ENV_NAME='${{ needs.build-and-push.outputs.ENV_NAME }}'
+            ENV_NAME='${{ needs.resolve-env.outputs.ENV_NAME }}'
             SHORT_SHA='${{ needs.build-and-push.outputs.SHORT_SHA }}'
             IMAGE_TAG="${ENV_NAME}-${SHORT_SHA}"
 
@@ -231,23 +216,16 @@ jobs:
               echo "  - waiting $s ..."
               cid="$(docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" ps -q "$s")"
               i=0
-              while true; do
+              while :; do
                 i=$((i+1))
                 st="$(docker inspect "$cid" --format='{{.State.Status}}' 2>/dev/null || true)"
                 hc="$(docker inspect "$cid" --format='{{if .State.Health}}{{.State.Health.Status}}{{end}}' 2>/dev/null || true)"
                 echo "    status=$st health=$hc try=$i"
                 if [ "$st" = "running" ]; then
-                  if [ -z "$hc" ] || [ "$hc" = "healthy" ]; then
-                    break
-                  fi
-                  if [ "$hc" = "starting" ] && [ "$i" -ge 5 ]; then
-                    break
-                  fi
+                  if [ -z "$hc" ] || [ "$hc" = "healthy" ]; then break; fi
+                  if [ "$hc" = "starting" ] && [ "$i" -ge 5 ]; then break; fi
                 fi
-                if [ "$i" -ge 40 ]; then
-                  echo "    timeout waiting $s"
-                  exit 1
-                fi
+                [ "$i" -lt 40 ] || { echo "    timeout waiting $s"; exit 1; }
                 sleep 3
               done
             done
@@ -258,25 +236,17 @@ jobs:
             else
               URLS="https://api.postmatic.id/__version https://dashboard.postmatic.id/ https://postmatic.id/"
             fi
-
             for u in $URLS; do
               echo "  - $u"
-              ok=0
-              i=0
+              ok=0; i=0
               while [ $i -lt 10 ]; do
                 i=$((i+1))
                 code="$(curl -skL -o /dev/null -w '%{http_code}' "$u" || true)"
                 echo "    try=$i code=$code"
-                if [ "$code" = "200" ] || [ "$code" = "204" ] || [ "$code" = "301" ] || [ "$code" = "302" ]; then
-                  ok=1
-                  break
-                fi
+                case "$code" in 200|204|301|302) ok=1; break ;; esac
                 sleep 3
               done
-              if [ $ok -ne 1 ]; then
-                echo "FAIL: $u (last code=$code)"
-                exit 1
-              fi
+              [ $ok -eq 1 ] || { echo "FAIL: $u (last code=$code)"; exit 1; }
             done
 
             echo "[Cleanup old images]"

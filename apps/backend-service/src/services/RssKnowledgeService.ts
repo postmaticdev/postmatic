@@ -30,6 +30,7 @@ export class RssKnowledgeService extends BaseService {
                 masterRssCategory: {
                   select: {
                     name: true,
+                    id: true,
                   },
                 },
               },

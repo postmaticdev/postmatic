@@ -101,11 +101,11 @@ jobs:
             | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
             | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
             > "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
-          echo "[dashboard .env file] apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
-          wc -c "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          echo "[dashboard .env size]"; wc -c "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
           echo "[dashboard keys]"
-          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50 || true
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/dashboard/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50
 
+      # tulis env untuk landing
       - name: Write landing env
         run: |
           mkdir -p apps/landing-page
@@ -114,10 +114,9 @@ jobs:
             | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
             | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
             > "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
-          echo "[landing .env file] apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
-          wc -c "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
+          echo "[landing .env size]"; wc -c "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}"
           echo "[landing keys]"
-          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50 || true
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' "apps/landing-page/.env.${{ needs.resolve-env.outputs.ENV_NAME }}" | sort -u | head -n 50
 
       # ===================== Build & Push Images =====================
       - name: Build & push API

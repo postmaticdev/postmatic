@@ -76,25 +76,63 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # ===== Tulis env FE dari Secrets agar Next.js baca saat build =====
+      # DASHBOARD (staging)
       - name: Write dashboard env (staging)
         if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
         run: |
-          printf "%s" "${{ secrets.DASHBOARD_ENV_STAGING }}" > apps/dashboard/.env.staging
+          mkdir -p apps/dashboard
+          printf "%s" "${{ secrets.DASHBOARD_ENV_STAGING }}" \
+          | sed -E 's/\r$//' \
+          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
+          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
+          > apps/dashboard/.env.staging
 
+          echo "[dashboard .env.staging size]"; wc -c apps/dashboard/.env.staging
+          echo "[dashboard .env.staging keys]"
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/dashboard/.env.staging | sort -u | head -n 50
+
+      # DASHBOARD (production)
       - name: Write dashboard env (production)
         if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
         run: |
-          printf "%s" "${{ secrets.DASHBOARD_ENV_PRODUCTION }}" > apps/dashboard/.env.production
+          mkdir -p apps/dashboard
+          printf "%s" "${{ secrets.DASHBOARD_ENV_PRODUCTION }}" \
+          | sed -E 's/\r$//' \
+          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
+          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
+          > apps/dashboard/.env.production
+          echo "[dashboard .env.production size]"; wc -c apps/dashboard/.env.production
+          echo "[dashboard .env.production keys]"
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/dashboard/.env.production | sort -u | head -n 50
 
+      # LANDING (staging)
       - name: Write landing env (staging)
         if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
         run: |
-          printf "%s" "${{ secrets.LANDING_ENV_STAGING }}" > apps/landing-page/.env.staging
+          mkdir -p apps/landing-page
+          printf "%s" "${{ secrets.LANDING_ENV_STAGING }}" \
+          | sed -E 's/\r$//' \
+          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
+          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
+          > apps/landing-page/.env.staging
+          echo "[landing .env.staging size]"; wc -c apps/landing-page/.env.staging
+          echo "[landing .env.staging keys]"
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/landing-page/.env.staging | sort -u | head -n 50
 
+      # LANDING (production)
       - name: Write landing env (production)
         if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
         run: |
-          printf "%s" "${{ secrets.LANDING_ENV_PRODUCTION }}" > apps/landing-page/.env.production
+          mkdir -p apps/landing-page
+          printf "%s" "${{ secrets.LANDING_ENV_PRODUCTION }}" \
+          | sed -E 's/\r$//' \
+          | sed -E 's/^[[:space:]]*export[[:space:]]+//' \
+          | sed -E 's/^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*/\1=/' \
+          > apps/landing-page/.env.production
+          echo "[landing .env.production size]"; wc -c apps/landing-page/.env.production
+          echo "[landing .env.production keys]"
+          sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' apps/landing-page/.env.production | sort -u | head -n 50
+
 
       # ===================== Build & Push Images =====================
       - name: Build & push API

@@ -19,7 +19,10 @@ COPY . .
 # (kalau file tidak ada, gagal; itu yang kita mau biar ketahuan)
 RUN cp -f ".env.${ENV_STAGE}" .env.local \
  && echo "[Next build uses .env.local] ENV_STAGE=${ENV_STAGE}" \
- && (echo "[.env.local] keys:" && sed -n 's/^\([A-Z0-9_]\+\)=.*/\1/p' .env.local | sort -u)
+ && echo "[.env.local size]" && wc -c .env.local \
+ && echo "[.env.local keys]" \
+ && sed -En 's/^[[:space:]]*(export[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=.*/\2/p' .env.local | sort -u | head -n 50
+
 
 # Build (output: standalone)
 RUN npm run build # next.config.* = { output: 'standalone' }

@@ -76,6 +76,30 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Write dashboard env (staging)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
+        run: |
+          printf "%s" "${{ secrets.DASHBOARD_ENV_STAGING }}" > apps/dashboard/.env.staging
+          ls -la apps/dashboard | sed -n '1,120p'
+
+      - name: Write dashboard env (production)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
+        run: |
+          printf "%s" "${{ secrets.DASHBOARD_ENV_PRODUCTION }}" > apps/dashboard/.env.production
+          ls -la apps/dashboard | sed -n '1,120p'
+
+      - name: Write landing env (staging)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
+        run: |
+          printf "%s" "${{ secrets.LANDING_ENV_STAGING }}" > apps/landing-page/.env.staging
+          ls -la apps/landing-page | sed -n '1,120p'
+
+      - name: Write landing env (production)
+        if: ${{ steps.meta.outputs.ENV_NAME == 'production' }}
+        run: |
+          printf "%s" "${{ secrets.LANDING_ENV_PRODUCTION }}" > apps/landing-page/.env.production
+          ls -la apps/landing-page | sed -n '1,120p'
+
       - name: Build & push API
         uses: docker/build-push-action@v6
         with:
@@ -86,18 +110,6 @@ jobs:
             ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-api:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
       
-
-      - name: Derive API origins for dashboard
-        id: origins
-        run: |
-          if [ "${{ steps.meta.outputs.ENV_NAME }}" = "staging" ]; then
-            PUB_ORIGIN="https://api-staging.postmatic.id"
-          else
-            PUB_ORIGIN="https://api.postmatic.id"
-          fi
-          echo "PUB_ORIGIN=$PUB_ORIGIN" >> $GITHUB_OUTPUT
-          echo "INTERNAL_ORIGIN=http://api:3000" >> $GITHUB_OUTPUT
-
       - name: Build & push Dashboard
         uses: docker/build-push-action@v6
         with:
@@ -106,12 +118,9 @@ jobs:
           push: true
           build-args: |
             ENV_STAGE=${{ steps.meta.outputs.ENV_NAME }}
-            NEXT_PUBLIC_API_ORIGIN=${{ steps.origins.outputs.PUB_ORIGIN }}
-            API_ORIGIN=${{ steps.origins.outputs.INTERNAL_ORIGIN }}
           tags: |
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}
             ${{ steps.ns.outputs.NS }}/postmatic-dashboard:${{ steps.meta.outputs.ENV_NAME }}-${{ steps.meta.outputs.SHORT_SHA }}
-
 
       - name: Build & push Landing
         uses: docker/build-push-action@v6

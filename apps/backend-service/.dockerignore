@@ -4,4 +4,5 @@ dist
 .gitignore
 Dockerfile
 npm-debug.log
-.env*
+!.env.staging
+!.env.production

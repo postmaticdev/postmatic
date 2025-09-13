@@ -75,7 +75,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ========= Tulis env FE dari Secrets agar Next.js baca saat build =========
+      # ===== Tulis env FE dari Secrets agar Next.js baca saat build =====
       - name: Write dashboard env (staging)
         if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
         run: |
@@ -151,7 +151,7 @@ jobs:
           key:      ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
           script: |
-            # NB: pakai /bin/sh yang portable, hindari fitur bash-only
+            # Pakai /bin/sh yang portable
             set -eu
 
             ENV_NAME='${{ needs.build-and-push.outputs.ENV_NAME }}'
@@ -175,7 +175,7 @@ jobs:
             IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" config \
               | awk '/services:/{p=1} p && /image:/{print NR": "$0} /networks:/{p=0}'
 
-            echo "[Turunkan stack lama]"
+            echo "[Down stack lama]"
             IMAGE_TAG="$IMAGE_TAG" docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" down --remove-orphans || true
 
             echo "[Pull images]"
@@ -205,7 +205,10 @@ jobs:
                     break
                   fi
                 fi
-                [ "$i" -lt 40 ] || { echo "    timeout waiting $s"; exit 1; }
+                if [ "$i" -ge 40 ]; then
+                  echo "    timeout waiting $s"
+                  exit 1
+                fi
                 sleep 3
               done
             done
@@ -226,10 +229,13 @@ jobs:
                 echo "    try=$i code=$code"
                 case "$code" in
                   200|204|301|302) ok=1; break ;;
-                  *) sleep 3 ;;
                 esac
+                sleep 3
               done
-              [ $ok -eq 1 ] || { echo "FAIL: $u (last code=$code)"; exit 1; }
+              if [ $ok -ne 1 ]; then
+                echo "FAIL: $u (last code=$code)"
+                exit 1
+              fi
             done
 
             echo "[Cleanup old images]"

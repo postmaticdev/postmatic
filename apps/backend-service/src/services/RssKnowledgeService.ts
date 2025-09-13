@@ -26,6 +26,7 @@ export class RssKnowledgeService extends BaseService {
               select: {
                 title: true,
                 id: true,
+                publisher: true,
                 masterRssCategory: {
                   select: {
                     name: true,

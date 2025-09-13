@@ -75,7 +75,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ===== Tulis env FE dari Secrets agar Next.js baca saat build =====
+      # ========= Tulis env FE dari Secrets agar Next.js baca saat build =========
       - name: Write dashboard env (staging)
         if: ${{ steps.meta.outputs.ENV_NAME == 'staging' }}
         run: |
@@ -97,7 +97,6 @@ jobs:
           printf "%s" "${{ secrets.LANDING_ENV_PRODUCTION }}" > apps/landing-page/.env.production
 
       # ===================== Build & Push Images =====================
-
       - name: Build & push API
         uses: docker/build-push-action@v6
         with:
@@ -152,7 +151,8 @@ jobs:
           key:      ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
           script: |
-            set -euo pipefail
+            # NB: pakai /bin/sh yang portable, hindari fitur bash-only
+            set -eu
 
             ENV_NAME='${{ needs.build-and-push.outputs.ENV_NAME }}'
             SHORT_SHA='${{ needs.build-and-push.outputs.SHORT_SHA }}'
@@ -191,44 +191,42 @@ jobs:
             for s in api dashboard landing; do
               echo "  - waiting $s ..."
               cid="$(docker compose --env-file "$ENVFILE" -f "$COMPOSE_FILE" -p "$COMPOSE_PROJECT" ps -q "$s")"
-              # tunggu maks 40 * 3s ≈ 2 menit
-              for i in $(seq 1 40); do
+              i=0
+              while :; do
+                i=$((i+1))
                 st="$(docker inspect "$cid" --format='{{.State.Status}}' 2>/dev/null || true)"
                 hc="$(docker inspect "$cid" --format='{{if .State.Health}}{{.State.Health.Status}}{{end}}' 2>/dev/null || true)"
                 echo "    status=$st health=$hc try=$i"
-
-                ok=0
                 if [ "$st" = "running" ]; then
                   if [ -z "$hc" ] || [ "$hc" = "healthy" ]; then
-                    ok=1
-                  elif [ "$hc" = "starting" ] && [ "$i" -ge 5 ]; then
-                    ok=1
+                    break
+                  fi
+                  if [ "$hc" = "starting" ] && [ "$i" -ge 5 ]; then
+                    break
                   fi
                 fi
-
-                if [ $ok -eq 1 ]; then
-                  break
-                fi
+                [ "$i" -lt 40 ] || { echo "    timeout waiting $s"; exit 1; }
                 sleep 3
               done
             done
 
-
             echo "[Smoke tests]"
             if [ "$ENV_NAME" = "staging" ]; then
-              URLS=("https://api-staging.postmatic.id/__version" "https://dashboard-staging.postmatic.id/" "https://landing-staging.postmatic.id/")
+              URLS="https://api-staging.postmatic.id/__version https://dashboard-staging.postmatic.id/ https://landing-staging.postmatic.id/"
             else
-              URLS=("https://api.postmatic.id/__version" "https://dashboard.postmatic.id/" "https://postmatic.id/")
+              URLS="https://api.postmatic.id/__version https://dashboard.postmatic.id/ https://postmatic.id/"
             fi
-            for u in "${URLS[@]}"; do
+            for u in $URLS; do
               echo "  - $u"
               ok=0
-              for i in $(seq 1 10); do
+              i=0
+              while [ $i -lt 10 ]; do
+                i=$((i+1))
                 code="$(curl -skL -o /dev/null -w '%{http_code}' "$u" || true)"
                 echo "    try=$i code=$code"
                 case "$code" in
-                  200|204|301|302|308) ok=1; break;;
-                  *) sleep 3;;
+                  200|204|301|302) ok=1; break ;;
+                  *) sleep 3 ;;
                 esac
               done
               [ $ok -eq 1 ] || { echo "FAIL: $u (last code=$code)"; exit 1; }

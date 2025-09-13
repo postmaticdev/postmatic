@@ -148,8 +148,8 @@ export class AuthController extends BaseController {
       }
 
       console.log("redirect to client");
-      console.log({ redirect: `/${redirect}?token=${token}` });
-      return this.redirectToClient(res, `/${redirect}?token=${token}`);
+      console.log({ redirect: `/${redirect}?postmaticToken=${token}` });
+      return this.redirectToClient(res, `/${redirect}?postmaticToken=${token}`);
     } catch (error) {
       console.log("error signIn SERVER ERROR");
       console.log({ error });
@@ -206,7 +206,7 @@ export class AuthController extends BaseController {
               path: "/", // wajib untuk prefix __Host-
               maxAge: 30 * 24 * 60 * 60 * 1000, // contoh: 30 hari
             });
-            return this.redirectToClient(res, `?token=${token}`);
+            return this.redirectToClient(res, `?postmaticToken=${token}`);
           });
         }
       )(req, res);

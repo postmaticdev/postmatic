@@ -2,7 +2,7 @@ import { BaseService } from "../BaseService";
 import db from "../../config/db";
 import { FilterQueryType } from "src/middleware/use-filter";
 import moment from "moment-timezone";
-import { SocialPlatform } from "@prisma/client";
+import { GeneratedImageContent, SocialPlatform } from "@prisma/client";
 
 interface UpcomingPost {
   date: Date;
@@ -11,6 +11,7 @@ interface UpcomingPost {
   type: "auto" | "manual";
   title: string;
   category: string;
+  generatedImageContent: GeneratedImageContent;
 }
 
 export class ImageContentOverviewService extends BaseService {
@@ -141,11 +142,7 @@ export class ImageContentOverviewService extends BaseService {
                 : []),
             ],
           },
-          select: {
-            id: true,
-            caption: true,
-            images: true,
-            category: true,
+          include: {
             schedulerManualPostings: { select: { id: true } }, // untuk exclude dari auto
           },
         },
@@ -165,9 +162,7 @@ export class ImageContentOverviewService extends BaseService {
           select: {
             date: true,
             platforms: true,
-            generatedImageContent: {
-              select: { caption: true, images: true, category: true },
-            },
+            generatedImageContent: true,
           },
         },
         schedulerAutoPostings: {
@@ -209,6 +204,7 @@ export class ImageContentOverviewService extends BaseService {
         type: "manual",
         title: m.generatedImageContent.caption ?? "",
         category: m.generatedImageContent.category,
+        generatedImageContent: m.generatedImageContent,
       };
       upcoming.push(item);
 
@@ -217,9 +213,17 @@ export class ImageContentOverviewService extends BaseService {
     }
 
     /** 2) SIAPKAN QUEUE AUTO (exclude yang sudah dijadwalkan manual) */
-    const autoQueue = root.generatedImageContents.filter(
-      (g) => !g.schedulerManualPostings // belum ada manual schedule
-    );
+    const autoQueue = root.generatedImageContents
+      .filter(
+        (g) => !g.schedulerManualPostings // belum ada manual schedule
+      )
+      .map((g) => {
+        // @ts-ignore
+        delete g.schedulerManualPostings;
+        return {
+          ...g,
+        };
+      });
 
     /** 3) GEN SLOT AUTO BERDASARKAN PREFERENSI (day+times) DALAM RANGE */
     const rawSlots = root.schedulerAutoPreference?.isAutoPosting
@@ -253,6 +257,7 @@ export class ImageContentOverviewService extends BaseService {
         type: "auto",
         title: g.caption ?? "",
         category: g.category,
+        generatedImageContent: g,
       });
     }
 

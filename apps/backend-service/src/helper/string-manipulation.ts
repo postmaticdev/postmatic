@@ -25,7 +25,15 @@ const snakeToReadable = (str: string) => {
     .join(" ");
 };
 
+const formatRupiah = (amount: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+  }).format(amount);
+};
+
 export const stringManipulation = {
   transformPlatform,
   snakeToReadable,
+  formatRupiah,
 };

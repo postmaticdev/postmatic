@@ -17,3 +17,11 @@ export const DiscountCalculateSchema = z.object({
 });
 
 export type DiscountCalculateDTO = z.infer<typeof DiscountCalculateSchema>;
+
+export const ProductDetailSchema = z.object({
+  productId: z.string().min(1, "Product ID is required"),
+  type: z.enum(["subscription", "token"]),
+  rootBusinessId: z.string().min(1, "Root business ID is required"),
+});
+
+export type ProductDetailDTO = z.infer<typeof ProductDetailSchema>;

@@ -122,6 +122,7 @@ export class BusinessService extends BaseService {
         include: {
           members: {
             select: {
+              id: true,
               profileId: true,
               status: true,
               role: true,

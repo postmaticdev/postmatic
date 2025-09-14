@@ -359,10 +359,17 @@ export class AppProductService extends BaseService {
           method,
           typeof discount === "string" || !discount ? null : discount
         );
-        pricingByMethod.push({
-          type: method.type,
-          methods: [pricing],
-        });
+        const findPricingByMethod = pricingByMethod.find(
+          (item) => item.type === method.type
+        );
+        if (findPricingByMethod) {
+          findPricingByMethod.methods.push(pricing);
+        } else {
+          pricingByMethod.push({
+            type: method.type,
+            methods: [pricing],
+          });
+        }
       }
       return {
         id: checkProduct.id,
@@ -372,7 +379,7 @@ export class AppProductService extends BaseService {
         type: "subscription",
         validFor: checkProduct.subscriptionValidFor,
         validForInfo:
-        checkProduct.subscriptionValidFor === 30 ? "monthly" : "annually",
+          checkProduct.subscriptionValidFor === 30 ? "monthly" : "annually",
         defaultPrice: checkProduct.price,
         isValidCode,
         hintCode,
@@ -432,10 +439,17 @@ export class AppProductService extends BaseService {
           method,
           typeof discount === "string" || !discount ? null : discount
         );
-        pricingByMethod.push({
-          type: method.type,
-          methods: [pricing],
-        });
+        const findPricingByMethod = pricingByMethod.find(
+          (item) => item.type === method.type
+        );
+        if (findPricingByMethod) {
+          findPricingByMethod.methods.push(pricing);
+        } else {
+          pricingByMethod.push({
+            type: method.type,
+            methods: [pricing],
+          });
+        }
       }
       return {
         id: checkProduct.id,

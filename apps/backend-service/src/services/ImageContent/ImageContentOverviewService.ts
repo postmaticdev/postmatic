@@ -11,6 +11,7 @@ interface UpcomingPost {
   type: "auto" | "manual";
   title: string;
   category: string;
+  schedulerManualPostingId: number | null;
   generatedImageContent: GeneratedImageContent;
 }
 
@@ -160,6 +161,7 @@ export class ImageContentOverviewService extends BaseService {
             ],
           },
           select: {
+            id: true,
             date: true,
             platforms: true,
             generatedImageContent: true,
@@ -205,6 +207,7 @@ export class ImageContentOverviewService extends BaseService {
         title: m.generatedImageContent.caption ?? "",
         category: m.generatedImageContent.category,
         generatedImageContent: m.generatedImageContent,
+        schedulerManualPostingId: m.id,
       };
       upcoming.push(item);
 
@@ -253,11 +256,12 @@ export class ImageContentOverviewService extends BaseService {
       upcoming.push({
         date: slot,
         images: g.images,
-        platforms: availPlatforms, // jika ada preferensi platform auto, gantikan di sini
+        platforms: availPlatforms, // TODO: jika ada preferensi platform auto, gantikan di sini
         type: "auto",
         title: g.caption ?? "",
         category: g.category,
         generatedImageContent: g,
+        schedulerManualPostingId: null,
       });
     }
 

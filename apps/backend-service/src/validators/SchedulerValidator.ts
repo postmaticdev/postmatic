@@ -49,6 +49,7 @@ export const ManualSchedulerSchema = z.object({
     )
     .min(1, "Platforms is required"),
   dateTime: z.coerce.date(),
+  caption: z.string(),
 });
 
 export type ManualSchedulerDTO = z.infer<typeof ManualSchedulerSchema>;

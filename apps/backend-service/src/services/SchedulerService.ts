@@ -277,6 +277,7 @@ export class SchedulerService extends BaseService {
           schedulerManualPostings: {
             select: {
               id: true,
+              generatedImageContentId: true,
             },
           },
         },
@@ -287,6 +288,11 @@ export class SchedulerService extends BaseService {
       if (checkGen?.deletedAt) return "Konten telah dihapus";
       if (checkGen?._count?.postedImageContents > 0)
         return "Konten telah diposting";
+      if (
+        checkGen.schedulerManualPostings?.generatedImageContentId ===
+        data.generatedImageContentId
+      )
+        return "Konten telah dijadwalkan";
       if (checkGen?.schedulerManualPostings?.id)
         return "Konten telah dijadwalkan";
 
@@ -296,6 +302,94 @@ export class SchedulerService extends BaseService {
           generatedImageContentId: data.generatedImageContentId,
           rootBusinessId: rootBusinessId,
           platforms: data.platforms,
+        },
+      });
+
+      await db.generatedImageContent.update({
+        where: { id: data.generatedImageContentId },
+        data: {
+          caption: data.caption,
+        },
+      });
+
+      await ManualSchedulerTaskManager.instance.add(returnData.id);
+      return returnData;
+    } catch (err) {
+      this.handleError("SchedulerService.addToQueue", err);
+    }
+  }
+
+  async editFromQueue(
+    data: ManualSchedulerDTO,
+    rootBusinessId: string,
+    schedulerManualPostingId: number
+  ) {
+    try {
+      const check = await db.schedulerManualPosting.findUnique({
+        where: { id: schedulerManualPostingId },
+        select: { rootBusinessId: true },
+      });
+      if (!check) return null;
+      if (check.rootBusinessId !== rootBusinessId) return null;
+      const { unavailablePlatforms, availablePlatforms } =
+        await this.deps.platformService.getPlatforms();
+      if (
+        data.platforms.some((platform) =>
+          unavailablePlatforms.some((p) => p.platform === platform)
+        )
+      ) {
+        return `${data.platforms
+          .filter((platform) =>
+            unavailablePlatforms.some((p) => p.platform === platform)
+          )
+          .join(", ")} saat ini tidak didukung. Silakan coba lagi nanti.`;
+      }
+      const now = new Date();
+      if (data.dateTime < now) return "Tanggal harus di masa depan";
+
+      for (const platform of availablePlatforms) {
+        if (data.platforms.includes(platform.platform)) {
+          const check = await this.deps.platformDeps[
+            stringManipulation.transformPlatform(platform.platform)
+          ].checkSocial(rootBusinessId);
+          if (typeof check === "string") return check;
+        }
+      }
+
+      const checkGen = await db.generatedImageContent.findUnique({
+        where: { id: data.generatedImageContentId },
+        select: {
+          deletedAt: true,
+          rootBusinessId: true,
+          _count: { select: { postedImageContents: true } },
+          schedulerManualPostings: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      if (!checkGen) return "Konten tidak ditemukan";
+      if (checkGen.rootBusinessId !== rootBusinessId)
+        return "Konten tidak termasuk bisnis ini";
+      if (checkGen?.deletedAt) return "Konten telah dihapus";
+      if (checkGen?._count?.postedImageContents > 0)
+        return "Konten telah diposting";
+
+      const returnData = await db.schedulerManualPosting.update({
+        where: { id: schedulerManualPostingId },
+        data: {
+          date: data.dateTime,
+          generatedImageContentId: data.generatedImageContentId,
+          rootBusinessId: rootBusinessId,
+          platforms: data.platforms,
+        },
+      });
+
+      await db.generatedImageContent.update({
+        where: { id: data.generatedImageContentId },
+        data: {
+          caption: data.caption,
         },
       });
 

@@ -22,6 +22,16 @@ manualSchedulerRoute.post(
   schedulerController.addToQueue
 );
 
+manualSchedulerRoute.put(
+  "/:rootBusinessId/:schedulerManualPostingId",
+  useOwnedBusiness,
+  useValidate({
+    body: ManualSchedulerSchema,
+    params: ManualParamsSchema,
+  }),
+  schedulerController.editFromQueue
+);
+
 manualSchedulerRoute.delete(
   "/:rootBusinessId/:schedulerManualPostingId",
   useOwnedBusiness,

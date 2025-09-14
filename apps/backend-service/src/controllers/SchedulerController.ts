@@ -57,6 +57,7 @@ export class SchedulerController extends BaseController {
       const { rootBusinessId } = req.params;
       const data = req.body as ManualSchedulerDTO;
       const post = await this.sched.addToQueue(data, rootBusinessId);
+      if (!post) return this.notFound(res);
       if (typeof post === "string")
         return this.sendError(res, new Error(post), 400);
       return this.sendCreated(
@@ -64,6 +65,24 @@ export class SchedulerController extends BaseController {
         post,
         "Post berhasil ditambahkan ke antrian"
       );
+    } catch (error) {
+      this.sendError(res, error);
+    }
+  };
+
+  editFromQueue = async (req: Request, res: Response) => {
+    try {
+      const data = req.body as ManualSchedulerDTO;
+      const { schedulerManualPostingId, rootBusinessId } = req.params as unknown as ManualParamsDTO;
+      const post = await this.sched.editFromQueue(
+        data,
+        rootBusinessId,
+        schedulerManualPostingId
+      );
+      if (!post) return this.notFound(res);
+      if (typeof post === "string")
+        return this.sendError(res, new Error(post), 400);
+      return this.sendSuccess(res, post, "Post berhasil diupdate");
     } catch (error) {
       this.sendError(res, error);
     }

@@ -346,9 +346,21 @@ export class ImageContentService extends BaseService {
               id: true,
             },
           },
+          generatedImageContents: {
+            where: {
+              id: data.generatedImageContentId,
+            },
+            take: 1,
+            select: {
+              schedulerManualPostings: true,
+            },
+          },
         },
       });
       if (!check || check.deletedAt) return "Business tidak ditemukan";
+      if (check.generatedImageContents.length === 0) {
+        return "Konten tidak ditemukan";
+      }
       const { unavailablePlatforms, availablePlatforms } =
         await this.deps.platformService.getPlatforms();
       if (
@@ -387,6 +399,14 @@ export class ImageContentService extends BaseService {
       const returnData = await Promise.all(promises);
       if (returnData?.filter((item) => typeof item === "string")?.length > 0) {
         return returnData?.filter((item) => typeof item === "string")[0];
+      }
+
+      if (check?.generatedImageContents[0]?.schedulerManualPostings) {
+        await db.schedulerManualPosting.delete({
+          where: {
+            generatedImageContentId: data.generatedImageContentId,
+          },
+        });
       }
 
       await AutoSchedulerTaskManager.instance.add(rootBusinessId);

@@ -10,6 +10,7 @@ interface UpcomingPost {
   platforms: string[];
   type: "auto" | "manual";
   title: string;
+  category: string;
 }
 
 export class ImageContentOverviewService extends BaseService {
@@ -144,6 +145,7 @@ export class ImageContentOverviewService extends BaseService {
             id: true,
             caption: true,
             images: true,
+            category: true,
             schedulerManualPostings: { select: { id: true } }, // untuk exclude dari auto
           },
         },
@@ -163,7 +165,9 @@ export class ImageContentOverviewService extends BaseService {
           select: {
             date: true,
             platforms: true,
-            generatedImageContent: { select: { caption: true, images: true } },
+            generatedImageContent: {
+              select: { caption: true, images: true, category: true },
+            },
           },
         },
         schedulerAutoPostings: {
@@ -204,6 +208,7 @@ export class ImageContentOverviewService extends BaseService {
         platforms: m.platforms,
         type: "manual",
         title: m.generatedImageContent.caption ?? "",
+        category: m.generatedImageContent.category,
       };
       upcoming.push(item);
 
@@ -247,6 +252,7 @@ export class ImageContentOverviewService extends BaseService {
         platforms: availPlatforms, // jika ada preferensi platform auto, gantikan di sini
         type: "auto",
         title: g.caption ?? "",
+        category: g.category,
       });
     }
 

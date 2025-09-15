@@ -7,6 +7,8 @@ import {
   NavbarButton,
 } from "@/components/ui/resizable-navbar";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./theme-toggle";
+import { LanguageToggle } from "./language-toggle";
 
 type NavItem = { name: string; link: string };
 
@@ -19,23 +21,29 @@ export default function MobileNavWrapper({ items }: { items: NavItem[] }) {
       <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950 border-b border-gray-200 dark:border-neutral-800 shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
           <NavbarLogo />
-          <MobileNavToggle isOpen={open} onClick={() => setOpen(!open)} />
+          <div className="flex items-center gap-4">
+            <LanguageToggle />
+            <ThemeToggle />
+            <MobileNavToggle isOpen={open} onClick={() => setOpen(!open)} />
+          </div>
         </div>
       </div>
 
       {/* Backdrop overlay */}
       {open && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 dark:bg-black/40 z-30"
           onClick={() => setOpen(false)}
         />
       )}
 
       {/* Mobile Menu - positioned below fixed navbar */}
-      <div 
+      <div
         className={cn(
           "fixed top-16 left-0 right-0 z-40 bg-white dark:bg-neutral-950 border-b border-gray-200 dark:border-neutral-800 shadow-lg transition-all duration-300 ease-in-out",
-          open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+          open
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-4 pointer-events-none"
         )}
       >
         <div className="px-4 py-6 space-y-4">

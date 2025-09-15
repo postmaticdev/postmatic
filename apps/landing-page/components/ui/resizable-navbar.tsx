@@ -1,5 +1,5 @@
 "use client";
-import { IMAGE_PATH } from "@/constants/path-file";
+import { LOGO_BLUE, LOGO_WHITE } from "@/constants/path-file";
 import { cn } from "@/lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import {
@@ -11,7 +11,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -122,7 +123,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     <motion.div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2",
+        "hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2",
         className
       )}
     >
@@ -232,12 +233,20 @@ export const MobileNavToggle = ({
 };
 
 export const NavbarLogo = () => {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Use resolvedTheme for more accurate theme detection
+  const isDark = mounted ? (resolvedTheme === "dark") : false;
   return (
     <Link
       href="/#home"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
-      <Image src={IMAGE_PATH} alt="logo" width={30} height={30} />
+      <Image src= {isDark ? LOGO_WHITE : LOGO_BLUE} alt="logo" width={40} height={40} />
       <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent bold dark:text-white">
         Postmatic
       </span>

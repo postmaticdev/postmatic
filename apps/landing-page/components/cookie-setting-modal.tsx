@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, ShieldCheck, BarChart3, Megaphone } from "lucide-react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 
 type CookiePreferences = {
   necessary: boolean;
@@ -11,6 +12,7 @@ type CookiePreferences = {
 };
 
 export default function CookieSettingsModal({
+  
   isOpen,
   onClose,
   closeConsent,
@@ -32,6 +34,7 @@ export default function CookieSettingsModal({
       setPreferences(JSON.parse(saved));
     }
   }, [isOpen]);
+  const t = useTranslations("cookieSettings");
 
   const handleSave = () => {
     localStorage.setItem("cookiePrefs", JSON.stringify(preferences));
@@ -51,12 +54,14 @@ export default function CookieSettingsModal({
 
   if (!isOpen) return null;
 
+  
+
   return createPortal(
     <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Pengaturan Cookie</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("title")}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition"
@@ -70,8 +75,8 @@ export default function CookieSettingsModal({
           {/* Necessary */}
           <CookieToggle
             icon={<ShieldCheck className="w-6 h-6 text-green-500" />}
-            title="Cookie Wajib"
-            description="Cookie ini diperlukan agar website dapat berfungsi dengan baik dan tidak dapat dimatikan."
+            title={t("cookieWajib")}
+            description={t("cookieWajibDescription")}
             enabled={preferences.necessary}
             onToggle={() => {}} // tidak bisa dimatikan
             disabled
@@ -80,8 +85,8 @@ export default function CookieSettingsModal({
           {/* Analytics */}
           <CookieToggle
             icon={<BarChart3 className="w-6 h-6 text-blue-500" />}
-            title="Cookie Analitik"
-            description="Membantu kami memahami bagaimana pengunjung berinteraksi dengan website kami."
+            title={t("cookieAnalitik")}
+            description={t("cookieAnalitikDescription")}
             enabled={preferences.analytics}
             onToggle={() =>
               setPreferences((prev) => ({ ...prev, analytics: !prev.analytics }))
@@ -91,8 +96,8 @@ export default function CookieSettingsModal({
           {/* Marketing */}
           <CookieToggle
             icon={<Megaphone className="w-6 h-6 text-purple-500" />}
-            title="Cookie Iklan"
-            description="Digunakan untuk menampilkan iklan yang relevan dan mengukur efektivitas kampanye."
+            title={t("cookieIklan")}
+            description={t("cookieIklanDescription")}
             enabled={preferences.marketing}
             onToggle={() =>
               setPreferences((prev) => ({ ...prev, marketing: !prev.marketing }))
@@ -106,13 +111,13 @@ export default function CookieSettingsModal({
             onClick={handleSave}
             className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-xl transition"
           >
-            Simpan & Terima
+            {t("simpanDanTerima")}
           </button>
           <button
             onClick={handleRejectAll}
             className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-semibold py-3 rounded-xl transition"
           >
-            Tolak Semua
+            {t("tolakSemua")}
           </button>
         </div>
       </div>

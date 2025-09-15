@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ADDRESS,
   COMMUNITY_URL,
@@ -9,7 +11,7 @@ import {
   PHONE_NUMBER,
   TWITTER,
 } from "@/constants";
-import { IMAGE_PATH } from "@/constants/path-file";
+import {  LOGO_BLUE, LOGO_WHITE } from "@/constants/path-file";
 import {
   Facebook,
   Instagram,
@@ -22,54 +24,67 @@ import Image from "next/image";
 import Link from "next/link";
 import { getContainerMargins } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const locale = useLocale();
+  
+  // Handle hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Use resolvedTheme for more accurate theme detection
+  const isDark = mounted ? (resolvedTheme === "dark") : false;
+  const t = useTranslations('footer');
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-[#F5F5F5] dark:bg-gray-900 text-foreground">
       <div className={cn(getContainerMargins(), "py-12 md:py-16")}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {/* Company Info - Adjusted for 1024px */}
           <div className="lg:col-span-1 md:col-span-2 text-center md:text-left">
             <Link
               href="/#home"
-              className="flex flex-col w-full justify-center items-center space-x-0 md:space-x-2 mb-4 cursor-pointer"
+              className="flex flex-col w-full justify-center md:justify-start items-center md:items-start space-x-0 md:space-x-2 mb-4 cursor-pointer"
             >
               <Image
-                src={IMAGE_PATH}
+                src= {isDark ? LOGO_WHITE : LOGO_BLUE}
                 alt="AI Marketing Assistant"
                 className=" text-blue-600 dark:text-blue-400 mx-auto md:mx-0 mb-2 md:mb-0"
-                width={48}
-                height={48}
+                width={56}
+                height={56}
               />
               <span className="text-lg sm:text-xl lg:text-2xl font-extrabold">
                 {COMPANY_NAME}
               </span>
             </Link>
-            <p className="text-gray-400 mb-6 leading-relaxed text-xs sm:text-sm lg:text-base max-w-md mx-auto md:mx-0">
-              Platform AI terdepan untuk mengotomasi pemasaran digital suatu Bisnis
-              Indonesia.
+            <p className="text-muted-foreground mb-6 leading-relaxed text-xs sm:text-sm lg:text-base max-w-md mx-auto md:mx-0">
+              {t('companyDescription')}
             </p>
-            <div className="flex justify-center space-x-3 lg:space-x-4">
+            <div className="flex justify-center md:justify-start space-x-3 lg:space-x-4">
               <a
                 href={FACEBOOK}
-                className="w-8 h-8 lg:w-10 lg:h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+                className="group w-8 h-8 lg:w-10 lg:h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
               >
-                <Facebook className="h-4 w-4 lg:h-5 lg:w-5" />
+                <Facebook className="h-4 w-4 lg:h-5 lg:w-5 group-hover:text-white" />
               </a>
               <a
                 href={INSTAGRAM}
-                className="w-8 h-8 lg:w-10 lg:h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors"
+                className="group w-8 h-8 lg:w-10 lg:h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors"
               >
-                <Instagram className="h-4 w-4 lg:h-5 lg:w-5" />
+                <Instagram className="h-4 w-4 lg:h-5 lg:w-5 group-hover:text-white" />
               </a>
               <a
                 href={TWITTER}
-                className="w-8 h-8 lg:w-10 lg:h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-400 transition-colors"
+                className="group w-8 h-8 lg:w-10 lg:h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center hover:bg-black transition-colors"
               >
                 <svg
-                  className="h-4 w-4"
+                  className="h-4 w-4 group-hover:text-white"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -78,9 +93,9 @@ export default function Footer() {
               </a>
               <a
                 href={LINKEDIN}
-                className="w-8 h-8 lg:w-10 lg:h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                className="group w-8 h-8 lg:w-10 lg:h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
               >
-                <Linkedin className="h-4 w-4 lg:h-5 lg:w-5" />
+                <Linkedin className="h-4 w-4 lg:h-5 lg:w-5 group-hover:text-white" />
               </a>
             </div>
           </div>
@@ -88,32 +103,32 @@ export default function Footer() {
           {/* Product Links */}
           <div className="text-center md:text-left">
             <h3 className="text-sm sm:text-base lg:text-lg font-bold mb-3 lg:mb-4">
-              Platform
+              {t('platform')}
             </h3>
             <ul className="space-y-1.5 lg:space-y-2">
               <li>
                 <Link
                   href="/#features"
-                  className="text-gray-400 hover:text-white transition-colors text-sm lg:text-base"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm lg:text-base"
                 >
-                  Fitur
+                  {t('fitur')}
                 </Link>
               </li>
               <li>
                 <Link
                   href="/#pricing"
-                  className="text-gray-400 hover:text-white transition-colors text-sm lg:text-base"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm lg:text-base"
                 >
-                  Harga
+                  {t('harga')}
                 </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/status-system"
-                  className="text-gray-400 hover:text-white transition-colors text-sm lg:text-base"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm lg:text-base"
                 >
-                  Status System
-                </a>
+                  {t('statusSystem')}
+                </Link>
               </li>
             </ul>
           </div>
@@ -121,32 +136,32 @@ export default function Footer() {
           {/* Resources */}
           <div className="text-center md:text-left">
             <h3 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4">
-              Resources
+              {t('resources')}
             </h3>
             <ul className="space-y-1.5 lg:space-y-2">
               <li>
                 {/* REDIRECT TO POSTMATIC INSTAGRAM */}
                 <a
                   href={COMMUNITY_URL}
-                  className="text-gray-400 hover:text-white transition-colors text-sm lg:text-base"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm lg:text-base"
                 >
-                  Community
+                  {t('community')}
                 </a>
               </li>
               <li>
                 <Link
                   href="/#tutorial"
-                  className="text-gray-400 hover:text-white transition-colors text-sm lg:text-base"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm lg:text-base"
                 >
-                  Tutorial
+                  {t('tutorial')}
                 </Link>
               </li>
               <li>
                 <a
                   href={`https://wa.me/${PHONE_NUMBER}`}
-                  className="text-gray-400 hover:text-white transition-colors text-sm lg:text-base"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm lg:text-base"
                 >
-                  Help Center
+                  {t('helpCenter')}
                 </a>
               </li>
             </ul>
@@ -155,18 +170,18 @@ export default function Footer() {
           {/* Contact - Adjusted for better fit */}
           <div className="text-center md:text-left">
             <h3 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4">
-              Kontak
+             {t('contact')}
             </h3>
             <div className="space-y-2 lg:space-y-3">
               <div className="flex items-center justify-center md:justify-start space-x-2 lg:space-x-3">
                 <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-blue-400 flex-shrink-0" />
-                <span className="text-gray-400 text-sm lg:text-base break-all">
+                <span className="text-muted-foreground text-sm lg:text-base break-all">
                   {EMAIL}
                 </span>
               </div>
               <div className="flex items-center justify-center md:justify-start space-x-2 lg:space-x-3">
                 <Phone className="h-4 w-4 lg:h-5 lg:w-5 text-blue-400 flex-shrink-0" />
-                <span className="text-gray-400 text-sm lg:text-base">
+                <span className="text-muted-foreground text-sm lg:text-base">
                   {PHONE_NUMBER}
                 </span>
               </div>
@@ -174,7 +189,7 @@ export default function Footer() {
                 <MapPin className="h-4 w-4 lg:h-5 lg:w-5 text-blue-400 mt-0.5 flex-shrink-0" />
                 <span
                   dangerouslySetInnerHTML={{ __html: ADDRESS }}
-                  className="text-gray-400 text-sm lg:text-base"
+                  className="text-muted-foreground text-sm lg:text-base"
                 />
               </div>
             </div>
@@ -182,43 +197,42 @@ export default function Footer() {
         </div>
 
         {/* Bottom Section - Adjusted spacing */}
-        <div className="border-t border-gray-800 mt-8 lg:mt-12 pt-6 lg:pt-8">
+        <div className="border-t border-border mt-8 lg:mt-12 pt-6 lg:pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-            <div className="text-gray-400 text-xs lg:text-sm">
+            <div className="text-muted-foreground text-xs lg:text-sm">
               © {currentYear} POSTMATIC. All rights reserved.
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-end space-x-4 lg:space-x-6 text-xs lg:text-sm">
-              <a
-                href="/privacy-policy"
-                className="text-gray-400 hover:text-white transition-colors"
+              <Link
+                href={`/${locale}/privacy-policy`}
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Privacy Policy
-              </a>
-              <a
-                href="/terms-of-service"
-                className="text-gray-400 hover:text-white transition-colors"
+                {t('privacyPolicy')}
+              </Link>
+              <Link
+                href={`/${locale}/terms-of-service`}
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Terms of Service
-              </a>
-              <a
-                href="/data-deletion"
-                className="text-gray-400 hover:text-white transition-colors"
+                {t('termsOfService')}
+              </Link>
+              <Link
+                href={`/${locale}/data-deletion`}
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Data Deletion
-              </a>
-              <a
-                href="/cookie-policy"
-                className="text-gray-400 hover:text-white transition-colors"
+                {t('dataDeletion')}
+              </Link>
+              <Link
+                href={`/${locale}/cookie-policy`}
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Cookie Policy
-              </a>
+                {t('cookiePolicy')}
+              </Link>
             </div>
           </div>
 
           <div className="mt-4 lg:mt-6 text-center">
             <p className="text-gray-500 text-xs lg:text-sm">
-              Didukung oleh teknologi AI terdepan untuk mengotomasi social media bisnis
-              Indonesia 🇮🇩
+              {t('supportedBy')}
             </p>
           </div>
         </div>

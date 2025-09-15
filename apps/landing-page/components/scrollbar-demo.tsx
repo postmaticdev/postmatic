@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronRight, Sparkles, Zap, Eye, EyeOff } from "lucide-react";
+import { ChevronDown, ChevronRight, Sparkles, Zap } from "lucide-react";
 
 export default function ScrollbarDemo() {
   const [activeTab, setActiveTab] = useState("default");

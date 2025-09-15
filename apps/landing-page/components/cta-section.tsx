@@ -1,11 +1,28 @@
+"use client";
+
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SIGNUP_URL } from "@/constants";
 import { getContainerMargins } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function CTASection() {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Handle hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Use resolvedTheme for more accurate theme detection
+  const isDark = mounted ? (resolvedTheme === "dark") : false;
+  const t = useTranslations('ctaSection');
+  
   return (
     <section className="py-20 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative overflow-hidden">
       {/* Background decoration */}
@@ -18,14 +35,12 @@ export default function CTASection() {
       <div className={cn(getContainerMargins(), "relative z-10")}>
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight">
-            Siap Mengotomasi <br />
-            <span className="text-yellow-300 drop-shadow-sm">Pemasaran Digital</span> Bisnis
-            Anda?
+            {t('title')} <br />
+            <span className="text-yellow-300 drop-shadow-sm">{t('titleHighlight')}</span> {t('subtitle')}?
           </h2>
 
           <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Gunakan Postmatic dan rasakan bagaimana AI dapat mengubah cara Anda
-            berbisnis. Tingkatkan engagement hingga 156% dalam 30 hari pertama!
+            {t('cta')}
           </p>
 
           {/* CTA Buttons */}
@@ -36,13 +51,13 @@ export default function CTASection() {
               rel="noopener noreferrer"
             >
               <Button className="bg-secondary text-white text-sm sm:text-base font-semibold px-6 sm:px-8 py-3 h-auto rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 border-0 min-w-[140px] sm:min-w-[160px]">
-                Contact Us
+                {t('contactUs')}
               </Button>
             </a>
 
             <Link href={SIGNUP_URL}>
               <Button className="bg-white text-primary hover:bg-gray-100 text-sm sm:text-base font-semibold px-6 sm:px-8 py-3 h-auto rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 border-0 min-w-[140px] sm:min-w-[160px]">
-                Get Started
+                {t('getStarted')}
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </Link>
@@ -57,10 +72,17 @@ export default function CTASection() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path
-            d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
-            fill="#101828"
-          />
+          {isDark ? (
+            <path
+              d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
+              fill="#101828"
+            />
+          ) : (
+            <path
+              d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
+              fill="#f5f5f5"
+            />
+          )}
         </svg>
       </div>
     </section>

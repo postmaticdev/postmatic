@@ -10,13 +10,7 @@ import Introduction from "@/components/introduction";
 import { Comparison } from "@/components/comparison";
 import EndToEnd from "@/components/end-to-end";
 import IntroVideoPage from "@/components/intro-video";
-import {
-  GOOGLE_SITE_VERIFICATION,
-  LANDINGPAGE_URL,
-  TITLE_APP,
-  YAHOO_SITE_VERIFICATION,
-  YANDEX_SITE_VERIFICATION,
-} from "@/constants";
+import { GOOGLE_SITE_VERIFICATION, LANDINGPAGE_URL, TITLE_APP, YAHOO_SITE_VERIFICATION, YANDEX_SITE_VERIFICATION } from "@/constants";
 
 export const metadata: Metadata = {
   title: TITLE_APP,
@@ -79,7 +73,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main className="bg-white">
+    <main className="">
       <Hero />
       <Introduction />
       <Comparison />
@@ -93,5 +87,3 @@ export default function Home() {
     </main>
   );
 }
-
-// export const dynamic = "force-dynamic";

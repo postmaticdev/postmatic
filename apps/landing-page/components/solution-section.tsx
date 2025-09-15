@@ -6,8 +6,23 @@ import {
   Calendar,
   Megaphone,
 } from "lucide-react";
-import texts from "@/content/id/text.json";
+import { useTranslations } from "next-intl";
 import { getContainerMargins } from "@/lib/utils";
+
+// Type definitions for the data structures
+interface Step {
+  icon: string;
+  title: string;
+  description: string;
+  benefit: string;
+  colors: string;
+}
+
+interface ImpactStat {
+  value: string;
+  label: string;
+}
+
 const icons: Record<string, React.ElementType> = {
   CheckCircle,
   Zap,
@@ -18,41 +33,34 @@ const icons: Record<string, React.ElementType> = {
 };
 
 export default function SolutionSection() {
-  const {
-    title,
-    titleHighlight,
-    subtitle,
-    steps,
-    impactTitle,
-    impactStats,
-  } = texts.solutionSection;
+  const t = useTranslations('solutionSection');
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-blue-50 dark:from-slate-900 dark:via-slate-950 dark:to-black">
+    <section className="py-20 bg-gradient-to-b from-indigo-50 via-blue-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black">
       <div className={getContainerMargins()}>
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
 
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
-              {title}{" "}
+              {t('title')}{" "}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-sm">
-                {titleHighlight}
+                {t('titleHighlight')}
               </span>
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              {subtitle}
+              {t('subtitle')}
             </p>
           </div>
 
           {/* Solution Steps */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {steps.map((step, i) => {
+            {t.raw('steps').map((step: Step, i: number) => {
               const Icon = icons[step.icon];
               return (
                 <div
                   key={i}
-                  className={`bg-gradient-to-br ${step.colors} p-6 rounded-xl hover:shadow-lg transition-shadow dark:border dark:border-slate-700`}
+                  className={`bg-gradient-to-br ${step.colors} p-6 rounded-xl hover:shadow-lg transition-shadow border border-border dark:border-slate-700`}
                 >
                   <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center mb-4">
                     <Icon className="h-6 w-6 text-white" />
@@ -74,10 +82,10 @@ export default function SolutionSection() {
           {/* Impact Statistics */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 rounded-2xl p-8 text-white">
             <h3 className="text-xl sm:text-2xl font-extrabold text-center mb-8 leading-tight">
-              {impactTitle}
+              {t('impactTitle')}
             </h3>
             <div className="grid md:grid-cols-4 gap-6">
-              {impactStats.map((stat, i) => (
+              {t.raw('impactStats').map((stat: ImpactStat, i: number) => (
                 <div key={i} className="text-center">
                   <div className="text-2xl sm:text-3xl font-extrabold mb-2 leading-tight">{stat.value}</div>
                   <div className="text-sm sm:text-base text-blue-100 dark:text-blue-200 leading-relaxed">

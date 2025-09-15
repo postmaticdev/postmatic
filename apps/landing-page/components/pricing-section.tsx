@@ -3,18 +3,42 @@ import { Check, Star, Zap, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import texts from "@/content/id/text.json";
+import { useTranslations } from "next-intl";
 import { SIGNUP_URL } from "@/constants";
+
+// Type definitions for the data structures
+interface PlanItem {
+  id: string;
+  name: string;
+  price: number;
+  description: string | null;
+  tokenValidFor: number;
+  tokenImage: number;
+  originalPrice?: number;
+}
+
+interface Plan {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  bgColor: string;
+  popular: boolean;
+  benefits: string[];
+  items: PlanItem[];
+}
+
 const iconsMap = { Star, Zap, Crown };
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: texts.pricing.currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
-
 export default function PricingSection() {
+  const t = useTranslations('pricing');
+  
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: t('currency'),
+      minimumFractionDigits: 0,
+    }).format(amount);
 
   function openSignIn() {
     window.location.href = SIGNUP_URL;
@@ -22,42 +46,39 @@ export default function PricingSection() {
 
 
   return (
-    <section id="pricing" className="py-20 bg-white dark:bg-slate-950">
+    <section id="pricing" className="py-20 bg-indigo-50 dark:bg-slate-900">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
-              {texts.pricing.title}{" "}
+              {t('title')}{" "}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-sm">
-                {texts.pricing.titleHighlight}
+                {t('titleHighlight')}
               </span>
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              {texts.pricing.subtitle}
+              {t('subtitle')}
             </p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
-            {texts.pricing.plans.map((plan) => {
+            {t.raw('plans').map((plan: Plan) => {
               const Icon = iconsMap[plan.icon as keyof typeof iconsMap];
               return (
                 <div
                   key={plan.id}
-                  className={`relative rounded-2xl shadow-lg border-2 my-4 lg:my-0 transition-all duration-300 dark:bg-slate-800 dark:border-slate-700 ${plan.popular
-                    ? "border-blue-500 scale-105 dark:border-blue-400"
-                    : "border-gray-200 dark:border-slate-700"
-                    }`}
+                  className="relative rounded-2xl shadow-lg border-2 my-4 lg:my-0 transition-all duration-300 bg-card border-border hover:border-blue-500 hover:scale-105 hover:dark:border-blue-400"
                 >
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                       <Badge className="bg-gradient-to-r from-primary to-secondary text-white">
-                        {texts.pricing.badge}
+                        {t('badge')}
                       </Badge>
                     </div>
                   )}
 
-                  <div className="p-6 sm:p-8">
+                  <div className="p-6 sm:p-8 mb-12">
                     <div className="flex items-center space-x-3 mb-6">
                       <div
                         className={`w-12 h-12 bg-gradient-to-r ${plan.color} rounded-xl flex items-center justify-center`}
@@ -82,7 +103,7 @@ export default function PricingSection() {
                               variant="secondary"
                               className="text-xs text-gray-900 dark:text-white"
                             >
-                              {texts.pricing.saveBadge}
+                              {t('saveBadge')}
                             </Badge>
                           )}
                         </div>
@@ -97,11 +118,8 @@ export default function PricingSection() {
 
                         <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                           {plan.items[0].tokenImage.toLocaleString("id-ID")}{" "}
-                          {texts.pricing.tokenUnit} •{" "}
-                          {texts.pricing.validFor.replace(
-                            "{days}",
-                            String(plan.items[0].tokenValidFor)
-                          )}
+                          {t('tokenUnit')} •{" "}
+                          {t('validFor', { days: plan.items[0].tokenValidFor })}
                         </p>
                       </div>
                     ) : (
@@ -134,7 +152,7 @@ export default function PricingSection() {
                                     variant="secondary"
                                     className="text-xs text-gray-900 dark:text-white"
                                   >
-                                    {texts.pricing.saveBadge}
+                                    {t('saveBadge')}
                                   </Badge>
                                 )}
                               </div>
@@ -155,11 +173,8 @@ export default function PricingSection() {
 
                               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                                 {item.tokenImage.toLocaleString("id-ID")}{" "}
-                                {texts.pricing.tokenUnit} •{" "}
-                                {texts.pricing.validFor.replace(
-                                  "{days}",
-                                  String(item.tokenValidFor)
-                                )}
+                                {t('tokenUnit')} •{" "}
+                                {t('validFor', { days: item.tokenValidFor })}
                               </p>
                             </div>
                           </TabsContent>
@@ -183,11 +198,11 @@ export default function PricingSection() {
 
                       onClick={openSignIn}
 
-                      className={`bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary hover:scale-[1.02] text-white w-full`}
+                      className={`bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary hover:scale-[1.02] text-white m-12 absolute bottom-0 left-0 right-0`}
                     >
                       {plan.name === "Free"
-                        ? texts.pricing.cta.free
-                        : texts.pricing.cta.paid}
+                        ? t('cta.free')
+                        : t('cta.paid')}
                     </Button>
                   </div>
                 </div>

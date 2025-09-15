@@ -87,7 +87,7 @@ export default function ProductShowcase() {
         title="Product Showcase"
         className="max-w-4xl mx-auto"
       >
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-4xl mx-auto ">
           {products.map((product, index) => (
             <div
               key={product.id}

@@ -1,6 +1,14 @@
 import { AlertTriangle, Clock, DollarSign, TrendingDown } from "lucide-react";
-import texts from "@/content/id/text.json";
+import { useTranslations } from "next-intl";
 import { getContainerMargins } from "@/lib/utils";
+
+// Type definitions for the data structures
+interface Stat {
+  icon: string;
+  value: string;
+  label: string;
+  color: string;
+}
 
 const icons: Record<string, React.ElementType> = {
   AlertTriangle,
@@ -26,32 +34,25 @@ const iconGradients: Record<string, string> = {
 };
 
 export default function ProblemSection() {
-  const {
-    title,
-    subtitle,
-    stats,
-    fakeSolutionsTitle,
-    existingTools,
-    agencyFreelancer,
-  } = texts.problemSection;
+  const t = useTranslations('problemSection');
 
   return (
-    <section className="py-20 bg-gradient-to-b from-blue-50 via-white to-indigo-50 dark:from-black dark:via-slate-950 dark:to-slate-900">
+    <section className="py-20 bg-gradient-to-b from-white via-blue-50 to-indigo-50 dark:from-black dark:via-slate-950 dark:to-slate-900">
       <div className={getContainerMargins()}>
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
-              {title}
+              {t('title')}
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              {subtitle}
+              {t('subtitle')}
             </p>
           </div>
 
           {/* Stats */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {stats.map((s, i) => {
+            {t.raw('stats').map((s: Stat, i: number) => {
               const Icon = icons[s.icon];
               const cardGradient = cardGradients[s.color];
               const iconGradient = iconGradients[s.color];
@@ -59,7 +60,7 @@ export default function ProblemSection() {
               return (
                 <div
                   key={i}
-                  className={`bg-gradient-to-br ${cardGradient} p-6 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 text-center hover:shadow-xl transition-shadow`}
+                  className={`bg-gradient-to-br ${cardGradient} p-6 rounded-xl shadow-lg border border-border dark:border-slate-700 text-center hover:shadow-xl transition-shadow`}
                 >
                   <div
                     className={`w-16 h-16 bg-gradient-to-r ${iconGradient} rounded-full flex items-center justify-center mx-auto mb-4`}
@@ -78,27 +79,27 @@ export default function ProblemSection() {
           </div>
 
           {/* Fake Solutions */}
-          <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/10 dark:to-red-800/10 rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-slate-700">
+          <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/10 dark:to-red-800/10 rounded-2xl p-8 shadow-xl border border-border dark:border-slate-700">
             <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-6 text-center leading-tight">
-              {fakeSolutionsTitle}
+              {t('fakeSolutionsTitle')}
             </h3>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-red-600 dark:text-red-400">
-                  {existingTools.title}
+                  {t('existingTools.title')}
                 </h4>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-300">
-                  {existingTools.points.map((p, i) => (
+                  {t.raw('existingTools.points').map((p: string, i: number) => (
                     <li key={i}>• {p}</li>
                   ))}
                 </ul>
               </div>
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-red-600 dark:text-red-400">
-                  {agencyFreelancer.title}
+                  {t('agencyFreelancer.title')}
                 </h4>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-300">
-                  {agencyFreelancer.points.map((p, i) => (
+                  {t.raw('agencyFreelancer.points').map((p: string, i: number) => (
                     <li key={i}>• {p}</li>
                   ))}
                 </ul>

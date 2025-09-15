@@ -27,7 +27,7 @@ export function ProductCard({
           <h3 className="text-foreground font-semibold text-sm">
             {product.name}
           </h3>
-          <p className="text-muted-foreground text-xs opacity-80">
+          <p className="text-black dark:text-muted-foreground text-xs opacity-80">
             {product.shortDes}
           </p>
         </div>

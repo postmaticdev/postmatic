@@ -1,0 +1,966 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "cookieConsent": {
+    "title": "We use cookies",
+    "description": "We use cookies to enhance your experience, analyze traffic, and display relevant ads.",
+    "learnMore": "Learn more",
+    "acceptAll": "Accept All",
+    "manageCookies": "Manage Cookies",
+    "close": "Close"
+  },
+  "cookieSettings": {
+    "title": "Cookie Settings",
+    "cookieWajib": "Necessary Cookies",
+    "cookieWajibDescription": "These cookies are required for the website to function properly and cannot be disabled.",
+    "cookieAnalitik": "Analytics Cookies",
+    "cookieAnalitikDescription": "Help us understand how visitors interact with our website.",
+    "cookieIklan": "Advertising Cookies",
+    "cookieIklanDescription": "Used to display relevant ads and measure campaign effectiveness.",
+    "simpanDanTerima": "Save & Accept",
+    "tolakSemua": "Reject All"
+  },
+  "navigation": {
+    "about": "About",
+    "features": "Features", 
+    "tutorial": "Tutorial",
+    "pricing": "Pricing"
+  },
+  "buttons": {
+    "getStarted": "Get Started"
+  },
+  "hero": {
+    "title1": "Automate your Social Media",
+    "title2": "with Postmatic",
+    "getStarted": "Get Started"
+  },
+  "introduction": {
+    "headline": "What is",
+    "brand": "Postmatic",
+    "subHeadline": "Postmatic is an AI platform that automates your social media marketing from analyzing trends, creating content, generating captions, scheduling posts, and managing ads with just one input information for your business."
+  },
+  "comparison": {
+    "titleLine1": "Turn Your Social Media Content",
+    "titleLine2": "Into Magic"
+  },
+  "problemSection": {
+    "title": "Why 83.46% of SMEs Fall Behind in the Digital Era?",
+    "subtitle": "INDEF 2024 data shows shocking facts about the condition of Indonesian SMEs",
+    "stats": [
+      {
+        "icon": "TrendingDown",
+        "value": "83.46%",
+        "label": "SMEs don't have graphic design & digital marketing skills",
+        "color": "red"
+      },
+      {
+        "icon": "Clock",
+        "value": "8+ Hours",
+        "label": "Time needed to create 3-4 quality content",
+        "color": "orange"
+      },
+      {
+        "icon": "DollarSign",
+        "value": "4.5 Million",
+        "label": "Average agency/freelancer cost per month",
+        "color": "yellow"
+      },
+      {
+        "icon": "AlertTriangle",
+        "value": "342K+",
+        "label": "SMEs in Yogyakarta that need solutions",
+        "color": "purple"
+      }
+    ],
+    "fakeSolutionsTitle": "Why Existing Solutions Are Not Effective?",
+    "existingTools": {
+      "title": "❌ Content Creation Tools",
+      "points": [
+        "Still requires design and copywriting skills",
+        "Takes hours to setup",
+        "Complex and not user-friendly interface",
+        "Doesn't understand Indonesian local business context"
+      ]
+    },
+    "agencyFreelancer": {
+      "title": "❌ Agency & Freelancer",
+      "points": [
+        "Too expensive for SMEs (Rp 4.5 million/month)",
+        "Not scalable for 342,000+ SMEs",
+        "Time-consuming communication and revisions",
+        "Not sustainable for long term"
+      ]
+    }
+  },
+  "solutionSection": {
+    "title": "AI Platform that",
+    "titleHighlight": "Changes Everything",
+    "subtitle": "Inclusive digital automation solution that can reach millions of business owners while opening access to digital economy and marketing in real terms.",
+    "steps": [
+      {
+        "icon": "Zap",
+        "title": "One Time Input",
+        "description": "Users only need to input business data once (brand name, logo, products, description, product photos, etc.).",
+        "benefit": "Overcomes time and skill limitations",
+        "colors": "from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10"
+      },
+      {
+        "icon": "Target",
+        "title": "Automated Trend Analysis",
+        "description": "System analyzes ideas and current content/news trends.",
+        "benefit": "Never miss trends",
+        "colors": "from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "AI-based Content Generation",
+        "description": "Generates attractive and relevant promotional visual content and captions through leading AI models.",
+        "benefit": "Without design & copywriting skills",
+        "colors": "from-orange-50 to-red-50 dark:from-orange-900/10 dark:to-red-900/10"
+      },
+      {
+        "icon": "Calendar",
+        "title": "Scheduling Optimization",
+        "description": "Can schedule and recommend optimal posting times for social media content.",
+        "benefit": "Optimal posting timing",
+        "colors": "from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "Auto-Boosting/Advertising",
+        "description": "System can recommend ad-worthy content and run ads automatically.",
+        "benefit": "Targeted & profitable ads",
+        "colors": "from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10"
+      },
+      {
+        "icon": "CheckCircle",
+        "title": "Chat AI Assistant",
+        "description": "AI automatically replies to DMs, chats, and comments on social media with fast, relevant responses that match business style.",
+        "benefit": "Increases engagement & saves time",
+        "colors": "from-cyan-50 to-blue-50 dark:from-cyan-900/10 dark:to-blue-900/10"
+      }
+    ],
+    "impactTitle": "Realize More Advanced and Efficient Indonesian SMEs",
+    "impactStats": [
+      {
+        "value": "90%+",
+        "label": "More efficient time & cost compared to manual model"
+      },
+      { "value": "20,000+", "label": "Target SME onboarding in 2 years" },
+      { "value": "1 Million+", "label": "Social media content that will be generated automatically" },
+      { "value": "156%", "label": "Increase in user business engagement" }
+    ]
+  },
+  "featuresSection": {
+    "title": "Complete Features for",
+    "titleHighlight": "Marketing Automation",
+    "subtitle": "All-in-one platform designed specifically for Indonesian SME needs",
+    "features": [
+      {
+        "icon": "Bot",
+        "title": "AI Content Generator",
+        "description": "Generate high-quality visual content and copywriting with leading AI technology",
+        "color": "from-blue-500 to-cyan-500"
+      },
+      {
+        "icon": "Target",
+        "title": "Trend Analysis",
+        "description": "Real-time trend analysis to ensure content is always relevant and viral",
+        "color": "from-green-500 to-emerald-500"
+      },
+      {
+        "icon": "Calendar",
+        "title": "Smart Scheduling",
+        "description": "Manual and automatic scheduling to all social media platforms",
+        "color": "from-purple-500 to-pink-500"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "Auto Advertising",
+        "description": "Smart automatic advertising system with targeting and budget optimization",
+        "color": "from-orange-500 to-red-500"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "Analytics Dashboard",
+        "description": "Comprehensive dashboard with deep insights about marketing performance",
+        "color": "from-indigo-500 to-purple-500"
+      },
+      {
+        "icon": "Zap",
+        "title": "One-Click Setup",
+        "description": "Setup business knowledge once, system works automatically forever",
+        "color": "from-yellow-500 to-orange-500"
+      },
+      {
+        "icon": "Shield",
+        "title": "Chat AI Assistant",
+        "description": "Fast, relevant, and business-style responses from AI assistant automatically",
+        "color": "from-cyan-500 to-blue-500"
+      },
+      {
+        "icon": "Users",
+        "title": "Multi-Platform",
+        "description": "Automatic content distribution to various popular social media platforms",
+        "color": "from-pink-500 to-red-500"
+      }
+    ],
+    "highlight": {
+      "title": "Why is POSTMATIC Different?",
+      "points": [
+        {
+          "title": "Specifically for Indonesian Business",
+          "description": "Understands Indonesian local business context, culture, and consumer preferences"
+        },
+        {
+          "title": "Zero Learning Curve",
+          "description": "No technical skills needed, everything runs automatically after initial setup"
+        },
+        {
+          "title": "Affordable & Scalable",
+          "description": "Affordable price with results equivalent to premium agencies"
+        },
+        {
+          "title": "Continuous Innovation",
+          "description": "AI continuously learns and develops following the latest trends"
+        }
+      ]
+    }
+  },
+  "endToEnd": {
+    "title": "End-to-End",
+    "highlight": "Automation",
+    "description": "AI creates content and captions → schedules upload to social media → promotes content → perfects the next cycle.",
+    "steps": [
+      "Input brand assets once",
+      "AI analyses trends & audience",
+      "Generates visuals + copy",
+      "Schedules at optimal times",
+      "Runs paid ads automatically",
+      "Delivers analytics & learns"
+    ]
+  },
+  "introVideo": {
+    "titleLine1": "It's Cool, Right?!",
+    "title": "Get to know",
+    "brand": "POSTMATIC",
+    "subtitle": "Watch the following short video to see how POSTMATIC helps you create marketing campaigns that are easier, faster, and more effective.",
+    "windowTitle": "Postmatic"
+  },
+  "ctaSection": {
+    "title": "Ready to Automate",
+    "titleHighlight": "Digital Marketing",
+    "subtitle": "Your Business?",
+    "cta": "Use Postmatic and experience how AI can change your business. Increase engagement by 156% in the first 30 days!",
+    "contactUs": "Contact Us",
+    "getStarted": "Get Started"
+  },
+  "footer": {
+    "companyDescription": "Leading AI platform for automating social media marketing for Indonesian businesses.",
+    "platform": "Platform",
+    "fitur": "Features",
+    "tutorial": "Tutorial",
+    "helpCenter": "Help Center",
+    "resources": "Resources",
+    "community": "Community",
+    "statusSystem": "Status System",
+    "harga": "Pricing",
+    "contact": "Contact",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "dataDeletion": "Data Deletion",
+    "cookiePolicy": "Cookie Policy",
+    "supportedBy": "Supported by leading AI technology for automating social media marketing for Indonesian businesses "
+  },
+  "pricing": {
+    "title": "Choose the Package that's",
+    "titleHighlight": "Right for Your Business",
+    "subtitle": "Get access to the leading AI Social Media Automation platform at an affordable price for your business",
+    "tabs": {
+      "subscription": "Subscription Package",
+      "tokens": "Buy Tokens"
+    },
+    "badge": "Most Popular",
+    "cta": {
+      "free": "Start Free",
+      "paid": "Choose Package",
+      "token": "Buy Tokens",
+      "sales": "Contact Sales"
+    },
+    "currency": "IDR",
+    "tokenUnit": "tokens",
+    "validFor": "Valid for {days} days",
+    "perToken": "{price} per token",
+    "saveBadge": "Save 20%",
+    "tokenTitle": "Tokens for Content Generation",
+    "tokenSubtitle": "Buy tokens as needed without monthly commitment",
+    "enterpriseHelp": {
+      "title": "Need More Tokens?",
+      "desc": "Contact our team for enterprise packages with special pricing"
+    },
+    "plans": [
+      {
+        "id": "788cce03-7e8e-4bda-a211-554bc56ea937",
+        "name": "Free",
+        "icon": "Star",
+        "color": "from-gray-500 to-gray-600",
+        "bgColor": "bg-gray-50 border-gray-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "300 Tokens for Content Generation",
+          "or 3 Automated Content",
+          "Valid for 30 days"
+        ],
+        "items": [
+          {
+            "id": "f37c15ce-6a05-48ba-92e2-a4f01296504e",
+            "name": "Free",
+            "price": 0,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 1000,
+            "originalPrice": 0
+          }
+        ]
+      },
+      {
+        "id": "0cb0f83d-9868-417e-aed0-4bc7590ce8bc",
+        "name": "Professional",
+        "icon": "Zap",
+        "color": "from-blue-500 to-indigo-600",
+        "bgColor": "bg-blue-50 border-blue-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": true,
+        "benefits": [
+          "30,000 Tokens for Content Generation",
+          "or 100 Automated Content",
+          "Faster Processing",
+          "Advanced Customization",
+          "Full access to all features"
+        ],
+        "items": [
+          {
+            "id": "73cc0502-1ba3-4254-84fc-f3cfd236649b",
+            "name": "Monthly",
+            "price": 299000,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 30000,
+            "originalPrice": 299000
+          },
+          {
+            "id": "3031f5f5-e84e-498c-9878-186b4c735dd2",
+            "name": "Annually",
+            "price": 2870400,
+            "description": "Save 20% with annual billing",
+            "tokenValidFor": 365,
+            "tokenImage": 180000,
+            "originalPrice": 3588000
+          }
+        ]
+      },
+      {
+        "id": "1f5d87d8-0f93-4ebe-a9c9-333df9ec500b",
+        "name": "Enterprise",
+        "icon": "Crown",
+        "color": "from-purple-500 to-pink-600",
+        "bgColor": "bg-purple-50 border-purple-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "100,000 Tokens for Content Generation",
+          "or 500 Automated Content",
+          "Faster Processing",
+          "Advanced Customization",
+          "Full access to all features"
+        ],
+        "items": [
+          {
+            "id": "d2ec82c2-c2ed-4fe5-bf6c-2afa26fff14b",
+            "name": "Monthly",
+            "price": 800000,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 100000,
+            "originalPrice": 800000
+          },
+          {
+            "id": "ff318282-b0ba-4ef6-ab5c-80d9a91825b7",
+            "name": "Annually",
+            "price": 7680000,
+            "description": "Save 20% with annual billing",
+            "tokenValidFor": 60,
+            "tokenImage": 600000,
+            "originalPrice": 9600000
+          }
+        ]
+      }
+    ],
+    "tokens": [
+      {
+        "id": "b858d06e-9e88-4e31-bf89-bb7a74f39e99",
+        "price": 32835,
+        "token": 500,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "e5eb12df-d347-4c23-bba9-9d379d85adf7",
+        "price": 57585,
+        "token": 1000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "96552efd-6e6f-4bda-a234-92774120883e",
+        "price": 98835,
+        "token": 2000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "0c42705d-8c6c-4f4c-9b9c-8e23ae34f0a2",
+        "price": 164835,
+        "token": 5000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "24945acc-3998-4ade-9bfb-edbf88b17617",
+        "price": 313335,
+        "token": 10000,
+        "tokenValidFor": 30
+      }
+    ]
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy for Postmatic",
+    "lastUpdated": "Last updated: July 02, 2025",
+    "sections": [
+      {
+        "title": "Interpretation and Definitions",
+        "description": [
+          {
+            "type": "bold",
+            "content": "Interpretation"
+          },
+          {
+            "type": "text",
+            "content": "The words of which the initial letter is capitalized have meanings defined under the following conditions."
+          },
+          {
+            "type": "bold",
+            "content": "Definitions"
+          },
+          {
+            "type": "list",
+            "items": [
+              "**Account**: a unique account created for You to access our Service.",
+              "**Company** (\"Postmatic\", \"We\", \"Us\", \"Our\"): Jl. Lempongsari No.353, Indonesia.",
+              "**Personal Data**: any information relating to an identified or identifiable individual.",
+              "**Service**: the Website accessible from https://postmatic.id",
+              "**Usage Data**: automatically collected data (IP address, browser, pages visited, etc.).",
+              "**Cookies**: small files placed on Your device to store browsing details.",
+              "**Third-Party Social Media Services**: Google, Facebook, Instagram, Twitter, LinkedIn.",
+              "**You**: the individual or legal entity using the Service."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Collecting and Using Your Personal Data",
+        "description": [
+          {
+            "type": "bold",
+            "content": "Types of Data Collected"
+          },
+          {
+            "type": "list",
+            "items": [
+              "**Personal Data**: email, first/last name, phone number, address, city, province, ZIP, usage data.",
+              "**Usage Data**: IP address, browser type/version, time stamps, device info, diagnostic data.",
+              "**Third-Party Social Media**: If You register via Google, Facebook, Instagram, Twitter, or LinkedIn, We may collect Your name, email, activities, and contact list.",
+              "**Tracking Technologies & Cookies**: Necessary / Essential Cookies (Session), Cookie Notice Acceptance Cookies (Persistent), Functionality Cookies (Persistent)"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Use of Your Personal Data",
+        "description": [
+          {
+            "type": "text",
+            "content": "We may use Your Personal Data to:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Provide and maintain the Service.",
+              "Manage Your Account and registration.",
+              "Perform a contract (e.g., purchases).",
+              "Contact You by email, phone, SMS, push notifications.",
+              "Send news, offers, and general information (unless You opt out).",
+              "Manage Your requests.",
+              "Evaluate or conduct business transfers (merger, sale, etc.).",
+              "Conduct data analysis, measure campaign effectiveness, improve products/services."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Retention of Your Personal Data",
+        "description": [
+          {
+            "type": "text",
+            "content": "We retain Personal Data only as long as necessary for the purposes set out in this Privacy Policy (legal obligations, dispute resolution, policy enforcement)."
+          },
+          {
+            "type": "text",
+            "content": "Usage Data is generally retained for shorter periods unless used for security or functionality improvements."
+          }
+        ]
+      },
+      {
+        "title": "Transfer of Your Personal Data",
+        "description": [
+          {
+            "type": "text",
+            "content": "Your information may be transferred to — and maintained on — computers located outside Your jurisdiction where data protection laws may differ."
+          },
+          {
+            "type": "text",
+            "content": "We take all reasonable steps to ensure Your data is treated securely and in accordance with this Privacy Policy."
+          }
+        ]
+      },
+      {
+        "title": "Delete Your Personal Data",
+        "description": [
+          {
+            "type": "text",
+            "content": "You have the right to delete or request assistance in deleting Personal Data We have collected about You."
+          },
+          {
+            "type": "text",
+            "content": "You may update, amend, or delete Your information via Your Account settings or by contacting Us at team@postmatic.id"
+          },
+          {
+            "type": "text",
+            "content": "We may retain certain information when required by law."
+          }
+        ]
+      },
+      {
+        "title": "Disclosure of Your Personal Data",
+        "description": [
+          {
+            "type": "bold",
+            "content": "Business Transactions"
+          },
+          {
+            "type": "text",
+            "content": "If the Company is involved in a merger, acquisition, or asset sale, Your Personal Data may be transferred. Notice will be provided before Your data becomes subject to a different privacy policy."
+          },
+          {
+            "type": "bold",
+            "content": "Law Enforcement"
+          },
+          {
+            "type": "text",
+            "content": "We may disclose Your Personal Data if required to do so by law or in response to valid requests by public authorities."
+          },
+          {
+            "type": "bold",
+            "content": "Other Legal Requirements"
+          },
+          {
+            "type": "text",
+            "content": "We may disclose Your Personal Data in the good-faith belief that such action is necessary to comply with a legal obligation, protect rights or property, prevent wrongdoing, protect user safety, or defend against legal liability."
+          }
+        ]
+      },
+      {
+        "title": "Security of Your Personal Data",
+        "description": [
+          {
+            "type": "text",
+            "content": "No method of transmission over the Internet or electronic storage is 100% secure, but We strive to use commercially acceptable means to protect Your Personal Data."
+          }
+        ]
+      },
+      {
+        "title": "Children's Privacy",
+        "description": [
+          {
+            "type": "text",
+            "content": "Our Service does not address anyone under the age of 13. We do not knowingly collect Personal Data from children under 13. If You believe Your child has provided Us with Personal Data, please contact Us. We will remove such information from Our servers."
+          }
+        ]
+      },
+      {
+        "title": "Links to Other Websites",
+        "description": [
+          {
+            "type": "text",
+            "content": "Our Service may contain links to third-party sites. We assume no responsibility for the content, privacy policies, or practices of any third-party sites or services."
+          }
+        ]
+      },
+      {
+        "title": "Changes to this Privacy Policy",
+        "description": [
+          {
+            "type": "text",
+            "content": "We may update this Privacy Policy from time to time. Changes are effective when posted on this page. We will notify You via email and/or a prominent notice on the Service prior to the change becoming effective and update the \"Last updated\" date."
+          }
+        ]
+      },
+      {
+        "title": "Contact Us",
+        "description": [
+          {
+            "type": "text",
+            "content": "If You have any questions about this Privacy Policy, contact us:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "**Email**: team@postmatic.id",
+              "**Website**: https://postmatic.id"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cookiePolicy": {
+    "title": "Cookie Policy",
+    "lastUpdated": "Last updated: August 06, 2025",
+    "sections": [
+      {
+        "title": "What Are Cookies?",
+        "content": [
+          {
+            "type": "text",
+            "text": "Cookies are small text files placed on your device when you visit a website. They help us operate the site, enhance your experience, analyze traffic, and serve relevant advertisements."
+          }
+        ]
+      },
+      {
+        "title": "How We Use Cookies",
+        "content": [
+          {
+            "type": "text",
+            "text": "We use cookies for the purposes described below. You can control non-essential cookies via our Cookie Settings modal at any time."
+          }
+        ]
+      },
+      {
+        "title": "Categories of Cookies We Use",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "<strong>1. Necessary Cookies (Always Active)</strong><br/>Essential for basic website functionality, security, and network management. Without these, services such as logging in or filling forms cannot be provided.",
+              "<strong>2. Analytics Cookies</strong><br/>Collect information in aggregate—such as number of visitors, pages viewed, and session duration—to help us understand how the site is used and improve performance.",
+              "<strong>3. Marketing / Advertising Cookies</strong><br/>Track visitors across websites to display relevant, personalized ads and measure the effectiveness of our marketing campaigns."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Third-Party Cookies",
+        "content": [
+          {
+            "type": "text",
+            "text": "We may allow trusted third-party services (e.g., Google Analytics, Meta Pixel) to set cookies for analytics or marketing purposes. These providers are contractually bound to handle data responsibly and in accordance with applicable law."
+          }
+        ]
+      },
+      {
+        "title": "Managing Your Cookie Preferences",
+        "content": [
+          {
+            "type": "text",
+            "text": "When you first visit Postmatic, you will see a cookie-consent banner. You may:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Accept all cookies;",
+              "Reject all optional cookies;",
+              "Open \"Cookie Settings\" to choose individual categories."
+            ]
+          },
+          {
+            "type": "text",
+            "text": "You can revisit or change your choices at any time by clicking the \"Cookie Settings\" link in the footer or by clearing local storage and refreshing the page."
+          }
+        ]
+      },
+      {
+        "title": "Data Retention",
+        "content": [
+          {
+            "type": "text",
+            "text": "Cookie retention periods vary by category: necessary cookies expire after the session or within 30 days; analytics cookies may persist up to 24 months; marketing cookies are typically retained for 6–12 months or until you revoke consent."
+          }
+        ]
+      },
+      {
+        "title": "Contact Us",
+        "content": [
+          {
+            "type": "text",
+            "text": "If you have any questions about this Cookie Policy, please contact us:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "<strong>Email:</strong> <a href='mailto:team@postmatic.id' class='text-blue-600 underline'>team@postmatic.id</a>",
+              "<strong>Website:</strong> <a href='https://postmatic.id' target='_blank' rel='noopener noreferrer' class='text-blue-600 underline'>https://postmatic.id</a>"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "dataDeletion": {
+    "title": "Data Deletion Policy",
+    "lastUpdated": "Last updated: August 06, 2025",
+    "sections": [
+      {
+        "title": "Data Deletion Request Procedure",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "<strong>1. Request Submission</strong><br/>Send an email to <a href='mailto:team@postmatic.id'>team@postmatic.id</a> with the subject \"Data Deletion Request.\" Include your full name, registered email, phone number, and an optional brief explanation of the request.",
+              "<strong>2. Identity Verification</strong><br/>We'll email you a confirmation message. Reply promptly to verify your identity.",
+              "<strong>3. Processing Time</strong><br/>Once verified, we'll complete the deletion within 7–14 business days and notify you via email."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Data Deletion Scope",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Personal identification information (name, email, phone number)",
+              "All project-related data and knowledge-base content",
+              "Generated images, videos, captions, and any stored media",
+              "Connected social-media tokens and credentials (invalidated immediately)",
+              "Chat / reply automation configurations and chat histories"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Exceptions",
+        "content": [
+          {
+            "type": "text",
+            "text": "Some data may be retained for legal, regulatory, or compliance purposes:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Transactional records for tax & financial reporting (retained per legal mandates)",
+              "Anonymized analytical data for internal reporting & performance analysis"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Subscription & Payment Information",
+        "content": [
+          {
+            "type": "text",
+            "text": "Payment and subscription data handled by <strong>Midtrans</strong> are governed by their own privacy policy. To delete that information, contact Midtrans directly via their official channels."
+          }
+        ]
+      },
+      {
+        "title": "Post-Deletion Access",
+        "content": [
+          {
+            "type": "text",
+            "text": "After deletion is complete, you will no longer be able to access any projects, generated content, or services tied to your account."
+          }
+        ]
+      },
+      {
+        "title": "Contact Us",
+        "content": [
+          {
+            "type": "text",
+            "text": "Questions? Email us at <a href='mailto:team@postmatic.id'>team@postmatic.id</a>."
+          }
+        ]
+      }
+    ]
+  },
+  "termsOfService": {
+    "title": "Terms & Conditions",
+    "lastUpdated": "Last updated: August 06, 2025",
+    "sections": [
+      {
+        "title": "Acceptance of Terms",
+        "content": [
+          {
+            "type": "text",
+            "text": "By accessing or using the Postmatic Service (\"Postmatic,\" \"we,\" or \"our\"), you agree to abide by these Terms & Conditions (\"Terms\"). If you do not agree with any part of these Terms, you must not access or use the Service."
+          }
+        ]
+      },
+      {
+        "title": "Registration and Account Security",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "You must provide accurate and complete information when registering an account (including name, email, phone number, and password).",
+              "You are responsible for safeguarding your account credentials and for all activities that occur under your account."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Services Provided",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Social media content automation through AI-generated images, videos, and captions.",
+              "Automatic posting capabilities to connected social media accounts.",
+              "AI-powered automated chat and reply functionalities."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "User Responsibilities",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "You must ensure that all business-related information provided (such as logos, brand names, descriptions, product details, and pricing) is accurate, lawful, and does not infringe upon intellectual property rights.",
+              "You agree to adhere to the terms and policies of any third-party social media platforms integrated with Postmatic."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Intellectual Property",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Postmatic retains all intellectual property rights in the Service, including AI-generated content templates, software, and algorithms.",
+              "Users maintain ownership of the business-related information and content they provide or upload to Postmatic."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Subscription and Payment",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Postmatic utilizes a token-based subscription model.",
+              "Payments are securely processed via <strong>Midtrans</strong>.",
+              "Tokens purchased are non-refundable and subject to expiration as outlined during the purchase process."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Prohibited Uses",
+        "content": [
+          {
+            "type": "text",
+            "text": "You agree not to:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Use Postmatic for any unlawful, fraudulent, or malicious purpose.",
+              "Interfere with or disrupt the functionality, performance, or security of Postmatic.",
+              "Upload or generate content that is harmful, threatening, abusive, defamatory, obscene, offensive, or otherwise objectionable."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Data Privacy",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic processes personal and business data according to our Privacy Policy. By using Postmatic, you consent to the collection and use of data analytics to enhance our service quality."
+          }
+        ]
+      },
+      {
+        "title": "Limitation of Liability",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or loss of profits or revenues, incurred directly or indirectly through the use of the Service."
+          }
+        ]
+      },
+      {
+        "title": "Indemnification",
+        "content": [
+          {
+            "type": "text",
+            "text": "You agree to indemnify, defend, and hold harmless Postmatic from any claims, damages, liabilities, costs, or expenses resulting from your use of the Service or violation of these Terms."
+          }
+        ]
+      },
+      {
+        "title": "Changes to Terms",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic reserves the right to modify these Terms at any time. Users will be informed of changes via email or through notifications on our website. Continued use after notification signifies your acceptance of the updated Terms."
+          }
+        ]
+      },
+      {
+        "title": "Termination",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic reserves the right to suspend or terminate your access to the Service without prior notice if you violate any provisions of these Terms."
+          }
+        ]
+      },
+      {
+        "title": "Governing Law",
+        "content": [
+          {
+            "type": "text",
+            "text": "These Terms & Conditions shall be governed by and interpreted in accordance with the laws of the Republic of Indonesia."
+          }
+        ]
+      },
+      {
+        "title": "Contact Information",
+        "content": [
+          {
+            "type": "text",
+            "text": "For any inquiries regarding these Terms, please contact us at:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "<strong>Email:</strong> team@postmatic.id",
+              "<strong>Website:</strong> <a href='https://postmatic.id' target='_blank' rel='noopener noreferrer' class='text-blue-600 underline'>https://postmatic.id</a>"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

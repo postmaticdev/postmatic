@@ -1,7 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useRef } from "react";
 import { useScroll, useTransform, motion, MotionValue } from "motion/react";
+
+// Type definitions for the component props
+interface HeaderProps {
+  translate: MotionValue<number>;
+  titleComponent: string | React.ReactNode;
+}
 
 export const ContainerScroll = ({
   titleComponent,
@@ -55,7 +60,7 @@ export const ContainerScroll = ({
   );
 };
 
-export const Header = ({ translate, titleComponent }: any) => {
+export const Header = ({ translate, titleComponent }: HeaderProps) => {
   return (
     <motion.div
       style={{
@@ -88,7 +93,7 @@ export const Card = ({
       }}
       className="max-w-5xl -mt-12 mx-auto w-full aspect-[16/9] border-4 border-[#6C6C6C] p-2 md:p-6 bg-[#222222] rounded-[30px] shadow-2xl"
     >
-      <div className="h-full w-full overflow-hidden rounded-2xl bg-gray-100 dark:bg-zinc-900 md:rounded-2xl md:p-4">
+      <div className="h-full w-full overflow-hidden rounded-2xl bg-gray-100 dark:bg-zinc-900 md:rounded-2xl ">
         {children}
       </div>
     </motion.div>

@@ -7,6 +7,8 @@ import Image from "next/image";
 import { Facebook, Instagram, Linkedin, User } from "lucide-react";
 import { IconBrandTiktokFilled } from "@tabler/icons-react";
 import { IMAGE_PATH } from "@/constants/path-file";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const Circle = forwardRef<
   HTMLDivElement,
@@ -34,6 +36,17 @@ export default function EndToEndClient({ className }: { className?: string }) {
   const div6Ref = useRef<HTMLDivElement>(null);
   const div7Ref = useRef<HTMLDivElement>(null);
 
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Handle hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Use resolvedTheme for more accurate theme detection
+  const isDark = mounted ? (resolvedTheme === "dark") : false;
+
   return (
     <div
       className={cn(
@@ -50,7 +63,13 @@ export default function EndToEndClient({ className }: { className?: string }) {
         </div>
         <div className="flex flex-col justify-center">
           <Circle ref={div6Ref} className="size-16 ">
-            <Image src={IMAGE_PATH} alt="POSTMATIC" width={64} height={64} className="rounded-full" />
+            <Image
+              src={IMAGE_PATH}
+              alt="POSTMATIC"
+              width={64}
+              height={64}
+              className="rounded-full"
+            />
           </Circle>
         </div>
         <div className="flex flex-col justify-center gap-2">
@@ -75,21 +94,43 @@ export default function EndToEndClient({ className }: { className?: string }) {
       </div>
 
       {/* animated beams */}
-      {[div1Ref, div2Ref, div3Ref, div4Ref, div5Ref].map((ref, i) => (
-        <AnimatedBeam
-          key={i}
-          containerRef={containerRef}
-          fromRef={ref}
-          toRef={div6Ref}
-          pathColor="white"
-        />
-      ))}
-      <AnimatedBeam
-        containerRef={containerRef}
-        fromRef={div6Ref}
-        toRef={div7Ref}
-        pathColor="white"
-      />
+      {isDark ? (
+        <>
+          {[div1Ref, div2Ref, div3Ref, div4Ref, div5Ref].map((ref, i) => (
+            <AnimatedBeam
+              key={i}
+              containerRef={containerRef}
+              fromRef={ref}
+              toRef={div6Ref}
+              pathColor="white"
+            />
+          ))}
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div6Ref}
+            toRef={div7Ref}
+            pathColor="white"
+          />
+        </>
+      ) : (
+        <>
+          {[div1Ref, div2Ref, div3Ref, div4Ref, div5Ref].map((ref, i) => (
+            <AnimatedBeam
+              key={i}
+              containerRef={containerRef}
+              fromRef={ref}
+              toRef={div6Ref}
+              pathColor="black"
+            />
+          ))}
+          <AnimatedBeam
+            containerRef={containerRef}
+            fromRef={div6Ref}
+            toRef={div7Ref}
+            pathColor="black"
+          />
+        </>
+      )}
     </div>
   );
 }

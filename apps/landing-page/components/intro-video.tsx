@@ -1,10 +1,12 @@
 import { MacWindow } from "./custom/mac-window";
-import texts from "@/content/id/text.json";
+import { useTranslations } from "next-intl";
 import { TextAnimate } from "./magicui/text-animate";
 import { VIDEO_TUTORIAL_URL } from "@/constants";
 import { getContainerMargins } from "@/lib/utils";
 
 export default function IntroVideoPage() {
+  const t = useTranslations('introVideo');
+  
   // Create a clean YouTube URL with autoplay, loop, and no suggestions
   const createCleanVideoUrl = (baseUrl: string) => {
     const url = new URL(baseUrl);
@@ -23,12 +25,12 @@ export default function IntroVideoPage() {
   const cleanVideoUrl = createCleanVideoUrl(VIDEO_TUTORIAL_URL);
 
   return (
-    <section id="tutorial" className="py-20 bg-gradient-to-b from-white to-blue-50 dark:from-black dark:via-slate-950 dark:to-slate-900">
+    <section id="tutorial" className="py-20 bg-gradient-to-b from-white via-blue-50 to-indigo-50 dark:from-black dark:via-slate-950 dark:to-slate-900">
       <div className={getContainerMargins()}>
         {/* Header */}
         <div className="text-center mb-12">
           <TextAnimate className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-extrabold -tracking-widest text-black dark:text-white" animation="blurInUp" by="character" once startOnView>
-            It&#39;s Cool, Right?!
+            {t('titleLine1')}
           </TextAnimate>
         </div>
 
@@ -36,14 +38,14 @@ export default function IntroVideoPage() {
         <MacWindow
           keepAspectRatio
           hoverZoom={false}
-          title={texts.introVideo.windowTitle}
+          title={t('windowTitle')}
           className="max-w-4xl mx-auto dark:border dark:border-slate-700"
         >
           <div className="aspect-w-16 aspect-h-10 h-full">
             <iframe
               className="w-full h-full rounded"
               src={cleanVideoUrl}
-              title={texts.introVideo.windowTitle}
+              title={t('windowTitle')}
               frameBorder="0"
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; autoplay"
               allowFullScreen

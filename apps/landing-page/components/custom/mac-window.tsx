@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 export function MacWindow({
   children,
   title,
-  titleColor = "text-white",
   className = "",
   hoverZoom = false,
   keepAspectRatio = false,
@@ -30,21 +29,21 @@ export function MacWindow({
     <div
       className={cn(
         hoverZoom
-          ? "bg-black rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform hover:scale-105 transition-transform duration-500"
-          : "bg-black rounded-2xl shadow-2xl border border-gray-100 overflow-hidden",
+          ? "bg-black rounded-xl shadow-2xl border border-border overflow-hidden transform hover:scale-105 transition-transform duration-500"
+          : "bg-black rounded-xl shadow-2xl border border-border overflow-hidden",
         className
       )}
     >
       {/* ------------------------------------------------------
          Window Header
       ------------------------------------------------------- */}
-      <div className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-border">
+      <div className="flex items-center justify-between px-4 py-3 bg-slate-200 dark:bg-slate-900 border-b border-border">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-red-500 rounded-full" />
           <div className="w-3 h-3 bg-yellow-500 rounded-full" />
           <div className="w-3 h-3 bg-green-500 rounded-full" />
         </div>
-        <div className={cn("text-xs font-mono", titleColor)}>{title}</div>
+        <div className={cn("text-xs text-foreground font-mono")}>{title}</div>
         <div className="w-16" />
       </div>
 
@@ -55,11 +54,11 @@ export function MacWindow({
       {keepAspectRatio ? (
         <div className="relative">
           <div className="relative w-full aspect-[16/9]">
-            <div className="absolute inset-0 p-4">{children}</div>
+            <div className="absolute inset-0">{children}</div>
           </div>
         </div>
       ) : (
-        <div className="relative p-4">{children}</div>
+        <div className="relative p-4 bg-white dark:bg-black">{children}</div>
       )}
     </div>
   );

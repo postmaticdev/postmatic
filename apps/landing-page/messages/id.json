@@ -1,0 +1,967 @@
+{
+  "common": {
+    "loading": "Memuat...",
+    "error": "Error",
+    "success": "Berhasil"
+  },
+  "cookieConsent": {
+    "title": "Kami menggunakan cookie",
+    "description": "Kami menggunakan cookie untuk meningkatkan pengalaman Anda, menganalisis lalu lintas, dan menampilkan iklan yang relevan.",
+    "learnMore": "Pelajari lebih lanjut",
+    "acceptAll": "Terima Semua",
+    "manageCookies": "Atur Cookie",
+    "close": "Tutup"
+  },
+  "cookieSettings": {
+    "title": "Pengaturan Cookie",
+    "cookieWajib": "Cookie Wajib",
+    "cookieWajibDescription": "Cookie ini diperlukan agar website dapat berfungsi dengan baik dan tidak dapat dimatikan.",
+    "cookieAnalitik": "Cookie Analitik",
+    "cookieAnalitikDescription": "Membantu kami memahami bagaimana pengunjung berinteraksi dengan website kami.",
+    "cookieIklan": "Cookie Iklan",
+    "cookieIklanDescription": "Digunakan untuk menampilkan iklan yang relevan dan mengukur efektivitas kampanye.",
+    "simpanDanTerima": "Simpan & Terima",
+    "tolakSemua": "Tolak Semua"
+  },
+  "navigation": {
+    "about": "Tentang",
+    "features": "Fitur",
+    "tutorial": "Tutorial", 
+    "pricing": "Harga"
+  },
+  "buttons": {
+    "getStarted": "Mulai Sekarang"
+  },
+  "hero": {
+    "title1": "Otomasi Media Sosial Anda",  
+    "title2": "dengan Postmatic",
+    "getStarted": "Mulai Sekarang"
+  },
+  "introduction": {
+    "headline": "Apa itu",
+    "brand": "Postmatic",
+    "subHeadline": "Postmatic adalah platform AI yang otomatis membantu bisnis dalam mengelola social media mereka dari menganalisis tren, membuat konten, membuat caption, menjadwalkan posting, dan mengelola iklan hanya dengan sekali input informasi bisnis."
+  },
+  "comparison": {
+    "titleLine1": "Ubah Konten Media Sosial Anda",
+    "titleLine2": "Menjadi Keajaiban"
+  },
+  "problemSection": {
+    "title": "Mengapa 83,46% UMKM Tertinggal di Era Digital?",
+    "subtitle": "Data INDEF 2024 menunjukkan fakta mengejutkan tentang kondisi UMKM Indonesia",
+    "stats": [
+      {
+        "icon": "TrendingDown",
+        "value": "83,46%",
+        "label": "UMKM tidak memiliki skill desain grafis & pemasaran digital",
+        "color": "red"
+      },
+      {
+        "icon": "Clock",
+        "value": "8+ Jam",
+        "label": "Waktu yang dibutuhkan untuk membuat 3-4 konten berkualitas",
+        "color": "orange"
+      },
+      {
+        "icon": "DollarSign",
+        "value": "4,5 Juta",
+        "label": "Rata-rata biaya agency/freelancer per bulan",
+        "color": "yellow"
+      },
+      {
+        "icon": "AlertTriangle",
+        "value": "342K+",
+        "label": "UMKM di Yogyakarta yang membutuhkan solusi",
+        "color": "purple"
+      }
+    ],
+    "fakeSolutionsTitle": "Mengapa Solusi yang Ada Belum Efektif?",
+    "existingTools": {
+      "title": "❌ Tools Content Creation",
+      "points": [
+        "Masih membutuhkan skill desain dan copywriting",
+        "Menghabiskan waktu berjam-jam untuk setup",
+        "Interface kompleks dan tidak user-friendly",
+        "Tidak memahami konteks bisnis lokal Indonesia"
+      ]
+    },
+    "agencyFreelancer": {
+      "title": "❌ Agency & Freelancer",
+      "points": [
+        "Biaya terlalu mahal untuk UMKM (Rp 4,5 juta/bulan)",
+        "Tidak scalable untuk 342.000+ UMKM",
+        "Komunikasi dan revisi yang memakan waktu",
+        "Tidak sustainable untuk jangka panjang"
+      ]
+    }
+  },
+  "solutionSection": {
+    "title": "Platform AI yang",
+    "titleHighlight": "Mengubah Segalanya",
+    "subtitle": "Solusi digital otomatis yang inklusif, mampu menjangkau jutaan pelaku usaha sekaligus membuka akses ke ekonomi dan pemasaran digital secara nyata.",
+    "steps": [
+      {
+        "icon": "Zap",
+        "title": "One Time Input",
+        "description": "Pengguna hanya cukup sekali memasukkan data bisnis (nama brand, logo, produk, deskripsi, foto produk, dsb).",
+        "benefit": "Mengatasi keterbatasan waktu dan skill",
+        "colors": "from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10"
+      },
+      {
+        "icon": "Target",
+        "title": "Automated Trend Analysis",
+        "description": "Sistem menganalisis ide dan tren konten/berita terkini.",
+        "benefit": "Tidak pernah ketinggalan tren",
+        "colors": "from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "AI-based Content Generation",
+        "description": "Menghasilkan visual konten promosi dan caption yang menarik serta relevan melalui model AI terdepan.",
+        "benefit": "Tanpa skill desain & copywriting",
+        "colors": "from-orange-50 to-red-50 dark:from-orange-900/10 dark:to-red-900/10"
+      },
+      {
+        "icon": "Calendar",
+        "title": "Scheduling Optimization",
+        "description": "Dapat mengatur dan merekomendasikan waktu posting konten social media.",
+        "benefit": "Timing posting yang optimal",
+        "colors": "from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "Auto-Boosting/Advertising",
+        "description": "Sistem dapat merekomendasikan konten layak iklan dan menjalankan iklan secara otomatis.",
+        "benefit": "Iklan tepat sasaran & profitable",
+        "colors": "from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10"
+      },
+      {
+        "icon": "CheckCircle",
+        "title": "Chat AI Assistant",
+        "description": "AI secara otomatis membalas DM, chat, dan komentar di media sosial dengan respon cepat, relevan, dan sesuai gaya bisnis.",
+        "benefit": "Meningkatkan engagement & hemat waktu",
+        "colors": "from-cyan-50 to-blue-50 dark:from-cyan-900/10 dark:to-blue-900/10"
+      }
+    ],
+    "impactTitle": "Wujudkan UMKM Indonesia yang Lebih Maju dan Efisien",
+    "impactStats": [
+      {
+        "value": "90%+",
+        "label": "Lebih efisien waktu & biaya dibanding model manual"
+      },
+      { "value": "20.000+", "label": "Target UMKM onboarding dalam 2 tahun" },
+      { "value": "1 Juta+", "label": "Konten social media yang akan dihasilkan secara otomatis" },
+      { "value": "156%", "label": "Peningkatan engagement bisnis pengguna" }
+    ]
+  },
+  "featuresSection": {
+    "title": "Fitur Lengkap untuk",
+    "titleHighlight": "Otomasi Marketing",
+    "subtitle": "Platform all-in-one yang dirancang khusus untuk kebutuhan UMKM Indonesia",
+    "features": [
+      {
+        "icon": "Bot",
+        "title": "AI Content Generator",
+        "description": "Generate konten visual dan copywriting berkualitas tinggi dengan teknologi AI terdepan",
+        "color": "from-blue-500 to-cyan-500"
+      },
+      {
+        "icon": "Target",
+        "title": "Trend Analysis",
+        "description": "Analisis tren real-time untuk memastikan konten selalu relevan dan viral",
+        "color": "from-green-500 to-emerald-500"
+      },
+      {
+        "icon": "Calendar",
+        "title": "Smart Scheduling",
+        "description": "Penjadwalan manual dan otomatis ke seluruh platform social media",
+        "color": "from-purple-500 to-pink-500"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "Auto Advertising",
+        "description": "Sistem iklan otomatis yang cerdas dengan targeting dan budget optimization",
+        "color": "from-orange-500 to-red-500"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "Analytics Dashboard",
+        "description": "Dashboard komprehensif dengan insights mendalam tentang performa marketing",
+        "color": "from-indigo-500 to-purple-500"
+      },
+      {
+        "icon": "Zap",
+        "title": "One-Click Setup",
+        "description": "Setup pengetahuan bisnis sekali saja, sistem bekerja otomatis selamanya",
+        "color": "from-yellow-500 to-orange-500"
+      },
+      {
+        "icon": "Shield",
+        "title": "Chat AI Assistant",
+        "description": "Respon cepat, relevan, dan sesuai gaya bisnis dari AI assistant secara otomatis",
+        "color": "from-cyan-500 to-blue-500"
+      },
+      {
+        "icon": "Users",
+        "title": "Multi-Platform",
+        "description": "Distribusi konten secara otomatis ke berbagai platform social media populer",
+        "color": "from-pink-500 to-red-500"
+      }
+    ],
+    "highlight": {
+      "title": "Kenapa POSTMATIC Berbeda?",
+      "points": [
+        {
+          "title": "Khusus untuk Bisnis Indonesia",
+          "description": "Memahami konteks bisnis lokal, budaya, dan preferensi konsumen Indonesia"
+        },
+        {
+          "title": "Zero Learning Curve",
+          "description": "Tidak perlu skill teknis apapun, semua berjalan otomatis setelah setup awal"
+        },
+        {
+          "title": "Affordable & Scalable",
+          "description": "Harga terjangkau dengan hasil setara agency premium"
+        },
+        {
+          "title": "Continuous Innovation",
+          "description": "AI terus belajar dan berkembang mengikuti tren terbaru"
+        }
+      ]
+    }
+  },
+  "endToEnd": {
+    "title": "Automation",
+    "highlight": "End-to-End",
+    "description": "AI membuat konten dan caption → menjadwalkan upload ke social media → mempromosikan konten → menyempurnakan siklus berikutnya.",
+    "steps": [
+      "Input brand assets once",
+      "AI analyses trends & audience",
+      "Generates visuals + copy",
+      "Schedules at optimal times",
+      "Runs paid ads automatically",
+      "Delivers analytics & learns"
+    ]
+  },
+  "introVideo": {
+    "titleLine1": "Keren, Bukan?!",
+    "title": "Kenalan dengan",
+    "brand": "POSTMATIC",
+    "subtitle": "Tonton video pendek berikut untuk melihat bagaimana POSTMATIC membantu Anda membuat marketing campaign yang lebih mudah, cepat, dan efektif.",
+    "windowTitle": "Postmatic"
+  },
+  "ctaSection": {
+    "title": "Siap Mengotomasi",
+    "titleHighlight": "Pemasaran Digital",
+    "subtitle": "Bisnis Anda?",
+    "cta": "Gunakan Postmatic dan rasakan bagaimana AI dapat mengubah cara Anda berbisnis. Tingkatkan engagement hingga 156% dalam 30 hari pertama!",
+    "contactUs": "Hubungi Kami",
+    "getStarted": "Mulai Sekarang"
+  },
+  "footer": {
+ 
+    "companyDescription": "Platform AI terdepan untuk mengotomasi pemasaran digital suatu Bisnis Indonesia.",
+    "platform": "Platform",
+    "fitur": "Fitur",
+    "tutorial": "Tutorial",
+    "helpCenter": "Pusat Bantuan",
+    "community": "Komunitas",
+    "statusSystem": "Sistem Status",
+    "harga": "Harga",
+    "resources": "Resources",
+    "contact": "Kontak",
+    "privacyPolicy": "Kebijakan Privasi", 
+    "termsOfService": "Syarat dan Ketentuan",
+    "dataDeletion": "Hapus Data",
+    "cookiePolicy": "Kebijakan Cookie",
+    "supportedBy": "Didukung oleh teknologi AI terdepan untuk mengotomasi social media bisnis Indonesia 🇮🇩"
+  },
+  "pricing": {
+    "title": "Pilih Paket yang",
+    "titleHighlight": "Tepat untuk Bisnis Anda",
+    "subtitle": "Dapatkan akses ke platform AI Social Media Automation terdepan dengan harga yang terjangkau untuk bisnis Anda",
+    "tabs": {
+      "subscription": "Paket Berlangganan",
+      "tokens": "Beli Token"
+    },
+    "badge": "Paling Populer",
+    "cta": {
+      "free": "Mulai Gratis",
+      "paid": "Pilih Paket",
+      "token": "Beli Token",
+      "sales": "Hubungi Sales"
+    },
+    "currency": "IDR",
+    "tokenUnit": "token",
+    "validFor": "Valid {days} hari",
+    "perToken": "{price} per token",
+    "saveBadge": "Hemat 20%",
+    "tokenTitle": "Token untuk Generate Konten",
+    "tokenSubtitle": "Beli token sesuai kebutuhan tanpa komitmen bulanan",
+    "enterpriseHelp": {
+      "title": "Butuh Token Lebih Banyak?",
+      "desc": "Hubungi tim kami untuk paket enterprise dengan harga khusus"
+    },
+    "plans": [
+      {
+        "id": "788cce03-7e8e-4bda-a211-554bc56ea937",
+        "name": "Free",
+        "icon": "Star",
+        "color": "from-gray-500 to-gray-600",
+        "bgColor": "bg-gray-50 border-gray-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "300 Token untuk Generate Konten",
+          "atau 3 Konten Terotomasi",
+          "Valid dalam 30 days"
+        ],
+        "items": [
+          {
+            "id": "f37c15ce-6a05-48ba-92e2-a4f01296504e",
+            "name": "Free",
+            "price": 0,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 1000,
+            "originalPrice": 0
+          }
+        ]
+      },
+      {
+        "id": "0cb0f83d-9868-417e-aed0-4bc7590ce8bc",
+        "name": "Professional",
+        "icon": "Zap",
+        "color": "from-blue-500 to-indigo-600",
+        "bgColor": "bg-blue-50 border-blue-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": true,
+        "benefits": [
+          "30.000 Token untuk Generate Konten",
+          "atau 100 Konten Terotomasi",
+          "Pemrosesan Lebih Cepat",
+          "Penyesuaian Lanjutan",
+          "Akses penuh ke semua fitur"
+        ],
+        "items": [
+          {
+            "id": "73cc0502-1ba3-4254-84fc-f3cfd236649b",
+            "name": "Monthly",
+            "price": 299000,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 30000,
+            "originalPrice": 299000
+          },
+          {
+            "id": "3031f5f5-e84e-498c-9878-186b4c735dd2",
+            "name": "Annually",
+            "price": 2870400,
+            "description": "Save 20% with annual billing",
+            "tokenValidFor": 365,
+            "tokenImage": 180000,
+            "originalPrice": 3588000
+          }
+        ]
+      },
+      {
+        "id": "1f5d87d8-0f93-4ebe-a9c9-333df9ec500b",
+        "name": "Enterprise",
+        "icon": "Crown",
+        "color": "from-purple-500 to-pink-600",
+        "bgColor": "bg-purple-50 border-purple-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "100.000 Token untuk Generate Konten",
+          "atau 500 Konten Terotomasi",
+          "Pemrosesan Lebih Cepat",
+          "Penyesuaian Lanjutan",
+          "Akses penuh ke semua fitur"
+        ],
+        "items": [
+          {
+            "id": "d2ec82c2-c2ed-4fe5-bf6c-2afa26fff14b",
+            "name": "Monthly",
+            "price": 800000,
+            "description": null,
+            "tokenValidFor": 30,
+            "tokenImage": 100000,
+            "originalPrice": 800000
+          },
+          {
+            "id": "ff318282-b0ba-4ef6-ab5c-80d9a91825b7",
+            "name": "Annually",
+            "price": 7680000,
+            "description": "Save 20% with annual billing",
+            "tokenValidFor": 60,
+            "tokenImage": 600000,
+            "originalPrice": 9600000
+          }
+        ]
+      }
+    ],
+    "tokens": [
+      {
+        "id": "b858d06e-9e88-4e31-bf89-bb7a74f39e99",
+        "price": 32835,
+        "token": 500,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "e5eb12df-d347-4c23-bba9-9d379d85adf7",
+        "price": 57585,
+        "token": 1000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "96552efd-6e6f-4bda-a234-92774120883e",
+        "price": 98835,
+        "token": 2000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "0c42705d-8c6c-4f4c-9b9c-8e23ae34f0a2",
+        "price": 164835,
+        "token": 5000,
+        "tokenValidFor": 30
+      },
+      {
+        "id": "24945acc-3998-4ade-9bfb-edbf88b17617",
+        "price": 313335,
+        "token": 10000,
+        "tokenValidFor": 30
+      }
+    ]
+  },
+  "privacyPolicy": {
+    "title": "Kebijakan Privasi untuk Postmatic",
+    "lastUpdated": "Terakhir diperbarui: 02 Juli 2025",
+    "sections": [
+      {
+        "title": "Interpretasi dan Definisi",
+        "description": [
+          {
+            "type": "bold",
+            "content": "Interpretasi"
+          },
+          {
+            "type": "text",
+            "content": "Kata-kata yang huruf awalnya dikapitalisasi memiliki arti yang didefinisikan di bawah kondisi berikut."
+          },
+          {
+            "type": "bold",
+            "content": "Definisi"
+          },
+          {
+            "type": "list",
+            "items": [
+              "**Akun**: akun unik yang dibuat untuk Anda untuk mengakses Layanan kami.",
+              "**Perusahaan** (\"Postmatic\", \"Kami\", \"Kita\", \"Milik Kami\"): Jl. Lempongsari No.353, Indonesia.",
+              "**Data Pribadi**: informasi apa pun yang berkaitan dengan individu yang teridentifikasi atau dapat diidentifikasi.",
+              "**Layanan**: Situs Web yang dapat diakses dari https://postmatic.id",
+              "**Data Penggunaan**: data yang dikumpulkan secara otomatis (alamat IP, browser, halaman yang dikunjungi, dll.).",
+              "**Cookie**: file kecil yang ditempatkan di perangkat Anda untuk menyimpan detail penelusuran.",
+              "**Layanan Media Sosial Pihak Ketiga**: Google, Facebook, Instagram, Twitter, LinkedIn.",
+              "**Anda**: individu atau entitas hukum yang menggunakan Layanan."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Pengumpulan dan Penggunaan Data Pribadi Anda",
+        "description": [
+          {
+            "type": "bold",
+            "content": "Jenis Data yang Dikumpulkan"
+          },
+          {
+            "type": "list",
+            "items": [
+              "**Data Pribadi**: email, nama depan/belakang, nomor telepon, alamat, kota, provinsi, kode pos, data penggunaan.",
+              "**Data Penggunaan**: alamat IP, tipe/versi browser, stempel waktu, info perangkat, data diagnostik.",
+              "**Media Sosial Pihak Ketiga**: Jika Anda mendaftar melalui Google, Facebook, Instagram, Twitter, atau LinkedIn, Kami dapat mengumpulkan nama, email, aktivitas, dan daftar kontak Anda.",
+              "**Teknologi Pelacakan & Cookie**: Cookie Penting/Esensial (Sesi), Cookie Penerimaan Pemberitahuan Cookie (Persisten), Cookie Fungsionalitas (Persisten)"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Penggunaan Data Pribadi Anda",
+        "description": [
+          {
+            "type": "text",
+            "content": "Kami dapat menggunakan Data Pribadi Anda untuk:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Menyediakan dan memelihara Layanan.",
+              "Mengelola Akun dan pendaftaran Anda.",
+              "Melakukan kontrak (misalnya, pembelian).",
+              "Menghubungi Anda melalui email, telepon, SMS, notifikasi push.",
+              "Mengirim berita, penawaran, dan informasi umum (kecuali Anda memilih keluar).",
+              "Mengelola permintaan Anda.",
+              "Mengevaluasi atau melakukan transfer bisnis (merger, penjualan, dll.).",
+              "Melakukan analisis data, mengukur efektivitas kampanye, meningkatkan produk/layanan."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Retensi Data Pribadi Anda",
+        "description": [
+          {
+            "type": "text",
+            "content": "Kami menyimpan Data Pribadi hanya selama diperlukan untuk tujuan yang ditetapkan dalam Kebijakan Privasi ini (kewajiban hukum, penyelesaian sengketa, penegakan kebijakan)."
+          },
+          {
+            "type": "text",
+            "content": "Data Penggunaan umumnya disimpan untuk periode yang lebih singkat kecuali digunakan untuk peningkatan keamanan atau fungsionalitas."
+          }
+        ]
+      },
+      {
+        "title": "Transfer Data Pribadi Anda",
+        "description": [
+          {
+            "type": "text",
+            "content": "Informasi Anda dapat ditransfer ke — dan dipelihara di — komputer yang berlokasi di luar yurisdiksi Anda di mana undang-undang perlindungan data mungkin berbeda."
+          },
+          {
+            "type": "text",
+            "content": "Kami mengambil semua langkah yang wajar untuk memastikan data Anda diperlakukan dengan aman dan sesuai dengan Kebijakan Privasi ini."
+          }
+        ]
+      },
+      {
+        "title": "Hapus Data Pribadi Anda",
+        "description": [
+          {
+            "type": "text",
+            "content": "Anda memiliki hak untuk menghapus atau meminta bantuan dalam menghapus Data Pribadi yang telah Kami kumpulkan tentang Anda."
+          },
+          {
+            "type": "text",
+            "content": "Anda dapat memperbarui, mengubah, atau menghapus informasi Anda melalui pengaturan Akun Anda atau dengan menghubungi Kami di team@postmatic.id"
+          },
+          {
+            "type": "text",
+            "content": "Kami dapat menyimpan informasi tertentu ketika diwajibkan oleh hukum."
+          }
+        ]
+      },
+      {
+        "title": "Pengungkapan Data Pribadi Anda",
+        "description": [
+          {
+            "type": "bold",
+            "content": "Transaksi Bisnis"
+          },
+          {
+            "type": "text",
+            "content": "Jika Perusahaan terlibat dalam merger, akuisisi, atau penjualan aset, Data Pribadi Anda dapat ditransfer. Pemberitahuan akan diberikan sebelum data Anda menjadi tunduk pada kebijakan privasi yang berbeda."
+          },
+          {
+            "type": "bold",
+            "content": "Penegakan Hukum"
+          },
+          {
+            "type": "text",
+            "content": "Kami dapat mengungkapkan Data Pribadi Anda jika diwajibkan oleh hukum atau sebagai tanggapan terhadap permintaan yang valid oleh otoritas publik."
+          },
+          {
+            "type": "bold",
+            "content": "Persyaratan Hukum Lainnya"
+          },
+          {
+            "type": "text",
+            "content": "Kami dapat mengungkapkan Data Pribadi Anda dengan keyakinan yang baik bahwa tindakan tersebut diperlukan untuk mematuhi kewajiban hukum, melindungi hak atau properti, mencegah kesalahan, melindungi keselamatan pengguna, atau membela terhadap tanggung jawab hukum."
+          }
+        ]
+      },
+      {
+        "title": "Keamanan Data Pribadi Anda",
+        "description": [
+          {
+            "type": "text",
+            "content": "Tidak ada metode transmisi melalui Internet atau penyimpanan elektronik yang 100% aman, tetapi Kami berusaha menggunakan cara yang dapat diterima secara komersial untuk melindungi Data Pribadi Anda."
+          }
+        ]
+      },
+      {
+        "title": "Privasi Anak-anak",
+        "description": [
+          {
+            "type": "text",
+            "content": "Layanan kami tidak ditujukan untuk siapa pun di bawah usia 13 tahun. Kami tidak secara sadar mengumpulkan Data Pribadi dari anak-anak di bawah 13 tahun. Jika Anda yakin anak Anda telah memberikan Data Pribadi kepada Kami, silakan hubungi Kami. Kami akan menghapus informasi tersebut dari server Kami."
+          }
+        ]
+      },
+      {
+        "title": "Tautan ke Situs Web Lain",
+        "description": [
+          {
+            "type": "text",
+            "content": "Layanan kami mungkin berisi tautan ke situs pihak ketiga. Kami tidak bertanggung jawab atas konten, kebijakan privasi, atau praktik situs atau layanan pihak ketiga mana pun."
+          }
+        ]
+      },
+      {
+        "title": "Perubahan pada Kebijakan Privasi ini",
+        "description": [
+          {
+            "type": "text",
+            "content": "Kami dapat memperbarui Kebijakan Privasi ini dari waktu ke waktu. Perubahan berlaku efektif ketika diposting di halaman ini. Kami akan memberi tahu Anda melalui email dan/atau pemberitahuan yang menonjol di Layanan sebelum perubahan menjadi efektif dan memperbarui tanggal \"Terakhir diperbarui\"."
+          }
+        ]
+      },
+      {
+        "title": "Hubungi Kami",
+        "description": [
+          {
+            "type": "text",
+            "content": "Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini, hubungi kami:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "**Email**: team@postmatic.id",
+              "**Website**: https://postmatic.id"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cookiePolicy": {
+    "title": "Kebijakan Cookie",
+    "lastUpdated": "Terakhir diperbarui: 06 Agustus 2025",
+    "sections": [
+      {
+        "title": "Apa itu Cookie?",
+        "content": [
+          {
+            "type": "text",
+            "text": "Cookie adalah file teks kecil yang ditempatkan di perangkat Anda saat mengunjungi situs web. Cookie membantu kami mengoperasikan situs, meningkatkan pengalaman Anda, menganalisis lalu lintas, dan menyajikan iklan yang relevan."
+          }
+        ]
+      },
+      {
+        "title": "Cara Kami Menggunakan Cookie",
+        "content": [
+          {
+            "type": "text",
+            "text": "Kami menggunakan cookie untuk tujuan yang dijelaskan di bawah ini. Anda dapat mengontrol cookie non-esensial melalui modal Pengaturan Cookie kami kapan saja."
+          }
+        ]
+      },
+      {
+        "title": "Kategori Cookie yang Kami Gunakan",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "<strong>1. Cookie Penting (Selalu Aktif)</strong><br/>Penting untuk fungsionalitas dasar situs web, keamanan, dan manajemen jaringan. Tanpa ini, layanan seperti masuk atau mengisi formulir tidak dapat disediakan.",
+              "<strong>2. Cookie Analitik</strong><br/>Mengumpulkan informasi secara agregat—seperti jumlah pengunjung, halaman yang dilihat, dan durasi sesi—untuk membantu kami memahami bagaimana situs digunakan dan meningkatkan kinerja.",
+              "<strong>3. Cookie Pemasaran / Iklan</strong><br/>Melacak pengunjung di berbagai situs web untuk menampilkan iklan yang relevan dan dipersonalisasi serta mengukur efektivitas kampanye pemasaran kami."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Cookie Pihak Ketiga",
+        "content": [
+          {
+            "type": "text",
+            "text": "Kami dapat mengizinkan layanan pihak ketiga terpercaya (misalnya, Google Analytics, Meta Pixel) untuk mengatur cookie untuk tujuan analitik atau pemasaran. Penyedia ini terikat kontrak untuk menangani data dengan bertanggung jawab dan sesuai dengan hukum yang berlaku."
+          }
+        ]
+      },
+      {
+        "title": "Mengelola Preferensi Cookie Anda",
+        "content": [
+          {
+            "type": "text",
+            "text": "Saat pertama kali mengunjungi Postmatic, Anda akan melihat banner persetujuan cookie. Anda dapat:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Menerima semua cookie;",
+              "Menolak semua cookie opsional;",
+              "Membuka \"Pengaturan Cookie\" untuk memilih kategori individual."
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Anda dapat mengunjungi kembali atau mengubah pilihan Anda kapan saja dengan mengklik tautan \"Pengaturan Cookie\" di footer atau dengan menghapus penyimpanan lokal dan me-refresh halaman."
+          }
+        ]
+      },
+      {
+        "title": "Retensi Data",
+        "content": [
+          {
+            "type": "text",
+            "text": "Periode retensi cookie bervariasi menurut kategori: cookie penting berakhir setelah sesi atau dalam 30 hari; cookie analitik dapat bertahan hingga 24 bulan; cookie pemasaran biasanya disimpan selama 6–12 bulan atau sampai Anda mencabut persetujuan."
+          }
+        ]
+      },
+      {
+        "title": "Hubungi Kami",
+        "content": [
+          {
+            "type": "text",
+            "text": "Jika Anda memiliki pertanyaan tentang Kebijakan Cookie ini, silakan hubungi kami:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "<strong>Email:</strong> <a href='mailto:team@postmatic.id' class='text-blue-600 underline'>team@postmatic.id</a>",
+              "<strong>Website:</strong> <a href='https://postmatic.id' target='_blank' rel='noopener noreferrer' class='text-blue-600 underline'>https://postmatic.id</a>"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "dataDeletion": {
+    "title": "Kebijakan Penghapusan Data",
+    "lastUpdated": "Terakhir diperbarui: 06 Agustus 2025",
+    "sections": [
+      {
+        "title": "Prosedur Permintaan Penghapusan Data",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "<strong>1. Pengajuan Permintaan</strong><br/>Kirim email ke <a href='mailto:team@postmatic.id'>team@postmatic.id</a> dengan subjek \"Permintaan Penghapusan Data.\" Sertakan nama lengkap, email terdaftar, nomor telepon, dan penjelasan singkat opsional tentang permintaan.",
+              "<strong>2. Verifikasi Identitas</strong><br/>Kami akan mengirimkan email konfirmasi kepada Anda. Balas segera untuk memverifikasi identitas Anda.",
+              "<strong>3. Waktu Pemrosesan</strong><br/>Setelah diverifikasi, kami akan menyelesaikan penghapusan dalam 7–14 hari kerja dan memberi tahu Anda melalui email."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Cakupan Penghapusan Data",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Informasi identifikasi pribadi (nama, email, nomor telepon)",
+              "Semua data terkait proyek dan konten basis pengetahuan",
+              "Gambar, video, caption yang dihasilkan, dan media tersimpan lainnya",
+              "Token dan kredensial media sosial yang terhubung (dinonaktifkan segera)",
+              "Konfigurasi otomasi chat / balasan dan riwayat chat"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Pengecualian",
+        "content": [
+          {
+            "type": "text",
+            "text": "Beberapa data mungkin disimpan untuk tujuan hukum, regulasi, atau kepatuhan:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Catatan transaksi untuk pelaporan pajak & keuangan (disimpan sesuai mandat hukum)",
+              "Data analitik yang dianonimkan untuk pelaporan internal & analisis kinerja"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Informasi Langganan & Pembayaran",
+        "content": [
+          {
+            "type": "text",
+            "text": "Data pembayaran dan langganan yang ditangani oleh <strong>Midtrans</strong> diatur oleh kebijakan privasi mereka sendiri. Untuk menghapus informasi tersebut, hubungi Midtrans langsung melalui saluran resmi mereka."
+          }
+        ]
+      },
+      {
+        "title": "Akses Pasca-Penghapusan",
+        "content": [
+          {
+            "type": "text",
+            "text": "Setelah penghapusan selesai, Anda tidak akan dapat mengakses proyek, konten yang dihasilkan, atau layanan yang terkait dengan akun Anda."
+          }
+        ]
+      },
+      {
+        "title": "Hubungi Kami",
+        "content": [
+          {
+            "type": "text",
+            "text": "Ada pertanyaan? Email kami di <a href='mailto:team@postmatic.id'>team@postmatic.id</a>."
+          }
+        ]
+      }
+    ]
+  },
+  "termsOfService": {
+    "title": "Syarat dan Ketentuan",
+    "lastUpdated": "Terakhir diperbarui: 06 Agustus 2025",
+    "sections": [
+      {
+        "title": "Penerimaan Syarat",
+        "content": [
+          {
+            "type": "text",
+            "text": "Dengan mengakses atau menggunakan Layanan Postmatic (\"Postmatic,\" \"kami,\" atau \"milik kami\"), Anda setuju untuk mematuhi Syarat & Ketentuan ini (\"Syarat\"). Jika Anda tidak setuju dengan bagian mana pun dari Syarat ini, Anda tidak boleh mengakses atau menggunakan Layanan."
+          }
+        ]
+      },
+      {
+        "title": "Registrasi dan Keamanan Akun",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Anda harus memberikan informasi yang akurat dan lengkap saat mendaftarkan akun (termasuk nama, email, nomor telepon, dan kata sandi).",
+              "Anda bertanggung jawab untuk menjaga kredensial akun Anda dan untuk semua aktivitas yang terjadi di bawah akun Anda."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Layanan yang Disediakan",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Otomasi konten media sosial melalui gambar, video, dan caption yang dihasilkan AI.",
+              "Kemampuan posting otomatis ke akun media sosial yang terhubung.",
+              "Fungsionalitas chat dan balasan otomatis yang didukung AI."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Tanggung Jawab Pengguna",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Anda harus memastikan bahwa semua informasi terkait bisnis yang diberikan (seperti logo, nama merek, deskripsi, detail produk, dan harga) akurat, legal, dan tidak melanggar hak kekayaan intelektual.",
+              "Anda setuju untuk mematuhi syarat dan kebijakan platform media sosial pihak ketiga yang terintegrasi dengan Postmatic."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Kekayaan Intelektual",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Postmatic mempertahankan semua hak kekayaan intelektual dalam Layanan, termasuk template konten yang dihasilkan AI, perangkat lunak, dan algoritma.",
+              "Pengguna mempertahankan kepemilikan informasi dan konten terkait bisnis yang mereka berikan atau unggah ke Postmatic."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Langganan dan Pembayaran",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Postmatic menggunakan model langganan berbasis token.",
+              "Pembayaran diproses dengan aman melalui <strong>Midtrans</strong>.",
+              "Token yang dibeli tidak dapat dikembalikan dan tunduk pada kedaluwarsa seperti yang diuraikan selama proses pembelian."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Penggunaan yang Dilarang",
+        "content": [
+          {
+            "type": "text",
+            "text": "Anda setuju untuk tidak:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "Menggunakan Postmatic untuk tujuan yang melanggar hukum, penipuan, atau berbahaya.",
+              "Mengganggu atau mengganggu fungsionalitas, kinerja, atau keamanan Postmatic.",
+              "Mengunggah atau menghasilkan konten yang berbahaya, mengancam, kasar, memfitnah, cabul, ofensif, atau tidak pantas."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Privasi Data",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic memproses data pribadi dan bisnis sesuai dengan Kebijakan Privasi kami. Dengan menggunakan Postmatic, Anda menyetujui pengumpulan dan penggunaan analitik data untuk meningkatkan kualitas layanan kami."
+          }
+        ]
+      },
+      {
+        "title": "Pembatasan Tanggung Jawab",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic tidak bertanggung jawab atas kerugian tidak langsung, insidental, khusus, konsekuensial, atau punitif, atau kehilangan keuntungan atau pendapatan, yang timbul langsung atau tidak langsung melalui penggunaan Layanan."
+          }
+        ]
+      },
+      {
+        "title": "Ganti Rugi",
+        "content": [
+          {
+            "type": "text",
+            "text": "Anda setuju untuk mengganti rugi, membela, dan membebaskan Postmatic dari klaim, kerusakan, kewajiban, biaya, atau pengeluaran yang diakibatkan oleh penggunaan Layanan atau pelanggaran Syarat ini."
+          }
+        ]
+      },
+      {
+        "title": "Perubahan Syarat",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic berhak untuk memodifikasi Syarat ini kapan saja. Pengguna akan diberi tahu tentang perubahan melalui email atau melalui notifikasi di situs web kami. Penggunaan berkelanjutan setelah notifikasi menandakan penerimaan Anda terhadap Syarat yang diperbarui."
+          }
+        ]
+      },
+      {
+        "title": "Pengakhiran",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic berhak untuk menangguhkan atau mengakhiri akses Anda ke Layanan tanpa pemberitahuan sebelumnya jika Anda melanggar ketentuan Syarat ini."
+          }
+        ]
+      },
+      {
+        "title": "Hukum yang Berlaku",
+        "content": [
+          {
+            "type": "text",
+            "text": "Syarat & Ketentuan ini akan diatur oleh dan ditafsirkan sesuai dengan hukum Republik Indonesia."
+          }
+        ]
+      },
+      {
+        "title": "Informasi Kontak",
+        "content": [
+          {
+            "type": "text",
+            "text": "Untuk pertanyaan mengenai Syarat ini, silakan hubungi kami di:"
+          },
+          {
+            "type": "list",
+            "items": [
+              "<strong>Email:</strong> team@postmatic.id",
+              "<strong>Website:</strong> <a href='https://postmatic.id' target='_blank' rel='noopener noreferrer' class='text-blue-600 underline'>https://postmatic.id</a>"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

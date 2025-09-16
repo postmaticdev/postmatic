@@ -1,35 +1,16 @@
-# ---------- deps ----------
-FROM node:24-slim AS deps
-WORKDIR /app
-COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
-
-# ---------- build ----------
-FROM node:24-slim AS build
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY prisma ./prisma
-# optional: generate untuk typecheck; tidak dipakai runtime
-RUN npx -y prisma@5.22.0 generate
-COPY . .
-
-ARG GIT_SHA=dev
-ARG ENV_NAME=local
-ENV GIT_SHA=$GIT_SHA ENV_NAME=$ENV_NAME
-
-RUN npm run build
-RUN mkdir -p dist && echo "{\"sha\":\"$GIT_SHA\"}" > dist/version.json
-
 # ---------- runtime ----------
 FROM node:24-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 HOST=0.0.0.0
+
+# lib yg dibutuhkan (boleh tetap)
 RUN apt-get update && apt-get install -y --no-install-recommends libssl3 ca-certificates && rm -rf /var/lib/apt/lists/*
+
 ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
 LABEL org.opencontainers.image.revision=$GIT_SHA
 
-# 👉 Install HANYA prod deps
+# 👉 Install HANYA prod deps (masih root)
 COPY --chown=node:node package*.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
@@ -37,8 +18,15 @@ RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/prisma ./prisma
 
-# 👉 Generate Prisma client terhadap node_modules runtime (pakai npx CLI; cepat)
+# 👉 Generate Prisma client terhadap node_modules runtime
 RUN npx -y prisma@5.22.0 generate
+
+# ✅ Buat direktori yang akan dipakai untuk tulis & beri ownership ke user node
+#    (tambahkan direktori lain bila perlu, mis. /app/uploads)
+RUN install -d -o node -g node -m 0775 /app/temp
+
+# (opsional) jika ingin semua isi /app milik node:
+# RUN chown -R node:node /app
 
 USER node
 EXPOSE 3000

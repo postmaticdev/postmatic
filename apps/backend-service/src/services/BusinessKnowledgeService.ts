@@ -54,7 +54,11 @@ export class BusinessKnowledgeService extends BaseService {
         }),
         db.rootBusiness.update({
           where: { id: rootBusinessId },
-          data: { updatedAt: new Date() },
+          data: {
+            updatedAt: new Date(),
+            logo: data.primaryLogo,
+            name: data.name,
+          },
         }),
       ]);
       return business;

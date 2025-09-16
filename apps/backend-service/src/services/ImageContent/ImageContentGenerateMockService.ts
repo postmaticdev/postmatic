@@ -2,6 +2,7 @@ import { BaseService } from "../BaseService";
 import db from "../../config/db";
 import {
   ImageContentDTO,
+  ImageContentMaskDTO,
   ImageContentRegenerateDTO,
   ImageContentRssDTO,
 } from "../../validators/ImageContentValidator";
@@ -11,83 +12,14 @@ import { ImageGenJob, ImageGenJobStore } from "../../store/ImageGenJobStore";
 import { Server as SocketIOServer } from "socket.io";
 import { io } from "../../socket";
 import { LOGO } from "../../constant";
+import {
+  ImageContentService,
+  ImageContentServiceDeps,
+} from "./ImageContentService";
 
-export class ImageContentGenerateMockService extends BaseService {
-  constructor() {
-    super();
-  }
-
-  private jobs = new ImageGenJobStore();
-  private get io(): SocketIOServer {
-    return io();
-  }
-
-  /** helper: patch + emit */
-  private async patchAndEmit(
-    rootBusinessId: string,
-    jobId: string,
-    patch: Partial<ImageGenJob>
-  ) {
-    const j = await this.jobs.patchJob(jobId, patch);
-    if (j) this.io.to(this.room(rootBusinessId)).emit("imagegen:update", j);
-    return j;
-  }
-
-  /** room untuk broadcast: semua device bisnis join ke room ini */
-  private room(rootBusinessId: string) {
-    return `rb:${rootBusinessId}`;
-  }
-
-  private async getBusinessInformation(
-    rootBusinessId: string,
-    productKnowledgeId: string
-  ) {
-    return await db.rootBusiness.findUnique({
-      where: { id: rootBusinessId },
-      select: {
-        businessKnowledge: {
-          select: {
-            name: true,
-            description: true,
-            category: true,
-            location: true,
-            primaryLogo: true,
-            secondaryLogo: true,
-            uniqueSellingPoint: true,
-            website: true,
-            visionMission: true,
-          },
-        },
-        productKnowledges: {
-          where: {
-            id: productKnowledgeId,
-          },
-          select: {
-            name: true,
-            description: true,
-            category: true,
-            allergen: true,
-            benefit: true,
-            currency: true,
-            price: true,
-            images: true,
-            composition: true,
-          },
-          take: 1,
-        },
-        roleKnowledge: {
-          select: {
-            audiencePersona: true,
-            callToAction: true,
-            goals: true,
-            hashtags: true,
-            platforms: true,
-            tone: true,
-            targetAudience: true,
-          },
-        },
-      },
-    });
+export class ImageContentGenerateMockService extends ImageContentService {
+  constructor(deps: ImageContentServiceDeps) {
+    super(deps);
   }
 
   /** ========== MOCK ========== */
@@ -101,7 +33,7 @@ export class ImageContentGenerateMockService extends BaseService {
     data: ImageContentDTO,
     rootBusinessId: string
   ) {
-    const job = await this.jobs.createJob("mock", rootBusinessId, {
+    const job = await this.jobs.createJob("mock_knowledge", rootBusinessId, {
       productKnowledgeId: data.productKnowledgeId,
       ratio: data.ratio,
       category: data.category,
@@ -150,7 +82,11 @@ export class ImageContentGenerateMockService extends BaseService {
       ) {
         await emit({
           status: "error",
-          error: { message: "Business/product/role knowledge is incomplete" },
+          error: {
+            message: "Business/product/role knowledge is incomplete",
+            stack: null,
+            attempt: 3,
+          },
         });
         return;
       }
@@ -277,7 +213,11 @@ export class ImageContentGenerateMockService extends BaseService {
       ) {
         await emit({
           status: "error",
-          error: { message: "Business/product/role knowledge is incomplete" },
+          error: {
+            message: "Business/product/role knowledge is incomplete",
+            stack: null,
+            attempt: 3,
+          },
           stage: "error",
         });
         return;
@@ -374,6 +314,47 @@ export class ImageContentGenerateMockService extends BaseService {
     return { jobId: job.id };
   }
 
+  /** Enqueue mock job untuk MASK (dengan validasi seperti service asli) */
+  async enqueueGenerateMockContentMask(
+    data: ImageContentMaskDTO,
+    rootBusinessId: string
+  ) {
+    // batas antrian aktif seperti service asli
+    const activeErr = await this.checkActiveJobsOrErr(rootBusinessId);
+    if (activeErr) return activeErr;
+
+    // verifikasi bundle/kuota/subscription seperti service asli
+    const bundle = await this.getAndVerifyBundle(
+      rootBusinessId,
+      data.productKnowledgeId
+    );
+    if (typeof bundle === "string") return bundle;
+
+    // validasi mask (ukuran, alpha PNG, dimensi sama, dll.)
+    const maskErr = await this.validateMaskAndReference({
+      maskUrl: data.mask,
+      referenceUrl: data.referenceImage,
+    });
+    if (maskErr) return maskErr;
+
+    // buat job mock khusus mask
+    const job = await this.jobs.createJob("mock_mask", rootBusinessId, {
+      productKnowledgeId: data.productKnowledgeId,
+      ratio: data.ratio,
+      category: data.category,
+      designStyle: data.designStyle,
+      caption: data.caption || null,
+      referenceImage: data.referenceImage || null,
+      prompt: data.prompt || null,
+      rss: null,
+      advancedGenerate: null,
+    });
+
+    this.io.to(this.room(rootBusinessId)).emit("imagegen:update", job);
+    setImmediate(() => this.processMockMask(job.id, data, rootBusinessId));
+    return { jobId: job.id };
+  }
+
   /** Processor mock regenerate: simulasi tahapan + progress rinci */
   private async processRegenerateMock(
     jobId: string,
@@ -407,7 +388,11 @@ export class ImageContentGenerateMockService extends BaseService {
       ) {
         await emit({
           status: "error",
-          error: { message: "Business/product/role knowledge is incomplete" },
+          error: {
+            message: "Business/product/role knowledge is incomplete",
+            stack: null,
+            attempt: 3,
+          },
           stage: "error",
         });
         return;
@@ -467,6 +452,106 @@ export class ImageContentGenerateMockService extends BaseService {
       };
 
       const jDone = await this.jobs.setResult(jobId, result);
+      this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
+    } catch (err) {
+      const jErr = await this.jobs.setError(jobId, err);
+      this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jErr);
+    }
+  }
+
+  /** Processor mock MASK: simulasi progress + hasil dummy */
+  private async processMockMask(
+    jobId: string,
+    data: ImageContentMaskDTO,
+    rootBusinessId: string
+  ) {
+    const emit = (patch: Partial<ImageGenJob>) =>
+      this.patchAndEmit(rootBusinessId, jobId, patch);
+
+    try {
+      await emit({ status: "processing", progress: 5, stage: "processing" });
+
+      // Ambil informasi bisnis agar bisa kirim 'product' ke job
+      const business = await this.getBusinessInformation(
+        rootBusinessId,
+        data.productKnowledgeId
+      );
+      const product = business?.productKnowledges?.[0] as
+        | Partial<ProductKnowledge>
+        | undefined;
+      if (product) await emit({ product });
+
+      await this.sleep(1200);
+      await emit({ progress: 12, stage: "verifying_business_information" });
+
+      // Validasi minimal (tanpa token/subscription karena mock)
+      if (
+        !business?.businessKnowledge ||
+        !business?.roleKnowledge ||
+        !product
+      ) {
+        await emit({
+          status: "error",
+          error: {
+            message: "Business/product/role knowledge is incomplete",
+            stack: null,
+            attempt: 3,
+          },
+          stage: "error",
+        });
+        return;
+      }
+
+      // Siapkan “assets” (reference + mask) — simulasi
+      await this.sleep(1200);
+      await emit({ progress: 20, stage: "preparing_assets" });
+
+      // “Normalize” dimensi base & mask — simulasi (tanpa sharp)
+      await this.sleep(1200);
+      await emit({ progress: 28, stage: "preparing_assets" });
+
+      // “Apply mask” → generate 1 gambar dummy
+      const dummyImages: string[] = [];
+      const total = 1;
+      for (let i = 0; i < total; i++) {
+        await this.sleep(2500);
+        dummyImages.push(LOGO);
+        const prog = 28 + Math.floor(((i + 1) / total) * 37); // 28 → 65
+        await emit({
+          progress: Math.min(65, prog),
+          stage: "generating_images",
+        });
+      }
+
+      // “Write temp”
+      await this.sleep(1000);
+      await emit({ progress: 75, stage: "writing_temp" });
+
+      // “Upload”
+      await this.sleep(1000);
+      await emit({ progress: 85, stage: "uploading" });
+
+      // Mask flow biasanya pakai caption dari user (atau fallback)
+      await this.sleep(600);
+      await emit({ progress: 90, stage: "generating_caption" });
+
+      const caption =
+        data.caption && data.caption.trim().length > 0
+          ? data.caption
+          : `Mock masked caption for ${
+              product.name ?? "product"
+            } • ${new Date().toISOString()}`;
+
+      const jDone = await this.jobs.setResult(jobId, {
+        caption,
+        category: data.category,
+        designStyle: data.designStyle,
+        images: dummyImages,
+        productKnowledgeId: data.productKnowledgeId,
+        ratio: data.ratio,
+        referenceImages: data.referenceImage || null,
+        tokenUsed: 0,
+      });
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } catch (err) {
       const jErr = await this.jobs.setError(jobId, err);

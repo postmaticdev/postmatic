@@ -48,9 +48,8 @@ export interface JobResult {
 
 export type JobError = {
   message: string;
-  stack?: string;
-  attempt?: number;
-  op?: string;
+  stack: string | null;
+  attempt: number;
 } | null;
 
 export type ImageGenJob = {
@@ -79,7 +78,7 @@ export interface JobData {
   updatedAt: string; // ISO
   progress: number;
   input: InputCreateJob;
-  error: string | null;
+  error: JobError | null;
   stage: ImageGenJobStage;
   product: {
     name: string;
@@ -268,8 +267,8 @@ export class ImageGenJobStore {
   async setError(id: string, error: unknown): Promise<ImageGenJob | undefined> {
     const err: JobError =
       error instanceof Error
-        ? { message: error.message, stack: error.stack }
-        : { message: String(error) };
+        ? { message: error.message, stack: error.stack ?? null, attempt: 1 }
+        : { message: String(error), stack: null, attempt: 1 };
 
     return this.patchJob(id, { status: "error", error: err });
   }
@@ -291,10 +290,6 @@ export class ImageGenJobStore {
     const out: JobData[] = rows.map((row) => {
       const job = rowToImageGenJob(row);
 
-      // error (string) untuk kompatibilitas JobData
-      const errorStr =
-        job.error?.message ?? (job.error ? JSON.stringify(job.error) : null);
-
       // pastikan bentuk product sesuai JobData.product
       const product = (job.product ?? {}) as JobData["product"];
 
@@ -307,7 +302,7 @@ export class ImageGenJobStore {
         updatedAt: job.updatedAt,
         progress: job.progress,
         input: job.input,
-        error: errorStr,
+        error: job.error || null,
         stage: job.stage,
         product,
         result: job.result,

@@ -88,4 +88,15 @@ export const schedulerService = new SchedulerService({
 });
 export const templateService = new TemplateService();
 export const timeService = new TimeService();
-export const imageContentServiceMock = new ImageContentGenerateMockService();
+export const imageContentServiceMock = new ImageContentGenerateMockService({
+  cloudinary: cloudinaryService,
+  platformDeps: {
+    socialFacebookPage: facebookPageService,
+    socialLinkedIn: linkedInService,
+    socialInstagramBusiness: instagramBusinessService,
+  },
+  openai: openAiService,
+  token: tierService,
+  manip: imageManipulationService,
+  platformService: platformKnowledgeService,
+});

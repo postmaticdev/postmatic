@@ -1,4 +1,4 @@
-// backup.ts
+// backup.ts  (versi data-only INSERTs)
 import "dotenv/config";
 import { spawn } from "child_process";
 import * as fs from "fs";
@@ -7,9 +7,9 @@ import * as net from "net";
 
 type TunnelProc = { proc: import("child_process").ChildProcess | null };
 
-// >>> NEW: direktori script (sejajar backup.ts), aman untuk CJS/ESM
 const SCRIPT_DIR = __dirname;
 
+/** === Helpers URL & params === */
 function parseUrl(u: string) {
   const x = new URL(u);
   const host = x.hostname || "localhost";
@@ -17,10 +17,10 @@ function parseUrl(u: string) {
   const db = decodeURIComponent(x.pathname.replace(/^\//, ""));
   const user = decodeURIComponent(x.username || "");
   const pass = decodeURIComponent(x.password || "");
-  const search = x.search; // keep query params (e.g., ?schema=public&sslmode=require)
-  return { host, port, db, user, pass, search };
+  const search = x.search; // keep raw search
+  const schema = x.searchParams.get("schema") || undefined; // prisma-style ?schema=public
+  return { host, port, db, user, pass, search, schema };
 }
-
 function rebuildUrl(u: string, host: string, port: string) {
   const x = new URL(u);
   x.hostname = host;
@@ -70,40 +70,65 @@ function openSshTunnel(cfg: {
   const args = [
     "-L",
     `${cfg.localPort}:${cfg.remoteHost}:${cfg.remotePort}`,
-    "-N", // no remote command
+    "-N",
     "-o",
     "StrictHostKeyChecking=no",
   ];
-  if (cfg.sshPort) {
-    args.unshift("-p", cfg.sshPort);
-  }
-  if (cfg.sshKey) {
-    args.unshift("-i", cfg.sshKey);
-  }
+  if (cfg.sshPort) args.unshift("-p", cfg.sshPort);
+  if (cfg.sshKey) args.unshift("-i", cfg.sshKey);
   args.push(`${cfg.sshUser}@${cfg.sshHost}`);
-
   const proc = spawn("ssh", args, { stdio: "ignore" });
   return { proc };
 }
-
 function closeSshTunnel(t: TunnelProc) {
   try {
     t.proc?.kill();
   } catch {}
 }
 
-async function backupDirect(dbUrl: string, outFile: string) {
-  const bin = process.env.PG_DUMP_PATH || "pg_dump";
-  const args = [
+/** === Build pg_dump args: DATA-ONLY INSERTs === */
+function buildPgDumpArgs(outFile: string, dbUrl: string) {
+  const { schema } = parseUrl(dbUrl);
+  const insertMode = (process.env.PG_DUMP_INSERT_MODE || "inserts").toLowerCase();
+  const rowsPerInsert = process.env.PG_DUMP_ROWS_PER_INSERT;
+
+  const args: string[] = [
     "--format=plain",
-    "--clean",
-    "--if-exists",
     "--no-owner",
     "--no-privileges",
+    "--no-comments",
+    "--data-only", // <— penting: hanya data
     "-f",
     outFile,
-    dbUrl,
   ];
+
+  // pilih gaya INSERT
+  if (insertMode === "column") args.push("--column-inserts");
+  else args.push("--inserts"); // default multi-row insert per tabel
+
+  if (rowsPerInsert) args.push(`--rows-per-insert=${rowsPerInsert}`);
+
+  // batasi schema kalau ada di DATABASE_URL (?schema=...)
+  if (schema) args.push(`--schema=${schema}`);
+
+  // exclude data pada tabel tertentu (opsional)
+  // EXCLUDE_TABLES="table1,table2" atau "public.table1,public.table2"
+  const ex = (process.env.EXCLUDE_TABLES || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const t of ex) {
+    args.push(`--exclude-table-data=${t}`);
+  }
+
+  // dbUrl diletakkan terakhir
+  args.push(dbUrl);
+  return args;
+}
+
+async function backupDirect(dbUrl: string, outFile: string) {
+  const bin = process.env.PG_DUMP_PATH || "pg_dump";
+  const args = buildPgDumpArgs(outFile, dbUrl);
   await run(bin, args, { stdio: "inherit" });
 }
 
@@ -136,8 +161,8 @@ async function backupViaTunnel(dbUrl: string, outFile: string) {
 }
 
 async function backupRemoteDocker(dbUrl: string, outFile: string) {
-  // Jalankan pg_dump DI VPS (mis. jika DB hanya listen 127.0.0.1 atau hanya lewat docker network)
-  const { db, user, pass } = parseUrl(dbUrl);
+  // jalankan pg_dump di dalam container Postgres di VPS
+  const { db, user, pass, schema } = parseUrl(dbUrl);
   const sshHost = process.env.SSH_HOST!;
   const sshUser = process.env.SSH_USER!;
   const sshPort = process.env.SSH_PORT || undefined;
@@ -147,23 +172,49 @@ async function backupRemoteDocker(dbUrl: string, outFile: string) {
   const remoteHost = process.env.REMOTE_DB_HOST || "127.0.0.1";
   const remotePort = process.env.REMOTE_DB_PORT || "5432";
 
+  // bangun argumen yang sama dengan buildPgDumpArgs (kecuali dbUrl)
+  const insertMode = (process.env.PG_DUMP_INSERT_MODE || "inserts").toLowerCase();
+  const rowsPerInsert = process.env.PG_DUMP_ROWS_PER_INSERT;
+
+  const baseArgs: string[] = [
+    "-h",
+    remoteHost,
+    "-p",
+    remotePort,
+    "-U",
+    user,
+    "--format=plain",
+    "--no-owner",
+    "--no-privileges",
+    "--no-comments",
+    "--data-only",
+  ];
+  if (insertMode === "column") baseArgs.push("--column-inserts");
+  else baseArgs.push("--inserts");
+  if (rowsPerInsert) baseArgs.push(`--rows-per-insert=${rowsPerInsert}`);
+  if (schema) baseArgs.push(`--schema=${schema}`);
+
+  const ex = (process.env.EXCLUDE_TABLES || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const t of ex) baseArgs.push(`--exclude-table-data=${t}`);
+
   const sshArgs = [
     ...(sshPort ? ["-p", sshPort] : []),
     ...(sshKey ? ["-i", sshKey] : []),
     "-o",
     "StrictHostKeyChecking=no",
     `${sshUser}@${sshHost}`,
-    // perintah di remote:
+    // perintah di host remote:
     `docker exec -e PGPASSWORD='${pass.replace(
       /'/g,
       `'\\''`
-    )}' -i ${container} pg_dump -h ${remoteHost} -p ${remotePort} -U ${user} --format=plain --clean --if-exists --no-owner --no-privileges ${db}`,
+    )}' -i ${container} pg_dump ${baseArgs.join(" ")} ${db}`,
   ];
 
   await new Promise<void>((resolve, reject) => {
-    const child = spawn("ssh", sshArgs, {
-      stdio: ["ignore", "pipe", "inherit"],
-    });
+    const child = spawn("ssh", sshArgs, { stdio: ["ignore", "pipe", "inherit"] });
     const ws = fs.createWriteStream(outFile);
     child.stdout.pipe(ws);
     child.on("error", reject);
@@ -186,7 +237,6 @@ async function main() {
     process.exit(1);
   }
 
-  // >>> CHANGED: simpan file sejajar backup.ts
   const outFile = path.join(
     SCRIPT_DIR,
     process.env.BACKUP_FILE || "data-backup.sql"
@@ -198,7 +248,7 @@ async function main() {
   else if (mode === "tunnel") await backupViaTunnel(dbUrl, outFile);
   else await backupDirect(dbUrl, outFile);
 
-  console.log(`✅ Backup selesai: ${outFile}`);
+  console.log(`✅ Backup selesai (data-only INSERTs): ${outFile}`);
 }
 
 main().catch((err) => {

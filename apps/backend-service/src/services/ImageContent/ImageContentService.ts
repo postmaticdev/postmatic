@@ -1,7 +1,9 @@
 import { BaseService } from "../BaseService";
 import db from "../../config/db";
 import {
+  ImageContentDTO,
   ImageContentEditDTO,
+  ImageContentRegenerateDTO,
   ImageContentSaveDTO,
 } from "../../validators/ImageContentValidator";
 import { OpenAiService, ValidRatio } from "../OpenAiService";
@@ -18,11 +20,17 @@ import {
   RootBusiness,
   RoleKnowledge,
   BusinessKnowledge,
+  ImageGenJobType,
 } from "@prisma/client";
 import { FacebookPageService } from "../FacebookPageService";
 import { PlatformKnowledgeService } from "../PlatformKnowledgeService";
 import { InstagramBusinessService } from "../InstagramBusinessService";
 import { stringManipulation } from "../../helper/string-manipulation";
+import { ImageGenJob, ImageGenJobStore } from "../../store/ImageGenJobStore";
+import { Server as SocketIOServer } from "socket.io";
+import { io } from "../../socket";
+import axios from "axios";
+import sharp from "sharp";
 
 export interface ImageContentServiceDeps {
   openai: OpenAiService;
@@ -40,6 +48,306 @@ export interface ImageContentServiceDeps {
 export class ImageContentService extends BaseService {
   constructor(protected deps: ImageContentServiceDeps) {
     super();
+  }
+
+  protected jobs = new ImageGenJobStore();
+  protected get io(): SocketIOServer {
+    return io();
+  }
+
+  /** room untuk broadcast: semua device bisnis join ke room ini */
+  protected room(rootBusinessId: string) {
+    return `rb:${rootBusinessId}`;
+  }
+
+  /** ====== Helpers umum ====== */
+
+  /** Download URL → Buffer, untuk validasi cepat */
+  protected async fetchImageBuffer(
+    url?: string | null
+  ): Promise<Buffer | null> {
+    try {
+      if (!url) return null;
+      const r = await axios.get<ArrayBuffer>(url, {
+        responseType: "arraybuffer",
+      });
+      return Buffer.from(r.data);
+    } catch (e) {
+      this.warn("mask", "-", "fetchImageBuffer failed", {
+        url,
+        error: String(e),
+      });
+      return null;
+    }
+  }
+
+  /** Validasi mask & referenceImage sesuai syarat OpenAI */
+  protected async validateMaskAndReference(params: {
+    maskUrl?: string | null;
+    referenceUrl?: string | null;
+  }): Promise<string | null> {
+    const { maskUrl, referenceUrl } = params;
+
+    if (!referenceUrl) return "Gambar referensi tidak ditemukan.";
+    if (!maskUrl) return "Mask tidak ditemukan.";
+
+    const [refBuf, maskBuf] = await Promise.all([
+      this.fetchImageBuffer(referenceUrl),
+      this.fetchImageBuffer(maskUrl),
+    ]);
+
+    if (!refBuf) return "Gagal mengunduh gambar referensi.";
+    if (!maskBuf) return "Gagal mengunduh mask.";
+
+    const FOUR_MB = 4 * 1024 * 1024;
+    if (maskBuf.byteLength > FOUR_MB) {
+      return "Ukuran mask melebihi 4MB. Kecilkan ukuran atau resolusi mask.";
+    }
+
+    const [refMeta, maskMeta] = await Promise.all([
+      sharp(refBuf).metadata(),
+      sharp(maskBuf).metadata(),
+    ]);
+
+    if ((maskMeta.format || "").toLowerCase() !== "png") {
+      return "Mask harus berformat PNG dengan alpha channel (transparansi).";
+    }
+    if (!maskMeta.hasAlpha) {
+      return "Mask PNG harus memiliki alpha channel (transparansi).";
+    }
+
+    if (
+      !refMeta.width ||
+      !refMeta.height ||
+      !maskMeta.width ||
+      !maskMeta.height
+    ) {
+      return "Tidak dapat membaca dimensi gambar/mask.";
+    }
+    if (
+      refMeta.width !== maskMeta.width ||
+      refMeta.height !== maskMeta.height
+    ) {
+      return `Dimensi mask harus sama dengan gambar referensi: expected ${refMeta.width}x${refMeta.height}, got ${maskMeta.width}x${maskMeta.height}.`;
+    }
+
+    const stats = await sharp(maskBuf).ensureAlpha().stats();
+    const alphaStats = stats.channels[3]; // A
+    if (alphaStats) {
+      const { min } = alphaStats; // 0..255
+      const hasTransparent = min < 250; // toleransi
+      if (!hasTransparent) {
+        return "Mask tidak memiliki area transparan. Area transparan (alpha=0) menandakan bagian yang akan diedit.";
+      }
+    }
+
+    return null;
+  }
+
+  /** Normalisasi base+mask → PNG biner, dimensi match, tulis ke temp via manipulasi deps */
+  protected async normalizeBaseAndMask(
+    basePath: string,
+    maskPath: string
+  ): Promise<{
+    baseFixedPath: string;
+    fixedMaskPath: string;
+    tempsNormalize: string[];
+  }> {
+    const temps: string[] = [];
+
+    const baseBuf = await sharp(basePath)
+      .rotate()
+      .png({ progressive: false })
+      .toBuffer();
+    const baseMeta = await sharp(baseBuf).metadata();
+    temps.push(basePath);
+
+    let maskBuf = await sharp(maskPath)
+      .rotate()
+      .ensureAlpha()
+      .png({ progressive: false })
+      .toBuffer();
+    let maskMeta = await sharp(maskBuf).metadata();
+    temps.push(maskPath);
+
+    if (
+      maskMeta.width !== baseMeta.width ||
+      maskMeta.height !== baseMeta.height
+    ) {
+      maskBuf = await sharp(maskBuf)
+        .resize(baseMeta.width!, baseMeta.height!, { fit: "fill" })
+        .png({ progressive: false })
+        .toBuffer();
+      maskMeta = await sharp(maskBuf).metadata();
+    }
+
+    // deps.manip.write mengharapkan base64 (tanpa prefix data:)
+    const baseFixedPath = await this.deps.manip.write(
+      baseBuf.toString("base64"),
+      ".png"
+    );
+    const fixedMaskPath = await this.deps.manip.write(
+      maskBuf.toString("base64"),
+      ".png"
+    );
+    temps.push(baseFixedPath, fixedMaskPath);
+
+    return { baseFixedPath, fixedMaskPath, tempsNormalize: temps };
+  }
+
+  /** Penentu retry — default FALSE supaya tidak retry membabi-buta */
+  protected isRetryable(err: unknown): boolean {
+    let retry = false;
+    const e = err as { code?: string; name?: string; message?: string };
+    const msg = String(e?.message || err || "");
+    const code = String(e?.code || e?.name || "");
+    const retryCodes = [
+      "ETIMEDOUT",
+      "ECONNRESET",
+      "EAI_AGAIN",
+      "ENOTFOUND",
+      "ECONNABORTED",
+      "ECONNREFUSED",
+      "EHOSTUNREACH",
+      "EHOSTDOWN",
+      "URL",
+      "CLOUDINARY",
+      "OPENAI",
+      "OPEN_AI",
+      "OPENAI_API_ERROR",
+      "OPENAI_API_ERROR_RATE_LIMIT_EXCEEDED",
+    ];
+    retryCodes.forEach((item) => {
+      if (code?.toLowerCase().includes(item?.toLowerCase()) && !retry)
+        retry = true;
+    });
+    retryCodes.forEach((item) => {
+      if (msg?.toLowerCase().includes(item?.toLowerCase()) && !retry)
+        retry = true;
+    });
+    if (retryCodes.includes(code) || retryCodes.includes(msg)) retry = true;
+    if (/\b(timeout|rate limit|429|temporar(y|ily)|try again)\b/i.test(msg))
+      return true;
+    return retry;
+  }
+
+  /**
+   * Wrapper retry yang menyimpan JobError terstruktur (message, stack, attempt).
+   * Saat retry habis, menandai status error TANPA memanggil setError (agar attempt tidak ter-set 1).
+   */
+  protected async runWithRetry<T>(
+    jobId: string,
+    rootBusinessId: string,
+    opName: ImageGenJobType,
+    fn: (attempt: number) => Promise<T>
+  ): Promise<T | void> {
+    const max = 3;
+    for (let attempt = 1; attempt <= max; attempt++) {
+      await this.patchAndEmit(rootBusinessId, jobId, {
+        attempt,
+        stage: attempt === 1 ? "processing" : "retrying",
+        status: "processing",
+      });
+
+      try {
+        this.logger(opName, jobId, "attempt start", { attempt });
+        const res = await fn(attempt);
+        this.logger(opName, jobId, "attempt success", { attempt });
+        return res;
+      } catch (err: unknown) {
+        const e = err as { message?: string; stack?: string };
+        const message = String(e?.message || err || "Unknown error");
+        const stack = e?.stack ?? null;
+
+        const retry = attempt < max && this.isRetryable(err);
+
+        // simpan error terbaru + attempt
+        await this.patchAndEmit(rootBusinessId, jobId, {
+          error: { message, stack, attempt },
+        });
+
+        this.err(opName, jobId, "attempt failed", {
+          attempt,
+          message,
+          retry,
+        });
+
+        if (!retry) {
+          // tandai job error final, simpan stage & status error + error object lengkap
+          const finalErr = await this.jobs.patchJob(jobId, {
+            status: "error",
+            stage: "error",
+            error: { message, stack, attempt },
+          });
+          if (finalErr) {
+            this.io
+              .to(this.room(rootBusinessId))
+              .emit("imagegen:update", finalErr);
+          }
+          return;
+        }
+
+        // backoff: 1s → 3s (+ jitter)
+        const base = attempt === 1 ? 1000 : 3000;
+        const jitter = Math.floor(Math.random() * 250);
+        await this.patchAndEmit(rootBusinessId, jobId, {
+          stage: "waiting_before_retry",
+        });
+        await this.wait(base + jitter);
+      }
+    }
+  }
+
+  /** Pastikan tidak lebih dari N active jobs */
+  protected async checkActiveJobsOrErr(
+    rootBusinessId: string,
+    max = 3
+  ): Promise<string | null> {
+    const active = await this.countActiveJobs(rootBusinessId);
+    if (active >= max)
+      return "Anda sedang memproses 3 konten. Silakan tunggu beberapa saat.";
+    return null;
+  }
+
+  /** Ambil bundle bisnis+quota+sub, verifikasi hak akses/kuota */
+  protected async getAndVerifyBundle(
+    rootBusinessId: string,
+    productKnowledgeId: string
+  ) {
+    const [business, token, subscription] = await Promise.all([
+      this.getBusinessInformation(rootBusinessId, productKnowledgeId),
+      this.deps.token.getBusinessAvailableToken(rootBusinessId, "Image"),
+      this.deps.token.getBusinessSubscription(rootBusinessId),
+    ]);
+
+    const verify = this.verifyBusinessInformation(
+      business,
+      token,
+      subscription
+    );
+    if (typeof verify === "string") {
+      return verify;
+    }
+
+    if (!business || !business.businessKnowledge || !business.roleKnowledge) {
+      return "Bisnis atau data tidak ditemukan";
+    }
+
+    return business;
+  }
+
+  /** Emit pembaruan progres */
+  protected async emitProgress(
+    rootBusinessId: string,
+    jobId: string,
+    progress: number,
+    stage: ImageGenJob["stage"]
+  ): Promise<void> {
+    await this.patchAndEmit(rootBusinessId, jobId, { progress, stage });
+  }
+
+  protected wait(ms: number) {
+    return new Promise((r) => setTimeout(r, ms));
   }
 
   protected async getBusinessInformation(
@@ -134,6 +442,22 @@ export class ImageContentService extends BaseService {
       return "Subscription sudah kadaluarsa. Silakan perbarui subscription Anda.";
     }
     return true;
+  }
+
+  /** patch job + emit */
+  protected async patchAndEmit(
+    rootBusinessId: string,
+    jobId: string,
+    patch: Partial<ImageGenJob>
+  ): Promise<ImageGenJob | null> {
+    const j = await this.jobs.patchJob(jobId, patch);
+    // jika attempt terakhir & error → tandai error
+    if (j?.attempt === 3 && j.error) {
+      j.stage = "error";
+      await this.jobs.patchJob(jobId, { stage: "error", status: "error" });
+    }
+    if (j) this.io.to(this.room(rootBusinessId)).emit("imagegen:update", j);
+    return j || null;
   }
 
   private whereAllPostedContents(
@@ -471,5 +795,111 @@ export class ImageContentService extends BaseService {
     } catch (err) {
       this.handleError("getAllImageContents", err);
     }
+  }
+
+  async countActiveJobs(rootBusinessId: string) {
+    const jobs = await this.jobs.listJobs(rootBusinessId);
+    return jobs.filter((job) => job.stage !== "done" && job.stage !== "error")
+      .length;
+  }
+
+  /** ====== Logging helper ====== */
+  protected warn(
+    op: ImageGenJobType,
+    jobId: string,
+    msg: string,
+    extra?: Record<string, unknown>
+  ) {
+    const base = { op, jobId, msg, ts: new Date().toISOString() };
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[IMGJOB]",
+      JSON.stringify({ ...base, level: "warn", ...extra })
+    );
+  }
+  protected err(
+    op: ImageGenJobType,
+    jobId: string,
+    msg: string,
+    extra?: Record<string, unknown>
+  ) {
+    const base = { op, jobId, msg, ts: new Date().toISOString() };
+    // eslint-disable-next-line no-console
+    console.error(
+      "[IMGJOB]",
+      JSON.stringify({ ...base, level: "error", ...extra })
+    );
+  }
+
+  /** Siapkan logo sesuai flag advancedGenerate */
+  protected async prepareLogoIfAny(
+    advancedGenerate:
+      | ImageContentDTO["advancedGenerate"]
+      | ImageContentRegenerateDTO["advancedGenerate"],
+    business: Partial<RootBusiness> & {
+      businessKnowledge: Partial<BusinessKnowledge> | null;
+      roleKnowledge: Partial<RoleKnowledge> | null;
+    },
+    temps: string[]
+  ): Promise<string | null> {
+    if (!advancedGenerate) return null;
+    const wantPrimary = advancedGenerate?.businessKnowledge?.logo.primaryLogo;
+    const wantSecondary =
+      advancedGenerate?.businessKnowledge?.logo.secondaryLogo;
+
+    if (wantPrimary && business?.businessKnowledge?.primaryLogo) {
+      const p = await this.deps.manip.write(
+        business.businessKnowledge?.primaryLogo
+      );
+      temps.push(p);
+      return p;
+    }
+    if (wantSecondary && business?.businessKnowledge?.secondaryLogo) {
+      const p = await this.deps.manip.write(
+        business.businessKnowledge?.secondaryLogo
+      );
+      temps.push(p);
+      return p;
+    }
+    return null;
+  }
+
+  protected logger(
+    op: ImageGenJobType,
+    jobId: string,
+    msg: string,
+    extra?: Record<string, unknown>
+  ) {
+    const base = { op, jobId, msg, ts: new Date().toISOString() };
+    if (extra) {
+      // eslint-disable-next-line no-console
+      console.info("[IMGJOB]", JSON.stringify({ ...base, ...extra }));
+    } else {
+      // eslint-disable-next-line no-console
+      console.info("[IMGJOB]", JSON.stringify(base));
+    }
+  }
+
+  /** Tulis base64 (image) ke temp-file → path */
+  protected async writeBase64Temps(
+    imagesBase64: string[],
+    temps: string[]
+  ): Promise<string[]> {
+    const out: string[] = [];
+    for (let i = 0; i < imagesBase64.length; i++) {
+      const tempImage = await this.deps.manip.write(imagesBase64[i]);
+      out.push(tempImage);
+      temps.push(tempImage);
+    }
+    return out;
+  }
+
+  /** Upload ke Cloudinary dari path lokal */
+  protected async uploadTemps(paths: string[]): Promise<string[]> {
+    const out: string[] = [];
+    for (let i = 0; i < paths.length; i++) {
+      out.push(await this.deps.cloudinary.saveImageFromUrl(paths[i]));
+    }
+    return out;
   }
 }

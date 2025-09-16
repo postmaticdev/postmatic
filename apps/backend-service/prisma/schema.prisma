@@ -257,28 +257,6 @@ model GeneratedImageContent {
   updatedAt DateTime  @default(now()) @updatedAt
 }
 
-// History Image Content
-// id: string;
-//   type: ImageGenJobType;
-//   rootBusinessId: string;
-//   status: ImageGenJobStatus;
-//   createdAt: string;
-//   updatedAt: string;
-//   progress: number;
-//   input: Input;
-//   result: Result | null;
-//   error: {
-//     message: string;
-//     stack?: string;
-//     attempt?: number;
-//     op?: string;
-//   } | null;
-//   /** >>> simpan product Partial<ProductKnowledge> di job */
-//   product: Partial<ProductKnowledge>;
-//   stage: Stage;
-//   attempt: number;
-//   tokenUsed: number;
-
 model HistoryGeneratedImageContent {
   id   String          @id @default(uuid())
   type ImageGenJobType
@@ -300,13 +278,16 @@ model HistoryGeneratedImageContent {
 }
 
 enum ImageGenJobType {
-  genBasedOnKnowledge
-  genBasedOnRss
+  // real
+  knowledge
+  rss
   regenerate
   mask
-  mock
+  // mock
+  mock_knowledge
   mock_regenerate
   mock_rss
+  mock_mask
 }
 
 enum ImageGenJobStatus {

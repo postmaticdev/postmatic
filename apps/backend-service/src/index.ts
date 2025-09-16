@@ -115,34 +115,6 @@ app.use("/api", router);
 
 app.use(useCsrf.errorHandler);
 
-// temp migrate
-
-import db from "./config/db";
-import { ImageGenJobType } from "@prisma/client";
-
-const seeds = async () => {
-  const validTypes: ImageGenJobType[] = [
-    // "knowledge",
-    // "rss",
-    "regenerate",
-    "mask",
-    // "mock_knowledge",
-    "mock_regenerate",
-    "mock_rss",
-    "mock_mask",
-  ];
-  const jobs = await db.historyGeneratedImageContent.deleteMany({
-    where: {
-      type: {
-        notIn: validTypes as ImageGenJobType[],
-      },
-    },
-  });
-  console.log(`Deleted ${jobs.count} jobs`);
-};
-
-seeds();
-
 // ------- Start server dulu, lalu recovery di background -------
 server.listen(BACKEND_PORT, async () => {
   console.log(`HTTP listening on ${BACKEND_PORT}`);

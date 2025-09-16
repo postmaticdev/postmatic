@@ -29,7 +29,7 @@ ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
 LABEL org.opencontainers.image.revision=$GIT_SHA
 
-# 👉 Install HANYA prod deps
+# 👉 Install HANYA prod deps (masih user root)
 COPY --chown=node:node package*.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
@@ -39,6 +39,14 @@ COPY --from=build --chown=node:node /app/prisma ./prisma
 
 # 👉 Generate Prisma client terhadap node_modules runtime (pakai npx CLI; cepat)
 RUN npx -y prisma@5.22.0 generate
+
+# ✅ Buat direktori writable untuk runtime (fix EACCES)
+RUN install -d -o node -g node -m 0775 /app/temp
+# (opsional) jadikan seluruh /app milik node jika perlu:
+# RUN chown -R node:node /app
+
+# (opsional) expose var agar kode bisa pakai jika diinginkan
+ENV RUNTIME_TMP_DIR=/app/temp
 
 USER node
 EXPOSE 3000

@@ -45,7 +45,7 @@ RUN install -d -o node -g node -m 0775 /app/temp
 # (opsional) jadikan seluruh /app milik node jika perlu:
 # RUN chown -R node:node /app
 
-# (opsional) expose var agar kode bisa pakai jika diinginkan
+# 👌 (opsional) expose var agar kode bisa pakai jika diinginkan
 ENV RUNTIME_TMP_DIR=/app/temp
 
 USER node

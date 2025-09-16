@@ -29,10 +29,6 @@ import { AutoSchedulerTaskManager } from "./cron/AutoSchedulerTaskManager";
 import { ManualSchedulerTaskManager } from "./cron/ManualSchedulerTaskManager";
 import { initSocket } from "./socket";
 import { useRateLimiter } from "./middleware/use-rate-limiter";
-import {
-  RATE_LIMIT_MAX_REQUESTS,
-  RATE_LIMIT_WINDOW_MS,
-} from "./constant/rate-limiter";
 import { useCsrf } from "./middleware/use-csrf";
 import { useHelmet } from "./middleware/use-helmet";
 
@@ -85,14 +81,7 @@ app.use(passport.session());
 
 app.use("/static", express.static(path.join(__dirname, "public")));
 
-app.use(
-  useRateLimiter({
-    capacity: RATE_LIMIT_MAX_REQUESTS,
-    refillPerSec: RATE_LIMIT_MAX_REQUESTS / (RATE_LIMIT_WINDOW_MS / 1000),
-    windowMs: RATE_LIMIT_WINDOW_MS,
-    key: (req) => req?.ip || "",
-  })
-);
+app.use(useRateLimiter.global);
 
 useHelmet(app);
 

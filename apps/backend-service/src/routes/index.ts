@@ -20,7 +20,7 @@ router.use("/knowledge", useAuth, useRateLimiter.auth, knowledgeRoute);
 router.use("/business", useAuth, useRateLimiter.auth, businessRoute);
 router.use("/helper", useAuth, useRateLimiter.uploads, helperRoute);
 router.use("/library", useAuth, useRateLimiter.auth, libraryRoute);
-router.use("/content", useAuth, useRateLimiter.heavy, contentRoute);
+router.use("/content", useAuth, useRateLimiter.auth, contentRoute);
 router.use("/member", useAuth, useRateLimiter.auth, memberRoute);
 router.use("/product", useAuth, useRateLimiter.auth, productRoute);
 router.use("/purchase", useAuth, useRateLimiter.auth, purchaseRoute);

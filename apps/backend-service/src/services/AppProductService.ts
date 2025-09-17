@@ -58,14 +58,32 @@ export class AppProductService extends BaseService {
           }),
           db.paymentPurchase.count({
             where: {
-              profileId,
-              rootBusinessId,
-              status: "Success",
-              method: "claim",
+              AND: [
+                {
+                  status: "Success",
+                },
+                {
+                  totalAmount: 0,
+                },
+                {
+                  method: "claim",
+                },
+                {
+                  OR: [
+                    {
+                      rootBusinessId,
+                    },
+                    {
+                      profileId,
+                    },
+                  ],
+                },
+              ],
             },
           }),
         ]);
       const isClaimed = countClaimedFreePlan > 0;
+
       const orderedAppProducts = appProducts.sort((a, b) => {
         return (
           a.appProductSubscriptionItems.reduce(
@@ -96,6 +114,14 @@ export class AppProductService extends BaseService {
                   fixDiscount
                 );
                 const isFree = appProductSubs.price === 0;
+                // console.log(
+                //   "IS_FREE",
+                //   isFree,
+                //   "isClaimed",
+                //   isClaimed,
+                //   "isClaimed && isFree",
+                //   isClaimed && isFree
+                // );
                 // @ts-ignore
                 appProductSubs.isClaimed = isClaimed && isFree;
                 if (isTypeExist && !isFree) {

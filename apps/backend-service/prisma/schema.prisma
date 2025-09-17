@@ -11,12 +11,12 @@ datasource db {
 // This schema defines the data models for a knowledge 
 
 model BusinessKnowledge {
-  id            String  @id @default(uuid())
-  primaryLogo   String  @db.Text()
-  secondaryLogo String? @db.Text()
-  name          String
-  category      String
-  description   String  @db.Text()
+  id          String @id @default(uuid())
+  primaryLogo String @db.Text()
+
+  name        String
+  category    String
+  description String @db.Text()
 
   uniqueSellingPoint String  @db.Text()
   website            String?
@@ -41,8 +41,6 @@ model ProductKnowledge {
   price    Float
 
   composition String? @db.Text()
-  benefit     String? @db.Text()
-  allergen    String? @db.Text()
 
   images String[]
 
@@ -63,7 +61,6 @@ model RoleKnowledge {
   hashtags        String[]
   callToAction    String
   goals           String   @db.Text()
-  platforms       String[]
 
   rootBusinessId String       @unique
   rootBusinesses RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)

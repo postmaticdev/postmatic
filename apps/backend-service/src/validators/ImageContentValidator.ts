@@ -19,21 +19,7 @@ export const ImageContentAdvancedGenerateSchema = z.object({
     category: z.boolean(),
     description: z.boolean(),
     location: z.boolean(),
-    logo: z
-      .object({
-        primaryLogo: z.boolean(),
-        secondaryLogo: z.boolean(),
-      })
-      .refine(
-        (data) => {
-          let count = 0;
-          Object.values(data).forEach((value) => value && count++);
-          return !(count === 2);
-        },
-        {
-          message: "Hanya boleh ada 1 logo atau tidak sama sekali",
-        }
-      ),
+    logo: z.boolean(),
     uniqueSellingPoint: z.boolean(),
     website: z.boolean(),
     visionMission: z.boolean(),
@@ -43,8 +29,6 @@ export const ImageContentAdvancedGenerateSchema = z.object({
     category: z.boolean(),
     description: z.boolean(),
     price: z.boolean(),
-    benefit: z.boolean(),
-    allergen: z.boolean(),
     composition: z.boolean(),
   }),
   roleKnowledge: z.object({

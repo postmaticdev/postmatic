@@ -19,6 +19,10 @@ import {
   SignInDTO,
   SignUpDTO,
 } from "../validators/ProfileValidator";
+import {
+  POSTMATIC_ACCESS_TOKEN_KEY,
+  POSTMATIC_REFRESH_TOKEN_KEY,
+} from "../constant/key";
 
 export class AuthController extends BaseController {
   constructor(private authService: AuthService) {
@@ -110,10 +114,16 @@ export class AuthController extends BaseController {
       if (user.success === false) {
         console.log("user tidak valid");
         console.log({ user });
-        return this.renderView(req, res, "sign-in", {
-          email: data.email,
-          errors: user.errors,
-        }, 400);
+        return this.renderView(
+          req,
+          res,
+          "sign-in",
+          {
+            email: data.email,
+            errors: user.errors,
+          },
+          400
+        );
       }
 
       const mappedUser: AppUser = {
@@ -148,8 +158,13 @@ export class AuthController extends BaseController {
       }
 
       console.log("redirect to client");
-      console.log({ redirect: `/${redirect}?postmaticToken=${token}` });
-      return this.redirectToClient(res, `/${redirect}?postmaticToken=${token}`);
+      console.log({
+        redirect: `/${redirect}?${POSTMATIC_ACCESS_TOKEN_KEY}=${token}&${POSTMATIC_REFRESH_TOKEN_KEY}=${refreshToken}`,
+      });
+      return this.redirectToClient(
+        res,
+        `/${redirect}?${POSTMATIC_ACCESS_TOKEN_KEY}=${token}&${POSTMATIC_REFRESH_TOKEN_KEY}=${refreshToken}`
+      );
     } catch (error) {
       console.log("error signIn SERVER ERROR");
       console.log({ error });
@@ -206,7 +221,10 @@ export class AuthController extends BaseController {
               path: "/", // wajib untuk prefix __Host-
               maxAge: 30 * 24 * 60 * 60 * 1000, // contoh: 30 hari
             });
-            return this.redirectToClient(res, `?postmaticToken=${token}`);
+            return this.redirectToClient(
+              res,
+              `?${POSTMATIC_ACCESS_TOKEN_KEY}=${token}&${POSTMATIC_REFRESH_TOKEN_KEY}=${refreshToken}`
+            );
           });
         }
       )(req, res);

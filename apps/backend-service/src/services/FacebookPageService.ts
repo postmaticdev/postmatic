@@ -51,7 +51,7 @@ export class FacebookPageService extends BaseService {
 
   /* ======================== OAuth ======================== */
 
-  async oauth(from = "/", rootBusinessId = "", postmaticToken = "") {
+  async oauth(from = "/", rootBusinessId = "", postmaticAccessToken = "") {
     try {
       // scopes: hanya yang diperlukan untuk posting Page
       const scopes = [
@@ -66,7 +66,7 @@ export class FacebookPageService extends BaseService {
         csrf: crypto.randomBytes(16).toString("hex"),
         from,
         rootBusinessId,
-        postmaticToken,
+        postmaticAccessToken,
       };
       const state = Buffer.from(JSON.stringify(stateObj)).toString("base64");
 
@@ -105,7 +105,7 @@ export class FacebookPageService extends BaseService {
       // decode state
       let from = "/";
       let rootBusinessId = "";
-      let postmaticToken = "";
+      let postmaticAccessToken = "";
       if (!stateFromFb || stateFromFb !== sessionState) {
         return {
           success: false,
@@ -120,7 +120,7 @@ export class FacebookPageService extends BaseService {
         );
         from = obj.from || "/";
         rootBusinessId = obj.rootBusinessId || "";
-        postmaticToken = obj.postmaticToken || "";
+        postmaticAccessToken = obj.postmaticAccessToken || "";
       } catch (_) {
         /* ignore */
       }
@@ -270,7 +270,7 @@ export class FacebookPageService extends BaseService {
         pageId: page.id,
         pageName: page.name,
         pageAccessToken: page.access_token,
-        postmaticToken,
+        postmaticAccessToken,
         success: true,
       };
     } catch (error) {

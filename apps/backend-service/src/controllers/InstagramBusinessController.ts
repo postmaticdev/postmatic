@@ -3,6 +3,7 @@ import { BaseController } from "./BaseController";
 import { InstagramBusinessService } from "../services/InstagramBusinessService";
 import { PostDTO } from "../validators/PostValidator";
 import { DASHBOARD_URL } from "../constant";
+import { POSTMATIC_ACCESS_TOKEN_KEY } from "../constant/key";
 
 export class InstagramBusinessController extends BaseController {
   constructor(private instagram: InstagramBusinessService) {
@@ -12,13 +13,16 @@ export class InstagramBusinessController extends BaseController {
   // GET /api/auth/oauth/instagram_business/:rootBusinessId
   oauth = async (req: Request, res: Response) => {
     try {
-      const { from = "/", postmaticToken = "" } = req.query;
+      const {
+        from = "/",
+        [POSTMATIC_ACCESS_TOKEN_KEY]: postmaticAccessToken = "",
+      } = req.query;
       const { rootBusinessId } = req.params as any;
 
       const oauth = await this.instagram.oauth(
         String(from),
         String(rootBusinessId || ""),
-        String(postmaticToken || "")
+        String(postmaticAccessToken || "")
       );
 
       if (!oauth) {
@@ -72,7 +76,7 @@ export class InstagramBusinessController extends BaseController {
         rootBusinessId,
         igUserId,
         username,
-        postmaticToken,
+        postmaticAccessToken,
         success,
       } = result;
 
@@ -97,7 +101,9 @@ export class InstagramBusinessController extends BaseController {
           igUserId || ""
         )}&username=${encodeURIComponent(
           username || ""
-        )}&postmaticToken=${encodeURIComponent(String(postmaticToken || ""))}`
+        )}&${POSTMATIC_ACCESS_TOKEN_KEY}=${encodeURIComponent(
+          String(postmaticAccessToken || "")
+        )}`
       );
     } catch (err) {
       return this.renderViewError(req, res, {

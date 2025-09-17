@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { BaseController } from "./BaseController";
 import { BusinessService } from "../services/BusinessService";
 import { BusinessKnowledgeDTO } from "../validators/BusinessKnowledgeValidator";
+import { RootBusinessDTO } from "src/validators/RootBusinessValidator";
 
 export class BusinessController extends BaseController {
   constructor(private bkService: BusinessService) {
@@ -47,7 +48,7 @@ export class BusinessController extends BaseController {
 
   createBusiness = async (req: Request, res: Response) => {
     try {
-      const data = req.body as BusinessKnowledgeDTO;
+      const data = req.body as RootBusinessDTO;
       const profileId = req.user?.id;
       const business = await this.bkService.createBusiness(data, profileId!);
       return this.sendSuccess(res, business, "Berhasil membuat bisnis");
@@ -58,7 +59,7 @@ export class BusinessController extends BaseController {
 
   editBusiness = async (req: Request, res: Response) => {
     try {
-      const data = req.body as BusinessKnowledgeDTO;
+      const data = req.body as RootBusinessDTO;
       const profileId = req.user?.id;
       const { rootBusinessId } = req.params;
       const business = await this.bkService.editBusiness(

@@ -84,8 +84,6 @@ export interface JobData {
     name: string;
     description: string;
     category: string;
-    allergen: string | null;
-    benefit: string | null;
     currency: string;
     price: number;
     images: string[];
@@ -161,8 +159,6 @@ export class ImageGenJobStore {
         name: true,
         description: true,
         category: true,
-        allergen: true,
-        benefit: true,
         currency: true,
         price: true,
         images: true,

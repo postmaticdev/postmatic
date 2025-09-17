@@ -29,7 +29,18 @@ export class OpenAiService extends BaseService {
   });
 
   async generateCaption(params: GenerateCaptionParams) {
-    const { body, business, images, product, role, rss } = params;
+    const { body, business, images, product, role, rss, advancedGenerate } =
+      params;
+
+    const roleKnowledge = this.buildPromptRoleKnowledge(role, advancedGenerate);
+    const businessKnowledge = this.buildPromptBusinessKnowledge(
+      business,
+      advancedGenerate
+    );
+    const productKnowledge = this.buildPromptProductKnowledge(
+      product,
+      advancedGenerate
+    );
 
     const messages: ChatCompletionCreateParamsNonStreaming["messages"] = [
       {
@@ -48,10 +59,10 @@ export class OpenAiService extends BaseService {
             
             There are knowledge about the business, product, and body that you can use to generate the caption.
             Use the following information to generate the caption:
-            Body: ${JSON.stringify(body)}. 
-            Business: ${JSON.stringify(business)}. 
-            Product: ${JSON.stringify(product)}.
-            Role: ${JSON.stringify(role)}.
+            Body (From User Request): ${JSON.stringify(body)}. 
+            Business Knowledge: ${businessKnowledge}. 
+            Product Knowledge: ${productKnowledge}.
+            Role Knowledge: ${roleKnowledge}.
             ${rss ? `Rss: ${JSON.stringify(rss)}` : ""}
             
             Note:
@@ -59,8 +70,9 @@ export class OpenAiService extends BaseService {
             - Make sure to use the product name, business name, and body information to generate
             - Make output in a concise and engaging manner.
             - Make sure to use the tone and style that is suitable for the target audience.
-            - If in role knowledge there are a hashtags, make sure to use it, and never change it. Then make a additional hashtags that are relevant to the product and business and improve Social Media engagement.
-            - Make sure to use the additional hashtags that are relevant to the product and business and improve Social Media engagement.
+            - If in role knowledge there are a hashtags, make sure to use it, and never change it. Then make a additional hashtags that are relevant to the product and business and improve Social Media engagement (IMPORTANT).
+            - Make sure to use the additional hashtags that are relevant to the product and business and improve Social Media engagement (IMPORTANT).
+            - Use EVERYTHING IN ROLE KNOWLEDGE TO GENERATE THE CAPTION (IMPORTANT).
             - OUTPUT ONLY FOR THE CAPTION, DO NOT INCLUDE ANY OTHER TEXT OR MARKDOWN OR ANY OTHER INFORMATION.
             - MAKE SURE CAPTION IS IN "BAHASA INDONESIA"
             ${
@@ -137,9 +149,7 @@ export class OpenAiService extends BaseService {
       business,
       advancedGenerate,
     } = params;
-    const { primaryLogo, secondaryLogo } =
-      advancedGenerate.businessKnowledge.logo;
-    const attachLogo = primaryLogo || secondaryLogo;
+    const attachLogo = advancedGenerate.businessKnowledge.logo;
     const images: Uploadable[] = await Promise.all([
       // PRODUCT IMAGE
       toFile(fs.createReadStream(productImage), null, {
@@ -174,8 +184,6 @@ export class OpenAiService extends BaseService {
     
     ${this.buildPromptProductKnowledge(product, advancedGenerate)}
 
-    ${this.buildPromptRoleKnowledge(role, advancedGenerate)}
-
     ${this.buildPromptImageContent(body)}
 
     NEGATIVE PROMPT: 
@@ -195,6 +203,10 @@ export class OpenAiService extends BaseService {
     Use the provided product image, template image, and logo image to create the promotional image.
     Use the provided ratio to create the image with the correct aspect ratio.
     Use the provided additional prompt (if available) to create the image with the correct context and purpose.
+
+    IMPORTANT NOTE:
+    - Business knowledges are everything about the business
+    - Product knowledges are everything about the product
     
     ADDITIONAL PROMPT: 
     ${additionalPrompt ? additionalPrompt : "N/A"}`;
@@ -243,9 +255,8 @@ export class OpenAiService extends BaseService {
       rss,
       advancedGenerate,
     } = params;
-    const { primaryLogo, secondaryLogo } =
-      advancedGenerate.businessKnowledge.logo;
-    const attachLogo = primaryLogo || secondaryLogo;
+
+    const attachLogo = advancedGenerate?.businessKnowledge?.logo;
 
     const images: Uploadable[] = await Promise.all([
       // PRODUCT IMAGE
@@ -286,8 +297,6 @@ export class OpenAiService extends BaseService {
     ${this.buildPromptBusinessKnowledge(business, advancedGenerate)}
     
     ${this.buildPromptProductKnowledge(product, advancedGenerate)}
-
-    ${this.buildPromptRoleKnowledge(role, advancedGenerate)}
 
     ${this.buildPromptImageContent(body)}
 
@@ -365,9 +374,7 @@ export class OpenAiService extends BaseService {
 
   async regenerateContent(params: RegenerateImageParams) {
     const { body, business, product, role, logo, advancedGenerate } = params;
-    const { primaryLogo, secondaryLogo } =
-      advancedGenerate.businessKnowledge.logo;
-    const attachLogo = primaryLogo || secondaryLogo;
+    const attachLogo = advancedGenerate?.businessKnowledge?.logo;
     const bodyPrompt = this.buildRegeneratePrompt(body);
     const businessPrompt = this.buildPromptBusinessKnowledge(
       business,
@@ -377,13 +384,10 @@ export class OpenAiService extends BaseService {
       product,
       advancedGenerate
     );
-    const rolePrompt = this.buildPromptRoleKnowledge(role, advancedGenerate);
     const finalPrompt = `
       ${businessPrompt}
 
       ${productPrompt}
-
-      ${rolePrompt}
 
       ${bodyPrompt}
     `;
@@ -469,20 +473,10 @@ export class OpenAiService extends BaseService {
     product: Partial<ProductKnowledge>,
     advancedGenerate: ImageContentAdvancedGenerateDTO
   ) {
-    const {
-      allergen,
-      benefit,
-      category,
-      composition,
-      currency,
-      description,
-      name,
-      price,
-    } = product;
+    const { category, composition, currency, description, name, price } =
+      product;
 
     const {
-      attachProductAllergen,
-      attachProductBenefit,
       attachProductCategory,
       attachProductComposition,
       attachProductDescription,
@@ -499,13 +493,11 @@ export class OpenAiService extends BaseService {
     }
     ${attachProductCategory && category ? `Category: ${category}` : ""}
     ${attachProductPrice && price ? `${currency || ""} ${price}` : ""}
-    ${attachProductAllergen && allergen ? `Allergen: ${allergen}` : ""}
     ${
       attachProductComposition && composition
         ? `Composition: ${composition}`
         : ""
     }
-    ${attachProductBenefit && benefit ? `Benefits: ${benefit}` : ""}
 
     PRODUCT KNOWLEDGE NOTE:
     - Make sure to use this information if available and relevant with reference image / template
@@ -542,7 +534,11 @@ export class OpenAiService extends BaseService {
     ${audiencePersona ? `Audience Persona: ${audiencePersona}` : ""}
     ${callToAction ? `Call to Action: ${callToAction}` : ""}
     ${goals ? `Goals: ${goals}` : ""}
-    ${attachRoleHashtags && hashtags ? `Hashtags: ${hashtags}` : ""}
+    ${
+      attachRoleHashtags && hashtags
+        ? `Hashtags: ${hashtags?.map((hashtag) => `#${hashtag}`).join(", ")}`
+        : ""
+    }
     ${targetAudience ? `Target Audience: ${targetAudience}` : ""}
     ${tone ? `Tone: ${tone}` : ""}
 
@@ -619,8 +615,7 @@ export class OpenAiService extends BaseService {
 
   private buildRegeneratePrompt(data: ImageContentRegenerateDTO) {
     const { designStyle, prompt, advancedGenerate } = data;
-    const { logo } = advancedGenerate.businessKnowledge;
-    const attachLogo = logo.primaryLogo || logo.secondaryLogo;
+    const attachLogo = advancedGenerate?.businessKnowledge?.logo;
     return `
     User want to edit the attached image with the following information:
     Design Style: ${designStyle}
@@ -651,13 +646,11 @@ export class OpenAiService extends BaseService {
       website: attachBusinessWebsite,
       location: attachBusinessLocation,
     } = advancedGenerate.businessKnowledge;
-    const attachBusinessLogo = logo.primaryLogo || logo.secondaryLogo;
+    const attachBusinessLogo = logo;
     const {
       name: attachProductName,
       description: attachProductDescription,
       category: attachProductCategory,
-      allergen: attachProductAllergen,
-      benefit: attachProductBenefit,
       composition: attachProductComposition,
       price: attachProductPrice,
     } = advancedGenerate.productKnowledge;
@@ -678,8 +671,6 @@ export class OpenAiService extends BaseService {
         attachProductName,
         attachProductDescription,
         attachProductCategory,
-        attachProductAllergen,
-        attachProductBenefit,
         attachProductComposition,
         attachProductPrice,
       },
@@ -751,6 +742,7 @@ interface GenerateCaptionParams {
   product: Partial<ProductKnowledge>;
   role: Partial<RoleKnowledge>;
   rss: ImageContentRssDTO["rss"] | null;
+  advancedGenerate: ImageContentAdvancedGenerateDTO;
 }
 
 interface RegenerateImageParams {

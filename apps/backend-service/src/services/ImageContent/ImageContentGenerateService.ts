@@ -313,6 +313,7 @@ export class ImageContentGenerateService extends ImageContentService {
         product: business!.productKnowledges![0],
         role: business!.roleKnowledge!,
         rss: null,
+        advancedGenerate: data.advancedGenerate,
       });
       tokenUsed += this.deps.openai.getTokenUsage([genCaptions.usage]);
       await this.emitProgress(rootBusinessId, jobId, 90, "generating_caption");
@@ -435,6 +436,7 @@ export class ImageContentGenerateService extends ImageContentService {
         product: business?.productKnowledges![0],
         role: business?.roleKnowledge!,
         rss: data.rss,
+        advancedGenerate: data.advancedGenerate,
       });
       tokenUsed += this.deps.openai.getTokenUsage([genCaptions.usage]);
       await this.emitProgress(rootBusinessId, jobId, 90, "generating_caption");

@@ -5,7 +5,7 @@ import { Request } from "express";
 declare global {
   namespace Express {
     interface User extends AppUser {
-      postmaticToken?: string;
+      postmaticAccessToken?: string;
     }
   }
 }

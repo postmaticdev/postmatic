@@ -31,14 +31,18 @@ interface LinkedInDecoded {
 export class LinkedInService extends BaseService {
   private baseUrlShare = "https://www.linkedin.com/feed/update/";
 
-  async oauth(from?: string, rootBusinessId?: string, postmaticToken?: string) {
+  async oauth(
+    from?: string,
+    rootBusinessId?: string,
+    postmaticAccessToken?: string
+  ) {
     try {
       const scope = "w_member_social openid profile";
       const stateObj = {
         csrf: crypto.randomBytes(16).toString("hex"),
         from: from || "/",
         rootBusinessId: rootBusinessId || "",
-        postmaticToken: postmaticToken || "",
+        postmaticAccessToken: postmaticAccessToken || "",
       };
       const state = Buffer.from(JSON.stringify(stateObj)).toString("base64");
 
@@ -71,14 +75,14 @@ export class LinkedInService extends BaseService {
 
       // Decode state
       let rootBusinessId = "";
-      let postmaticToken = "";
+      let postmaticAccessToken = "";
       try {
         const stateObj = JSON.parse(
           Buffer.from(stateFromLinkedIn, "base64").toString()
         );
         from = stateObj.from || "/";
         rootBusinessId = stateObj.rootBusinessId || "";
-        postmaticToken = stateObj.postmaticToken || "";
+        postmaticAccessToken = stateObj.postmaticAccessToken || "";
       } catch (e) {
         // Fallback: tetap /, ""
       }
@@ -198,7 +202,7 @@ export class LinkedInService extends BaseService {
         success: true,
         accessToken,
         authorUrn,
-        postmaticToken,
+        postmaticAccessToken,
         decoded,
         from,
         rootBusinessId,

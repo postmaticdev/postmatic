@@ -3,6 +3,7 @@ import db from "../config/db";
 import { PlatformDTO } from "../validators/PlatformValidator";
 import { BACKEND_URL } from "../constant";
 import { SocialPlatform } from "@prisma/client";
+import { POSTMATIC_ACCESS_TOKEN_KEY } from "../constant/key";
 
 export class PlatformKnowledgeService extends BaseService {
   async getPlatforms() {
@@ -40,20 +41,20 @@ export class PlatformKnowledgeService extends BaseService {
   getConnectUrl = ({
     platform,
     rootBusinessId,
-    postmaticToken,
+    postmaticAccessToken,
     from,
   }: {
     platform: SocialPlatform;
     rootBusinessId: string;
-    postmaticToken: string;
+    postmaticAccessToken: string;
     from?: string;
   }) => {
-    return `${BACKEND_URL}/api/auth/oauth/${platform}/${rootBusinessId}?postmaticToken=${postmaticToken}&from=${from}`;
+    return `${BACKEND_URL}/api/auth/oauth/${platform}/${rootBusinessId}?${POSTMATIC_ACCESS_TOKEN_KEY}=${postmaticAccessToken}&from=${from}`;
   };
 
   async getConnected(
     rootBusinessId: string,
-    postmaticToken: string,
+    postmaticAccessToken: string,
     from: string
   ) {
     try {
@@ -114,7 +115,7 @@ export class PlatformKnowledgeService extends BaseService {
           connectUrl: this.getConnectUrl({
             platform: platform.platform,
             rootBusinessId,
-            postmaticToken,
+            postmaticAccessToken,
             from,
           }),
           disconnectUrl: null,

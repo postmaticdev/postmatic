@@ -12,7 +12,6 @@ export class BusinessKnowledgeService extends BaseService {
       return {
         id: data?.id || "CURRENTLY_NOT_CREATED",
         primaryLogo: data?.primaryLogo || "",
-        secondaryLogo: data?.secondaryLogo || "",
         name: data?.name || "",
         category: data?.category || "",
         description: data?.description || "",
@@ -49,7 +48,6 @@ export class BusinessKnowledgeService extends BaseService {
             website: data.website,
             visionMission: data.visionMission,
             primaryLogo: data.primaryLogo,
-            secondaryLogo: data.secondaryLogo,
           },
         }),
         db.rootBusiness.update({

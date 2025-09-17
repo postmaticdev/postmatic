@@ -364,7 +364,6 @@ export class ImageContentService extends BaseService {
             category: true,
             location: true,
             primaryLogo: true,
-            secondaryLogo: true,
             uniqueSellingPoint: true,
             website: true,
             visionMission: true,
@@ -378,8 +377,6 @@ export class ImageContentService extends BaseService {
             name: true,
             description: true,
             category: true,
-            allergen: true,
-            benefit: true,
             currency: true,
             price: true,
             images: true,
@@ -393,7 +390,6 @@ export class ImageContentService extends BaseService {
             callToAction: true,
             goals: true,
             hashtags: true,
-            platforms: true,
             tone: true,
             targetAudience: true,
           },
@@ -843,20 +839,23 @@ export class ImageContentService extends BaseService {
     temps: string[]
   ): Promise<string | null> {
     if (!advancedGenerate) return null;
-    const wantPrimary = advancedGenerate?.businessKnowledge?.logo.primaryLogo;
-    const wantSecondary =
-      advancedGenerate?.businessKnowledge?.logo.secondaryLogo;
 
-    if (wantPrimary && business?.businessKnowledge?.primaryLogo) {
+    if (
+      advancedGenerate?.businessKnowledge?.logo &&
+      business?.businessKnowledge?.primaryLogo
+    ) {
       const p = await this.deps.manip.write(
         business.businessKnowledge?.primaryLogo
       );
       temps.push(p);
       return p;
     }
-    if (wantSecondary && business?.businessKnowledge?.secondaryLogo) {
+    if (
+      advancedGenerate?.businessKnowledge?.logo &&
+      business?.businessKnowledge?.primaryLogo
+    ) {
       const p = await this.deps.manip.write(
-        business.businessKnowledge?.secondaryLogo
+        business.businessKnowledge?.primaryLogo
       );
       temps.push(p);
       return p;

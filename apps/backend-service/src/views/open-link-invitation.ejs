@@ -125,18 +125,9 @@
               method="post"
               novalidate
             >
-              <!-- CSRF -->
-              <input
-                type="hidden"
-                name="_csrf"
-                value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"
-              />
-              <!-- Hidden answer (dikendalikan oleh tombol) -->
-              <input type="hidden" name="answer" id="answerField" value="" />
-
               <!-- Turnstile (tanpa UI error) -->
               <% if (TURNSTILE_ENABLED) { %>
-              <div class="w-full flex items-center justify-center">
+              <div class="w-full flex items-center justify-center col-span-2">
                 <div
                   class="cf-turnstile"
                   data-sitekey="<%= TURNSTILE_SITE_KEY %>"
@@ -149,6 +140,14 @@
                 ></script>
               </div>
               <% } %>
+              <!-- CSRF -->
+              <input
+                type="hidden"
+                name="_csrf"
+                value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"
+              />
+              <!-- Hidden answer (dikendalikan oleh tombol) -->
+              <input type="hidden" name="answer" id="answerField" value="" />
 
               <!-- Buttons dengan loading state -->
               <button

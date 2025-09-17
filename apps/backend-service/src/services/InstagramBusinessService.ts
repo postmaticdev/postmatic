@@ -46,7 +46,7 @@ export class InstagramBusinessService extends BaseService {
 
   /* ============= OAuth ============= */
 
-  async oauth(from = "/", rootBusinessId = "", postmaticToken = "") {
+  async oauth(from = "/", rootBusinessId = "", postmaticAccessToken = "") {
     try {
       // Perlu pages_show_list untuk menemukan IG yg tertaut ke Page
       const scopes = [
@@ -59,7 +59,7 @@ export class InstagramBusinessService extends BaseService {
         csrf: crypto.randomBytes(16).toString("hex"),
         from,
         rootBusinessId,
-        postmaticToken,
+        postmaticAccessToken,
       };
       const state = Buffer.from(JSON.stringify(stateObj)).toString("base64");
 
@@ -84,7 +84,7 @@ export class InstagramBusinessService extends BaseService {
       // decode state
       let from = "/";
       let rootBusinessId = "";
-      let postmaticToken = "";
+      let postmaticAccessToken = "";
       if (!stateFromFb || stateFromFb !== sessionState) {
         return {
           success: false,
@@ -99,7 +99,7 @@ export class InstagramBusinessService extends BaseService {
         );
         from = obj.from || "/";
         rootBusinessId = obj.rootBusinessId || "";
-        postmaticToken = obj.postmaticToken || "";
+        postmaticAccessToken = obj.postmaticAccessToken || "";
       } catch (_) {}
 
       // 1) short-lived user token
@@ -249,7 +249,7 @@ export class InstagramBusinessService extends BaseService {
         rootBusinessId,
         igUserId,
         username,
-        postmaticToken,
+        postmaticAccessToken,
       };
     } catch (error) {
       this.handleError("InstagramBusinessService.callback", error);

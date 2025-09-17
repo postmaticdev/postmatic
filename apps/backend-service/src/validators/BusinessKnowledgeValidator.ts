@@ -9,7 +9,6 @@ export const BusinessKnowledgeSchema = z.object({
   visionMission: z.string().min(1, "Vision mission is required"),
   location: z.string().min(1, "Location is required"),
   primaryLogo: z.string().url(),
-  secondaryLogo: z.string().url().nullable().optional(),
 });
 
 export type BusinessKnowledgeDTO = z.infer<typeof BusinessKnowledgeSchema>;

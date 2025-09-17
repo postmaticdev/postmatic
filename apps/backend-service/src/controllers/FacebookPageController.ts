@@ -3,6 +3,7 @@ import { BaseController } from "./BaseController";
 import { FacebookPageService } from "../services/FacebookPageService";
 import { PostDTO } from "../validators/PostValidator";
 import { DASHBOARD_URL } from "../constant";
+import { POSTMATIC_ACCESS_TOKEN_KEY } from "../constant/key";
 
 export class FacebookPageController extends BaseController {
   constructor(private facebook: FacebookPageService) {
@@ -12,13 +13,16 @@ export class FacebookPageController extends BaseController {
   // /api/auth/oauth/facebook_page (versi Page-only)
   oauth = async (req: Request, res: Response) => {
     try {
-      const { from = "/", postmaticToken = "" } = req.query;
+      const {
+        from = "/",
+        [POSTMATIC_ACCESS_TOKEN_KEY]: postmaticAccessToken = "",
+      } = req.query;
       const { rootBusinessId } = req.params as any;
 
       const oauth = await this.facebook.oauth(
         String(from),
         String(rootBusinessId || ""),
-        String(postmaticToken || "")
+        String(postmaticAccessToken || "")
       );
 
       if (!oauth) {
@@ -71,7 +75,7 @@ export class FacebookPageController extends BaseController {
         pageId,
         pageName,
         pageAccessToken,
-        postmaticToken,
+        postmaticAccessToken,
         success,
       } = result;
 
@@ -98,7 +102,9 @@ export class FacebookPageController extends BaseController {
           pageName || ""
         )}&pageAccessToken=${encodeURIComponent(
           String(pageAccessToken || "") || ""
-        )}&postmaticToken=${encodeURIComponent(String(postmaticToken || ""))}`
+        )}&${POSTMATIC_ACCESS_TOKEN_KEY}=${encodeURIComponent(
+          String(postmaticAccessToken || "")
+        )}`
       );
     } catch (err) {
       return this.renderViewError(req, res, {

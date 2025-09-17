@@ -10,8 +10,8 @@ function extractBearer(req: Request): string | null {
 }
 function extractLegacy(req: Request): string | null {
   const q =
-    (req.query.postmaticToken as string) ||
-    (req.body?.postmaticToken as string);
+    (req.query.postmaticAccessToken as string) ||
+    (req.body?.postmaticAccessToken as string);
   return q ? String(q) : null;
 }
 
@@ -32,7 +32,7 @@ export function useAuth(req: Request, res: Response, next: NextFunction) {
 
   try {
     const payload = jwt.verify(token, JWT_SECRET) as AppUser;
-    req.user = { ...payload, postmaticToken: token };
+    req.user = { ...payload, postmaticAccessToken: token };
     return next();
   } catch {
     return res.status(401).json({

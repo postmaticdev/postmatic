@@ -208,9 +208,9 @@ export class BusinessService extends BaseService {
     try {
       const business = await db.rootBusiness.create({
         data: {
-          name: data.name,
-          description: data.description,
-          logo: data.logo,
+          name: data.businessKnowledge.name,
+          description: data.businessKnowledge.description,
+          logo: data.businessKnowledge.primaryLogo,
           members: {
             create: {
               profileId,
@@ -221,15 +221,35 @@ export class BusinessService extends BaseService {
           },
           businessKnowledge: {
             create: {
-              name: data.name,
-              category: "",
-              description: data.description || "",
-              uniqueSellingPoint: "",
-              website: "",
-              visionMission: "",
-              location: "",
-              primaryLogo: data.logo || "",
-              secondaryLogo: "",
+              name: data.businessKnowledge.name,
+              category: data.businessKnowledge.category,
+              description: data.businessKnowledge.description || "",
+              uniqueSellingPoint: data.businessKnowledge.uniqueSellingPoint,
+              website: data.businessKnowledge.website,
+              visionMission: data.businessKnowledge.visionMission,
+              location: data.businessKnowledge.location,
+              primaryLogo: data.businessKnowledge.primaryLogo || "",
+            },
+          },
+          productKnowledges: {
+            create: {
+              name: data.productKnowledge.name,
+              category: data.productKnowledge.category,
+              description: data.productKnowledge.description,
+              currency: data.productKnowledge.currency,
+              price: data.productKnowledge.price,
+              images: data.productKnowledge.images,
+              composition: data.productKnowledge.composition,
+            },
+          },
+          roleKnowledge: {
+            create: {
+              targetAudience: data.roleKnowledge.targetAudience,
+              tone: data.roleKnowledge.tone,
+              audiencePersona: data.roleKnowledge.audiencePersona,
+              hashtags: data.roleKnowledge.hashtags,
+              callToAction: data.roleKnowledge.callToAction,
+              goals: data.roleKnowledge.goals,
             },
           },
         },
@@ -241,6 +261,9 @@ export class BusinessService extends BaseService {
     }
   }
 
+  /**
+   * DEPRECATED
+   */
   async editBusiness(
     data: RootBusinessDTO,
     profileId: string,
@@ -270,9 +293,9 @@ export class BusinessService extends BaseService {
       const business = await db.rootBusiness.update({
         where: { id: rootBusinessId },
         data: {
-          name: data.name,
-          description: data.description,
-          logo: data.logo,
+          name: data.businessKnowledge.name,
+          description: data.businessKnowledge.description,
+          logo: data.businessKnowledge.primaryLogo,
         },
       });
       cachedOwnedBusinesses.delete(profileId);

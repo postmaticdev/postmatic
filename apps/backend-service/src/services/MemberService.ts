@@ -13,6 +13,7 @@ import { JWT_SECRET } from "../constant/auth";
 import jwt from "jsonwebtoken";
 import { Member } from ".prisma/client";
 import { AuthService } from "./AuthService";
+import { POSTMATIC_ACCESS_TOKEN_KEY } from "../constant/key";
 
 export class MemberService extends BaseService {
   constructor(
@@ -277,7 +278,7 @@ export class MemberService extends BaseService {
       const params = {
         rootBusinessId: check?.rootBusinessId,
         shouldSetupPassword: isCredentialPasswordSetUp ? "false" : "true",
-        token: accessToken,
+        [POSTMATIC_ACCESS_TOKEN_KEY]: accessToken,
       };
 
       const redirectUrl = `${DASHBOARD_URL}?${new URLSearchParams(

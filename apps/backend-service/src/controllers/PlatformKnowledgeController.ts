@@ -12,10 +12,10 @@ export class PlatformKnowledgeController extends BaseController {
     try {
       const { rootBusinessId } = req.params;
       const { from = "/" } = req.query;
-      const postmaticToken = req.user?.postmaticToken || "";
+      const postmaticAccessToken = req.user?.postmaticAccessToken || "";
       const connected = await this.platform.getConnected(
         rootBusinessId,
-        postmaticToken,
+        postmaticAccessToken,
         String(from)
       );
       if (!connected) return this.notFound(res);

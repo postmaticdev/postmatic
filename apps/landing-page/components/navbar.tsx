@@ -9,11 +9,14 @@ import {
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageToggle } from "./language-toggle";
+import { LOGIN_URL } from "@/constants";
+import { useTranslations } from "next-intl";
 
 type NavItem = { name: string; link: string };
 
 export default function MobileNavWrapper({ items }: { items: NavItem[] }) {
   const [open, setOpen] = useState(false);
+  const tButtons = useTranslations('buttons');
 
   return (
     <div className="lg:hidden">
@@ -60,10 +63,11 @@ export default function MobileNavWrapper({ items }: { items: NavItem[] }) {
           <div className="pt-4 border-t border-gray-200 dark:border-neutral-700">
             <NavbarButton
               onClick={() => setOpen(false)}
+              href={LOGIN_URL}
               variant="primary"
-              className="w-full"
+              className="w-full p-4"
             >
-              Get Started
+              {tButtons('getStarted')}
             </NavbarButton>
           </div>
         </div>

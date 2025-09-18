@@ -345,16 +345,25 @@ model SchedulerAutoPreference {
 }
 
 model SchedulerAutoPosting {
-  id       Int      @id @default(autoincrement())
-  day      String
-  isActive Boolean  @default(false)
-  times    String[] // HH:MM
+  id                        Int                        @id @default(autoincrement())
+  day                       String
+  isActive                  Boolean                    @default(false)
+  schedulerAutoPostingTimes SchedulerAutoPostingTime[]
 
   rootBusinessId String
   rootBusiness   RootBusiness @relation(fields: [rootBusinessId], references: [id], onDelete: Cascade)
 
   schedulerAutoPreferenceId Int
   schedulerAutoPreference   SchedulerAutoPreference @relation(fields: [schedulerAutoPreferenceId], references: [id], onDelete: Cascade)
+}
+
+model SchedulerAutoPostingTime {
+  id        Int              @id @default(autoincrement())
+  hhmm      String // HH:MM
+  platforms SocialPlatform[]
+
+  schedulerAutoPostingId Int
+  schedulerAutoPosting   SchedulerAutoPosting @relation(fields: [schedulerAutoPostingId], references: [id], onDelete: Cascade)
 }
 
 model SchedulerManualPosting {

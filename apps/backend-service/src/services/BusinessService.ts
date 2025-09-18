@@ -251,6 +251,11 @@ export class BusinessService extends BaseService {
               goals: data.roleKnowledge.goals,
             },
           },
+          schedulerTimeZone: {
+            create: {
+              timezone: "Asia/Jakarta",
+            },
+          },
         },
       });
       cachedOwnedBusinesses.delete(profileId);

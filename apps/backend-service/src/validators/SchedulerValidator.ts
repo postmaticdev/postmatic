@@ -22,13 +22,23 @@ export const AutoSchedulerSchema = z.object({
         dayId: z.number().min(0).max(6),
         day: z.string(),
         isActive: z.boolean(),
-        times: z.array(
-          z
-            .string()
-            .regex(
-              /^([01]\d|2[0-3]):([0-5]\d)$/,
-              "Time must be in hh:mm format"
-            )
+        schedulerAutoPostingTimes: z.array(
+          z.object({
+            hhmm: z
+              .string()
+              .regex(
+                /^([01]\d|2[0-3]):([0-5]\d)$/,
+                "Time must be in hh:mm format"
+              ),
+            platforms: z.array(
+              z.enum(
+                Object.values(SocialPlatform) as [
+                  SocialPlatform,
+                  ...SocialPlatform[]
+                ]
+              )
+            ),
+          })
         ),
       })
     )

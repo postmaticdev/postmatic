@@ -23,7 +23,7 @@ router.use("/library", useAuth, useRateLimiter.auth, libraryRoute);
 router.use("/content", useAuth, useRateLimiter.auth, contentRoute);
 router.use("/member", useRateLimiter.loginIp, memberRoute);
 router.use("/product", useAuth, useRateLimiter.auth, productRoute);
-router.use("/purchase", useAuth, useRateLimiter.auth, purchaseRoute);
+router.use("/purchase", purchaseRoute);
 router.use("/tier", useAuth, useRateLimiter.auth, tierRoute);
 router.use("/role", useAuth, useRateLimiter.auth, roleRoute);
 

@@ -5,6 +5,7 @@ import moment from "moment-timezone";
 import { GeneratedImageContent, SocialPlatform } from "@prisma/client";
 
 interface UpcomingPost {
+  id: string; // generatedImageContentId
   date: Date;
   images: string[];
   platforms: string[];
@@ -40,13 +41,6 @@ export class ImageContentOverviewService extends BaseService {
   }
 
   /**
-   * Helper: bikin key string "YYYY-MM-DD HH:mm" di TZ tertentu
-   */
-  private keyByMinute(d: Date, tz: string) {
-    return moment(d).tz(tz).format("YYYY-MM-DD HH:mm");
-  }
-
-  /**
    * Helper: buat DateTime di TZ untuk tanggal (YYYY-MM-DD dari m) + time "HH:mm"
    */
   private combineDateAndTime(
@@ -61,79 +55,27 @@ export class ImageContentOverviewService extends BaseService {
     );
   }
 
-  /**
-   * Helper: enumerate semua slot auto (day + times) dalam [start..end] di TZ
-   * - skip slot di masa lalu relatif ke nowTZ (opsional)
-   */
-  private buildAutoSlots(
-    autoPostings: { day: string; times: string[] }[],
-    start: Date,
-    end: Date,
-    tz: string,
-    nowTZ?: moment.Moment
-  ): Date[] {
-    const startTz = moment.tz(start, tz).startOf("day");
-    const endTz = moment.tz(end, tz).endOf("day");
-    const slots: Date[] = [];
-
-    // Map day -> times
-    const byDay: Record<number, string[]> = {};
-    for (const ap of autoPostings) {
-      const dv = this.DAYS[ap.day as keyof typeof this.DAYS];
-      if (typeof dv !== "number") continue;
-      if (!byDay[dv]) byDay[dv] = [];
-      for (const t of ap.times) {
-        // normalisasi "HH:mm"
-        const hhmm = moment(t, ["HH:mm", "H:m"]).format("HH:mm");
-        if (!byDay[dv].includes(hhmm)) byDay[dv].push(hhmm);
-      }
-    }
-    // sort jam per hari
-    for (const k of Object.keys(byDay)) {
-      byDay[+k].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-    }
-
-    for (
-      let cur = startTz.clone();
-      cur.isSameOrBefore(endTz, "day");
-      cur.add(1, "day")
-    ) {
-      const dow = cur.day(); // 0..6
-      const times = byDay[dow];
-      if (!times || times.length === 0) continue;
-      for (const t of times) {
-        const slot = this.combineDateAndTime(cur, t, tz);
-        if (slot.isBefore(startTz) || slot.isAfter(endTz)) continue;
-        if (nowTZ && slot.isBefore(nowTZ)) continue; // hanya upcoming
-        slots.push(slot.toDate());
-      }
-    }
-
-    // sort kronologis
-    slots.sort((a, b) => a.getTime() - b.getTime());
-    return slots;
-  }
-
-  /**
-   * Mengembalikan daftar upcoming posts (manual + auto) dalam format seragam.
-   */
   async getUpcomingPost(rootBusinessId: string, filter: FilterQueryType) {
+    // rentang default kalau filter kosong: hari ini..+30 hari
+    const fallbackStart = moment().startOf("day").toDate();
+    const fallbackEnd = moment().add(30, "days").endOf("day").toDate();
+
     // ambil semua yang perlu dalam satu query
     const root = await db.rootBusiness.findUnique({
       where: { id: rootBusinessId },
       select: {
-        socialLinkedIn: {
-          select: {
-            id: true,
-          },
-        },
+        // koneksi untuk intersect platform
+        socialLinkedIn: { select: { id: true } },
+        socialFacebookPage: { select: { id: true } },
+        socialInstagramBusiness: { select: { id: true } },
+
+        // konten kandidat (ready, belum dipost), include manual untuk exclude dari auto
         generatedImageContents: {
           where: {
             AND: [
               { readyToPost: true },
               { deletedAt: null },
-              { postedImageContents: { none: {} } }, // belum pernah di-post
-              // pakai rentang createdAt dari filter kamu (kalau diberikan)
+              { postedImageContents: { none: {} } }, // belum pernah dipost
               ...(filter.dateStart && filter.dateEnd
                 ? [
                     {
@@ -144,20 +86,19 @@ export class ImageContentOverviewService extends BaseService {
             ],
           },
           include: {
-            schedulerManualPostings: { select: { id: true } }, // untuk exclude dari auto
+            schedulerManualPostings: { select: { id: true } }, // untuk exclude auto
           },
+          orderBy: { createdAt: "asc" },
         },
+
+        // manual yang jatuh di rentang
         schedulerManualPostings: {
           where: {
             AND: [
               ...(filter.dateStart && filter.dateEnd
                 ? [{ date: { gte: filter.dateStart, lte: filter.dateEnd } }]
                 : []),
-              {
-                generatedImageContent: {
-                  postedImageContents: { none: {} }, // pastikan belum pernah di-post
-                },
-              },
+              { generatedImageContent: { postedImageContents: { none: {} } } },
             ],
           },
           select: {
@@ -166,12 +107,22 @@ export class ImageContentOverviewService extends BaseService {
             platforms: true,
             generatedImageContent: true,
           },
+          orderBy: { date: "asc" },
         },
+
+        // preferensi auto + times (schema baru)
         schedulerAutoPostings: {
           where: { isActive: true },
-          select: { day: true, isActive: true, times: true },
+          select: {
+            day: true,
+            schedulerAutoPostingTimes: {
+              select: { hhmm: true, platforms: true },
+            },
+          },
         },
         schedulerAutoPreference: { select: { isAutoPosting: true } },
+
+        // timezone bisnis
         schedulerTimeZone: { select: { timezone: true } },
       },
     });
@@ -179,95 +130,119 @@ export class ImageContentOverviewService extends BaseService {
     if (!root) return [];
 
     const tz = this.pickTz(root.schedulerTimeZone?.timezone);
-    const nowTZ = moment.tz(tz);
-
-    const dateStart = filter.dateStart ?? nowTZ.clone().startOf("day").toDate();
-    const dateEnd =
-      filter.dateEnd ??
-      nowTZ
-        .clone()
-        .add(14, "days") // default horizon 2 minggu jika user tak memberi filter
-        .endOf("day")
-        .toDate();
+    const start = filter.dateStart ?? fallbackStart;
+    const end = filter.dateEnd ?? fallbackEnd;
+    const nowTZ = moment.tz(new Date(), tz);
 
     const upcoming: UpcomingPost[] = [];
 
-    /** 1) KUMPULKAN MANUAL */
-    const manualKeySet = new Set<string>();
+    /** 1) KUMPULKAN MANUAL (apa adanya) */
     for (const m of root.schedulerManualPostings) {
-      const when = moment(m.date).tz(tz); // render ke TZ
-      // hanya future/upcoming (opsional; jika ingin keep semuanya dalam range, hapus cek below)
-      if (when.isBefore(nowTZ)) continue;
-
-      const item: UpcomingPost = {
-        date: when.toDate(),
-        images: m.generatedImageContent.images,
+      upcoming.push({
+        id: m.generatedImageContent.id,
+        date: m.date,
         platforms: m.platforms,
         type: "manual",
-        title: m.generatedImageContent.caption ?? "",
+        title: m.generatedImageContent.caption || "Postingan Tanpa Caption",
         category: m.generatedImageContent.category,
-        generatedImageContent: m.generatedImageContent,
         schedulerManualPostingId: m.id,
-      };
-      upcoming.push(item);
-
-      // simpan key menit untuk menghindari bentrok slot auto
-      manualKeySet.add(this.keyByMinute(item.date, tz));
+        generatedImageContent: m.generatedImageContent,
+        images: m.generatedImageContent.images,
+      });
     }
 
-    /** 2) SIAPKAN QUEUE AUTO (exclude yang sudah dijadwalkan manual) */
-    const autoQueue = root.generatedImageContents
-      .filter(
-        (g) => !g.schedulerManualPostings // belum ada manual schedule
-      )
-      .map((g) => {
-        // @ts-ignore
-        delete g.schedulerManualPostings;
-        return {
-          ...g,
-        };
-      });
+    /** 2) KUMPULKAN AUTO */
+    const connectedPlatforms: SocialPlatform[] = [
+      ...(root.socialLinkedIn ? (["linked_in"] as SocialPlatform[]) : []),
+      ...(root.socialFacebookPage
+        ? (["facebook_page"] as SocialPlatform[])
+        : []),
+      ...(root.socialInstagramBusiness
+        ? (["instagram_business"] as SocialPlatform[])
+        : []),
+    ];
 
-    /** 3) GEN SLOT AUTO BERDASARKAN PREFERENSI (day+times) DALAM RANGE */
-    const rawSlots = root.schedulerAutoPreference?.isAutoPosting
-      ? this.buildAutoSlots(
-          root.schedulerAutoPostings,
-          dateStart,
-          dateEnd,
-          tz,
-          nowTZ
-        )
-      : [];
-
-    // hindari tabrakan dengan manual (di menit yang sama)
-    const autoSlots = rawSlots.filter(
-      (d) => !manualKeySet.has(this.keyByMinute(d, tz))
+    const autoEnabled = !!root.schedulerAutoPreference?.isAutoPosting;
+    const candidatesAuto = (root.generatedImageContents ?? []).filter(
+      (c) => !c.schedulerManualPostings
     );
 
-    /** 4) PASANG KONTEN DARI QUEUE KE SLOT AUTO SECARA BERURUTAN */
-    let qi = 0;
-    for (const slot of autoSlots) {
-      if (qi >= autoQueue.length) break;
-      const g = autoQueue[qi++];
-      const availPlatforms: string[] = [];
-      if (root.socialLinkedIn) {
-        availPlatforms.push("linkedin");
+    if (
+      autoEnabled &&
+      root.schedulerAutoPostings.length &&
+      connectedPlatforms.length
+    ) {
+      // Bangun semua slot (tanggal & platforms efektif) dalam rentang
+      type Slot = {
+        when: Date;
+        platforms: SocialPlatform[];
+        hhmm: string;
+        day: string;
+      };
+      const slots: Slot[] = [];
+
+      const startTz = moment.tz(start, tz).startOf("day");
+      const endTz = moment.tz(end, tz).endOf("day");
+
+      // peta nama hari -> index
+      const dayIdx = this.DAYS; // {Minggu:0,..}
+
+      for (
+        let cur = startTz.clone();
+        cur.isSameOrBefore(endTz, "day");
+        cur.add(1, "day")
+      ) {
+        const dow = cur.day(); // 0..6
+        for (const ap of root.schedulerAutoPostings) {
+          const targetDow = dayIdx[ap.day as keyof typeof dayIdx];
+          if (typeof targetDow !== "number" || targetDow !== dow) continue;
+
+          for (const t of ap.schedulerAutoPostingTimes) {
+            const hhmm = moment(t.hhmm, ["HH:mm", "H:m"]).format("HH:mm");
+            const whenM = this.combineDateAndTime(cur, hhmm, tz);
+            if (whenM.isBefore(startTz) || whenM.isAfter(endTz)) continue;
+            if (whenM.isBefore(nowTZ)) continue; // upcoming saja
+
+            // platforms efektif = preferensi ∩ connected
+            const eff = t.platforms.filter((p) =>
+              connectedPlatforms.includes(p)
+            );
+            if (!eff.length) continue;
+
+            slots.push({
+              when: whenM.toDate(),
+              platforms: eff,
+              hhmm,
+              day: ap.day,
+            });
+          }
+        }
       }
-      upcoming.push({
-        date: slot,
-        images: g.images,
-        platforms: availPlatforms, // TODO: jika ada preferensi platform auto, gantikan di sini
-        type: "auto",
-        title: g.caption ?? "",
-        category: g.category,
-        generatedImageContent: g,
-        schedulerManualPostingId: null,
-      });
+
+      // urutkan slot kronologis
+      slots.sort((a, b) => a.when.getTime() - b.when.getTime());
+
+      // Pasangkan kandidat konten ke slot secara berurutan (1 konten = 1 slot)
+      const n = Math.min(candidatesAuto.length, slots.length);
+      for (let i = 0; i < n; i++) {
+        const content = candidatesAuto[i];
+        const slot = slots[i];
+        upcoming.push({
+          id: content.id,
+          date: slot.when,
+          platforms: slot.platforms.map(String), // string[]
+          type: "auto",
+          title: content.caption || "Postingan Tanpa Caption",
+          category: content.category,
+          schedulerManualPostingId: null,
+          generatedImageContent: content,
+          images: content.images,
+        });
+      }
     }
 
-    /** 5) URUTKAN ASC */
+    /** 3) URUTKAN ASC */
     upcoming.sort((a, b) => a.date.getTime() - b.date.getTime());
-
     return upcoming;
   }
 
@@ -316,97 +291,179 @@ export class ImageContentOverviewService extends BaseService {
 
   async getCountUpcoming(rootBusinessId: string, filter: FilterQueryType) {
     try {
+      // Fallback window kalau filter kosong: hari ini .. +30 hari (TZ bisnis akan diterapkan belakangan)
+      const fallbackStart = moment().startOf("day").toDate();
+      const fallbackEnd = moment().add(30, "days").endOf("day").toDate();
+
       const root = await db.rootBusiness.findUnique({
-        where: {
-          id: rootBusinessId,
-        },
+        where: { id: rootBusinessId },
         select: {
-          generatedImageContents: {
-            where: {
-              AND: [
-                {
-                  readyToPost: true,
-                },
-                {
-                  deletedAt: null,
-                },
-                {
-                  postedImageContents: {
-                    none: {},
-                  },
-                },
-                {
-                  createdAt: {
-                    gte: filter.dateStart,
-                    lte: filter.dateEnd,
-                  },
-                },
-              ],
-            },
+          // koneksi platform untuk intersect
+          socialLinkedIn: { select: { id: true } },
+          socialFacebookPage: { select: { id: true } },
+          socialInstagramBusiness: { select: { id: true } },
+
+          // preferensi AUTO
+          schedulerAutoPreference: { select: { isAutoPosting: true } },
+          schedulerAutoPostings: {
+            where: { isActive: true },
             select: {
-              id: true,
-              schedulerManualPostings: {
-                select: {
-                  id: true,
-                },
+              day: true,
+              schedulerAutoPostingTimes: {
+                select: { hhmm: true, platforms: true },
               },
             },
           },
-          schedulerAutoPreference: {
-            select: {
-              isAutoPosting: true,
-            },
-          },
+
+          // MANUAL dalam rentang
           schedulerManualPostings: {
             where: {
               AND: [
-                { rootBusinessId },
+                ...(filter.dateStart && filter.dateEnd
+                  ? [{ date: { gte: filter.dateStart, lte: filter.dateEnd } }]
+                  : []),
                 {
-                  date: {
-                    gte: filter.dateStart,
-                    lte: filter.dateEnd,
-                  },
-                },
-                {
-                  generatedImageContent: {
-                    postedImageContents: {
-                      none: {},
-                    },
-                  },
+                  generatedImageContent: { postedImageContents: { none: {} } },
                 },
               ],
             },
-            select: {
-              platforms: true,
-            },
+            select: { platforms: true, date: true },
           },
-          socialLinkedIn: {
+
+          // kandidat konten untuk AUTO (ready, unposted) — include manual untuk exclude auto
+          generatedImageContents: {
+            where: {
+              AND: [
+                { readyToPost: true },
+                { deletedAt: null },
+                { postedImageContents: { none: {} } },
+                ...(filter.dateStart && filter.dateEnd
+                  ? [
+                      {
+                        createdAt: {
+                          gte: filter.dateStart,
+                          lte: filter.dateEnd,
+                        },
+                      },
+                    ]
+                  : []),
+              ],
+            },
             select: {
               id: true,
+              images: true,
+              caption: true,
+              category: true,
+              schedulerManualPostings: { select: { id: true } },
             },
+            orderBy: { createdAt: "asc" },
           },
+
+          // TZ bisnis
+          schedulerTimeZone: { select: { timezone: true } },
         },
       });
 
-      if (!root) {
-        return null;
-      }
+      if (!root) return null;
 
-      const upcomingPlatforms = Object.fromEntries(
-        this.PLATFORMS.map((platform) => [platform, 0])
-      );
+      const tz = this.pickTz(root.schedulerTimeZone?.timezone);
+      const start = filter.dateStart ?? fallbackStart;
+      const end = filter.dateEnd ?? fallbackEnd;
+      const nowTZ = moment.tz(new Date(), tz);
+
+      // siapkan counter per platform
+      const upcomingPlatforms: Record<SocialPlatform, number> =
+        Object.fromEntries(
+          this.PLATFORMS.map((p) => [p as SocialPlatform, 0])
+        ) as Record<SocialPlatform, number>;
+
+      /** 1) HITUNG MANUAL (langsung tambah per platform) */
       for (const item of root.schedulerManualPostings) {
-        item.platforms.forEach((platform) => {
-          upcomingPlatforms[platform]++;
-        });
+        for (const p of item.platforms as SocialPlatform[]) {
+          // validasi nama enum agar aman
+          if ((p as any) in upcomingPlatforms) {
+            upcomingPlatforms[p]++;
+          }
+        }
       }
 
-      const unpostedContents = root.generatedImageContents.filter(
-        (content) => !content.schedulerManualPostings
+      /** 2) HITUNG AUTO (preferensi ∩ koneksi, pairing konten dengan slot) */
+      const connected: SocialPlatform[] = [
+        ...(root.socialLinkedIn ? (["linked_in"] as SocialPlatform[]) : []),
+        ...(root.socialFacebookPage
+          ? (["facebook_page"] as SocialPlatform[])
+          : []),
+        ...(root.socialInstagramBusiness
+          ? (["instagram_business"] as SocialPlatform[])
+          : []),
+      ];
+
+      const autoEnabled = !!root.schedulerAutoPreference?.isAutoPosting;
+      const candidatesAuto = (root.generatedImageContents ?? []).filter(
+        (c) => !c.schedulerManualPostings
       );
 
-      if (root.socialLinkedIn && root.schedulerAutoPreference?.isAutoPosting) {
-        upcomingPlatforms["linkedin"] += unpostedContents.length;
+      if (
+        autoEnabled &&
+        root.schedulerAutoPostings.length &&
+        connected.length &&
+        candidatesAuto.length
+      ) {
+        type Slot = {
+          when: Date;
+          platforms: SocialPlatform[];
+          day: string;
+          hhmm: string;
+        };
+        const slots: Slot[] = [];
+
+        const startTz = moment.tz(start, tz).startOf("day");
+        const endTz = moment.tz(end, tz).endOf("day");
+        const dayIdx = this.DAYS; // {Minggu:0,..}
+
+        for (
+          let cur = startTz.clone();
+          cur.isSameOrBefore(endTz, "day");
+          cur.add(1, "day")
+        ) {
+          const dow = cur.day(); // 0..6
+          for (const ap of root.schedulerAutoPostings) {
+            const targetDow = dayIdx[ap.day as keyof typeof dayIdx];
+            if (typeof targetDow !== "number" || targetDow !== dow) continue;
+
+            for (const t of ap.schedulerAutoPostingTimes) {
+              const hhmm = moment(t.hhmm, ["HH:mm", "H:m"]).format("HH:mm");
+              const whenM = this.combineDateAndTime(cur, hhmm, tz);
+              if (whenM.isBefore(startTz) || whenM.isAfter(endTz)) continue;
+              if (whenM.isBefore(nowTZ)) continue;
+
+              // platforms efektif
+              const eff = (t.platforms as SocialPlatform[]).filter((p) =>
+                connected.includes(p)
+              );
+              if (!eff.length) continue;
+
+              slots.push({
+                when: whenM.toDate(),
+                platforms: eff,
+                day: ap.day,
+                hhmm,
+              });
+            }
+          }
+        }
+
+        // urutkan slot & pasangkan 1:1 dgn konten auto
+        slots.sort((a, b) => a.when.getTime() - b.when.getTime());
+        const n = Math.min(candidatesAuto.length, slots.length);
+        for (let i = 0; i < n; i++) {
+          const slot = slots[i];
+          for (const p of slot.platforms) {
+            if (p in upcomingPlatforms) {
+              upcomingPlatforms[p]++;
+            }
+          }
+        }
       }
 
       const total = Object.values(upcomingPlatforms).reduce(

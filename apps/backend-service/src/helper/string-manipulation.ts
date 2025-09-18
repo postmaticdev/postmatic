@@ -1,7 +1,7 @@
 /**
  * Transform platform string from snake_case to camelCase
- * @param platform - The platform string to transform
- * @returns The transformed platform string
+ * @param platform - The platform string to transform (ex: linked_in)
+ * @returns The transformed platform string (ex: socialLinkedIn)
  */
 const transformPlatform = (platform: string) => {
   const splitted = platform.split("_");
@@ -15,7 +15,7 @@ const transformPlatform = (platform: string) => {
 
 /**
  * Transform string from snake_case to readable string
- * @param str - The string to transform
+ * @param str - The string to transform 
  * @returns The transformed string
  */
 const snakeToReadable = (str: string) => {

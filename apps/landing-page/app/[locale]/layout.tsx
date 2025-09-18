@@ -96,7 +96,7 @@ export default async function RootLayout({
                 <ThemeToggle />
                 <NavbarButton
                   href={LOGIN_URL}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-6"
                   variant="primary"
                 >
                   <LogIn size="16" />

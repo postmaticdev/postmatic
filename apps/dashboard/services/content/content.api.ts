@@ -477,13 +477,13 @@ export const jobContentService = {
     formData: GenerateContentKnowledgePld
   ) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/mock`,
+      `/content/image/job/${businessId}/generate`,
       formData
     );
   },
   rssOnJob: (businessId: string, formData: GenerateContentRssPld) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/mock-rss`,
+      `/content/image/job/${businessId}/rss`,
       formData
     );
   },
@@ -492,7 +492,7 @@ export const jobContentService = {
     formData: GenerateContentRegeneratePld
   ) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/mock-regenerate`,
+      `/content/image/job/${businessId}/regenerate`,
       formData
     );
   },

@@ -446,7 +446,7 @@ export class AppProductService extends BaseService {
       if (checkProduct.price === 0) return null;
       if (checkProduct.deletedAt) return null;
       let hintCode: string | null = null;
-      let isValidCode = false;
+      let isValidCode = true;
       let benefitCode: string | null = null;
       if (typeof discount === "string") {
         hintCode = discount;

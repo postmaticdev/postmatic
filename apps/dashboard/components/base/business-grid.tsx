@@ -4,7 +4,7 @@ import { BusinessCard } from "@/components/base/business-card";
 import { useFilterQuery } from "@/hooks/use-filter-query";
 import { Member } from "@/models/api/business/index.type";
 import { useBusinessGetAll } from "@/services/business.api";
-import { useCallback, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { PaginationControls } from "../ui/pagination-controls";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -14,9 +14,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChartNoAxesCombined } from "lucide-react";
 import { NoContent } from "./no-content";
 import { BusinessGridSkeleton } from "../grid-skeleton/business-grid-skeleton";
+import { FilterQuery } from "@/models/api/base-response.type";
+import { useBusinessGridFilter } from "@/contexts/business-grid-context";
 
 export function BusinessGrid() {
-  const filterQuery = useFilterQuery();
+  // const filterQuery = useFilterQuery();
+const { filterQuery, setFilterQuery } = useBusinessGridFilter();
+
   const { data, isLoading } = useBusinessGetAll(filterQuery);
   const businesses = data?.data?.data || [];
   const pagination = data?.data?.pagination || initialPagination;
@@ -33,27 +37,29 @@ export function BusinessGrid() {
     return members?.find((member) => member.role === "Owner")?.profile;
   };
 
-  const setFilterQuery = useCallback(
-    (newQuery: Partial<NonNullable<typeof filterQuery>>) => {
-      const params = new URLSearchParams(searchParams.toString());
 
-      // Update all query parameters
-      Object.entries(newQuery).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          params.set(key, value.toString());
-        } else {
-          params.delete(key);
-        }
-      });
 
-      queryClient.invalidateQueries({
-        queryKey: ["businesses"],
-      });
+  // const setFilterQuery = useCallback(
+  //   (newQuery: Partial<NonNullable<typeof filterQuery>>) => {
+  //     const params = new URLSearchParams(searchParams.toString());
 
-      router.push(`?${params.toString()}`);
-    },
-    [queryClient, router, searchParams]
-  );
+  //     // Update all query parameters
+  //     Object.entries(newQuery).forEach(([key, value]) => {
+  //       if (value !== undefined && value !== null && value !== "") {
+  //         params.set(key, value.toString());
+  //       } else {
+  //         params.delete(key);
+  //       }
+  //     });
+
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["businesses"],
+  //     });
+
+  //     router.push(`?${params.toString()}`);
+  //   },
+  //   [queryClient, router, searchParams]
+  // );
 
   return (
     <div className="space-y-6">

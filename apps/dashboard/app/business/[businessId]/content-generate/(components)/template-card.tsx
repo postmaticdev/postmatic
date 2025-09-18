@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 import { MoreHorizontal, Eye, Save, Heart } from "lucide-react";
 import Image from "next/image";
 import {
@@ -22,12 +23,24 @@ interface TemplateCardProps {
 }
 
 export const TemplateCard = ({ item, onDetail }: TemplateCardProps) => {
-  const { onSaveUnsave, onSelectReferenceImage, isLoading } =
-    useContentGenerate();
+  const { 
+    onSaveUnsave, 
+    onSelectReferenceImage, 
+    isLoading,
+    unsaveModal,
+    onConfirmUnsave,
+    onCloseUnsaveModal,
+    selectedTemplate
+  } = useContentGenerate();
+  
+  const isSelected = selectedTemplate?.id === item.id;
+  
   return (
     <Card
       key={item.id}
-      className="p-3 group transition-all duration-300 hover:scale-105 hover:shadow-lg"
+      className={`p-3 group transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+        isSelected ? "border-primary border-2" : ""
+      }`}
     >
       <div className="relative">
         <div className="relative aspect-square rounded-lg overflow-hidden">
@@ -43,7 +56,11 @@ export const TemplateCard = ({ item, onDetail }: TemplateCardProps) => {
         </div>
         <div className="absolute top-2 right-2">
           <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
-            {item.categories?.join(", ")}
+            {item.categories && item.categories.length > 0 ? (
+              item.categories.length === 1 
+                ? item.categories[0]
+                : `${item.categories[0]} +${item.categories.length - 1}`
+            ) : ""}
           </span>
         </div>
       </div>
@@ -85,15 +102,26 @@ export const TemplateCard = ({ item, onDetail }: TemplateCardProps) => {
 
         <Button
           className="w-full my-3 bg-blue-500 hover:bg-blue-600 text-white text-sm"
-          disabled={isLoading}
+          disabled={isLoading || isSelected}
           onClick={() => {
             if (isLoading) return;
-            onSelectReferenceImage(item.imageUrl, item.name);
+            onSelectReferenceImage(item.imageUrl, item.name, item);
           }}
         >
-          Use
+          {isSelected ? "Selected" : "Use"}
         </Button>
       </div>
+      
+      {/* Unsave Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={unsaveModal.isOpen && unsaveModal.item?.id === item.id}
+        onClose={onCloseUnsaveModal}
+        onConfirm={onConfirmUnsave}
+        title="Hapus dari Saved"
+        description="Apakah Anda yakin ingin menghapus template ini dari daftar saved? Tindakan ini tidak dapat dibatalkan."
+        itemName={unsaveModal.item?.name || ""}
+        isLoading={unsaveModal.isLoading}
+      />
     </Card>
   );
 };

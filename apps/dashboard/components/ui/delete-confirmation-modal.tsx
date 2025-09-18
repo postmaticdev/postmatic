@@ -32,20 +32,18 @@ export function DeleteConfirmationModal({
 }: DeleteConfirmationModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="text-center">
+      <DialogContent>
+        <DialogHeader className="flex flex-row gap-6 items-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
             <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
           </div>
-          <DialogTitle className="text-xl font-semibold text-foreground">
-            {title}
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            {description}
-          </DialogDescription>
+          <div className="flex flex-col gap-2">
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{description}</DialogDescription>
+          </div>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
           <div className="rounded-lg bg-muted/50 p-4">
             <div className="flex items-center gap-3">
               <Trash2 className="h-5 w-5 text-muted-foreground" />
@@ -61,7 +59,7 @@ export function DeleteConfirmationModal({
           </div>
         </div>
 
-        <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+        <DialogFooter className="w-full flex flex-col-reverse gap-4 sm:flex-row sm:justify-end ">
           <Button
             variant="outline"
             onClick={onClose}

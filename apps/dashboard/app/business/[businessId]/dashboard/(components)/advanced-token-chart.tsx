@@ -11,15 +11,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { ChartErrorBoundary } from "./chart-error-boundary";
-import {
-  getDateRangeLabel,
-  formatXAxisLabel,
-  type TimePeriod,
-} from "@/lib/chart-data-generator";
+import { formatXAxisLabel, type TimePeriod } from "@/lib/chart-data-generator";
 import { FilterQuery } from "@/models/api/base-response.type";
 import { useTokenGetAnalyticUsage } from "@/services/tier/token.api";
 import { useParams } from "next/navigation";
 import { dateManipulation } from "@/helper/date-manipulation";
+import { dateFormat } from "@/helper/date-format";
+import { Button } from "@/components/ui/button";
 
 interface CustomTooltipPayload {
   color: string;
@@ -84,7 +82,7 @@ const CustomTooltip = ({
               Total:
             </span>
             <span className="font-semibold text-gray-900 dark:text-white">
-              {total?.value}
+              {total?.value?.toLocaleString()}
             </span>
           </div>
         </div>
@@ -129,12 +127,18 @@ interface Period {
   value: TimePeriod;
   label: string;
   filterQuery: Partial<FilterQuery>;
+  labelStart: string;
+  labelEnd: string;
 }
 
 const periods: Period[] = [
   {
     value: "7d",
     label: "7 Hari",
+    labelStart: dateFormat.indonesianDate(
+      new Date(new Date().setDate(new Date().getDate() - 7))
+    ),
+    labelEnd: dateFormat.indonesianDate(new Date()),
     filterQuery: {
       page: 1,
       dateStart: dateManipulation.ymd(
@@ -145,6 +149,10 @@ const periods: Period[] = [
   {
     value: "30d",
     label: "30 Hari",
+    labelStart: dateFormat.indonesianDate(
+      new Date(new Date().setDate(new Date().getDate() - 30))
+    ),
+    labelEnd: dateFormat.indonesianDate(new Date()),
     filterQuery: {
       page: 7,
       dateStart: dateManipulation.ymd(
@@ -155,6 +163,10 @@ const periods: Period[] = [
   {
     value: "1y",
     label: "1 Tahun",
+    labelStart: dateFormat.indonesianDate(
+      new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+    ),
+    labelEnd: dateFormat.indonesianDate(new Date()),
     filterQuery: {
       page: 30,
       dateStart: dateManipulation.ymd(
@@ -175,17 +187,17 @@ const PeriodSelector = ({
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground">Periode:</span>
-      <select
-        value={period}
-        onChange={(e) => onPeriodChange(e.target.value as TimePeriod)}
-        className="text-sm border border-border rounded px-3 py-1 bg-background focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        {periods.map((p) => (
-          <option key={p.value} value={p.value}>
-            {p.label}
-          </option>
-        ))}
-      </select>
+
+      {periods.map((p) => (
+        <Button
+          key={p.value}
+          onClick={() => onPeriodChange(p.value)}
+          variant={period === p.value ? "default" : "outline"}
+          size="sm"
+        >
+          {p.label}
+        </Button>
+      ))}
     </div>
   );
 };
@@ -195,10 +207,10 @@ export function AdvancedTokenChart() {
   const [period, setPeriod] = useState<TimePeriod>("7d");
 
   const { businessId } = useParams() as { businessId: string };
-  const filterQuery = periods.find((p) => p.value === period)?.filterQuery;
+  const findPeriod = periods.find((p) => p.value === period);
   const { data: tokenUsageData } = useTokenGetAnalyticUsage(
     businessId,
-    filterQuery
+    findPeriod?.filterQuery
   );
   const chartData = (tokenUsageData?.data?.data || []).map((item) => ({
     date: item.date,
@@ -208,7 +220,10 @@ export function AdvancedTokenChart() {
     Total: item.Image + item.Video + item.LiveStream,
   }));
 
-  const dateRangeLabel = useMemo(() => getDateRangeLabel(period), [period]);
+  const dateRangeLabel = useMemo(
+    () => `${findPeriod?.labelStart} - ${findPeriod?.labelEnd}`,
+    [findPeriod]
+  );
 
   return (
     <ChartErrorBoundary>

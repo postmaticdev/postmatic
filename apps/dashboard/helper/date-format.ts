@@ -21,7 +21,10 @@ const indonesianDate = (date: Date) => {
 };
 
 const getHhMm = (date: Date) => {
-  return `${date.getHours()}:${date.getMinutes()}`;
+  return `${date.getHours().toString().padStart(2, "0")}:${date
+    .getMinutes()
+    .toString()
+    .padStart(2, "0")}`;
 };
 
 const getDdMmYyyy = (date: Date) => {

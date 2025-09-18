@@ -247,7 +247,14 @@ export function FullscreenImageModal({
     const onResize = () => updateCanvasSize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [isOpen, dpr, calculateFitTransform, canvasSizeCSS.width, canvasSizeCSS.height, selectedHistory?.result?.images]);
+  }, [
+    isOpen,
+    dpr,
+    calculateFitTransform,
+    canvasSizeCSS.width,
+    canvasSizeCSS.height,
+    selectedHistory?.result?.images,
+  ]);
 
   // ---------- render loop ----------
   const render = useCallback(() => {
@@ -776,7 +783,7 @@ export function FullscreenImageModal({
       const uploadImageRes = await helperService.uploadSingleImage({
         image: file,
       });
-      form.setMask(uploadImageRes);
+      form.setMask((prev) => (prev ? prev : uploadImageRes));
       console.log("FORM_MASK_1", form.mask);
       await sleep(1000);
       console.log("FORM_MASK_2", form.mask);

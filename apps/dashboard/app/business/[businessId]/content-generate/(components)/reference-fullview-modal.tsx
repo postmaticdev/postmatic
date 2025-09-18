@@ -158,7 +158,7 @@ export function ReferenceFullviewModal({
           primaryButton={{
             message: "Use Template",
             onClick: () => {
-              onSelectReferenceImage(template.imageUrl, template.name);
+              onSelectReferenceImage(template.imageUrl, template.name, template);
               onClose();
             },
             icon: <Plus className="mr-2 h-4 w-4" />,

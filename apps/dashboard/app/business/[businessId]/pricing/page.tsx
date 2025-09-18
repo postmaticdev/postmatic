@@ -17,6 +17,8 @@ import {
 } from "@/models/api/app-product";
 import { showToast } from "@/helper/show-toast";
 import { useCheckoutPayBank } from "@/services/purchase.api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSubscribtionGetSubscription } from "@/services/tier/subscribtion.api";
 
 export default function Pricing() {
   const router = useRouter();
@@ -24,7 +26,7 @@ export default function Pricing() {
   const [activeTab, setActiveTab] = useState<"package" | "extraToken">(
     (searchParams.get("tab") as "package" | "extraToken") || "package"
   );
-
+  const queryClient = useQueryClient();
   const { businessId } = useParams() as { businessId: string };
   const { data: tokenData } = useAppProductGetToken(businessId || "");
   const { data: subscriptionData } = useAppProductGetSubscription(
@@ -32,15 +34,9 @@ export default function Pricing() {
   );
 
   const tokenPackages = tokenData?.data?.data.products || [];
-  // TODO: create highlighted index for token packages from API
-  // const centerTokenIndex = Math.floor(tokenPackages.length / 2);
 
   // Expecting products as SubscriptionPlan[] with items: SubscriptionItem[]
   const subscriptionPlans = subscriptionData?.data?.data.products || [];
-
-  // TODO: create highlighted index for subscription plans from API
-  // TODO: create enum to map icon to subscription plans
-  // const centerSubscriptionIndex = Math.floor(subscriptionPlans.length / 2);
 
   // Per-plan selected item (keyed by planId -> itemId)
   const [selectedItemsByPlan, setSelectedItemsByPlan] = useState<
@@ -60,13 +56,16 @@ export default function Pricing() {
     return plan.appProductSubscriptionItems?.[0]; // default ke item pertama jika belum dipilih
   };
 
-  const isNewBusiness = searchParams.get("isNewBusiness") === "true";
+  const { data: subscriptionDataTier } = useSubscribtionGetSubscription(
+    businessId || ""
+  );
+  const notShowToken = !subscriptionDataTier?.data?.data?.valid;
 
   const mCheckoutBank = useCheckoutPayBank();
 
   const checkoutFreeProduct = async (id: string) => {
     try {
-      const res = await mCheckoutBank.mutateAsync({
+      await mCheckoutBank.mutateAsync({
         businessId,
         formData: {
           bank: "bni",
@@ -74,13 +73,14 @@ export default function Pricing() {
           type: "subscription",
         },
       });
-      console.log(res);
-      showToast("success", "Product berhasil dipesan");
+      queryClient.clear();
+      showToast("success", "Berhasil mengklaim free trial");
       router.push(`/business/${businessId}/dashboard`);
     } catch {}
   };
 
   const onSelectItem = (type: "token" | "subscription", id: string) => {
+    queryClient.clear();
     router.push(
       `/business/${businessId}/pricing/checkout?type=${type}&productId=${id}`
     );
@@ -103,7 +103,7 @@ export default function Pricing() {
 
             {/* Tabs */}
             <div className="mb-8">
-              {!isNewBusiness && (
+              {!notShowToken && (
                 <div className="flex rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 w-full max-w-md mx-auto">
                   <button
                     onClick={() => setActiveTab("package")}
@@ -129,7 +129,7 @@ export default function Pricing() {
               )}
             </div>
 
-            {activeTab === "extraToken" && !isNewBusiness ? (
+            {activeTab === "extraToken" && !notShowToken ? (
               /* Token Packages */
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tokenPackages?.map((pkg, index) => (
@@ -142,7 +142,7 @@ export default function Pricing() {
                       <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full -translate-y-16 translate-x-16"></div>
                       <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-300 rounded-full translate-y-12 -translate-x-12"></div>
                     </div>
-                    
+
                     <CardContent className="relative p-6">
                       {/* Header with Icon */}
                       <div className="flex items-center justify-between mb-4">
@@ -287,7 +287,7 @@ export default function Pricing() {
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {selectedItem?.tokenImage} token •{" "}
-                            {selectedItem?.subscriptionValidFor}
+                            Valid untuk {selectedItem?.subscriptionValidFor} hari
                           </div>
                         </div>
 
@@ -329,7 +329,7 @@ export default function Pricing() {
                             }
                           }}
                         >
-                            {plan.appProductSubscriptionItems?.[0]?.isClaimed
+                          {plan.appProductSubscriptionItems?.[0]?.isClaimed
                             ? "Sudah Diambil"
                             : plan.name === "Free"
                             ? "Mulai Sekarang"

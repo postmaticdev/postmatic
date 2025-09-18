@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CardNoGap } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { HistoryModal } from "@/app/business/[businessId]/content-generate/(components)/history-modal";
 import { FullscreenImageModal } from "@/app/business/[businessId]/content-generate/(components)/fullscreen-image-modal";
@@ -13,6 +14,8 @@ import { DEFAULT_PLACEHOLDER_IMAGE } from "@/constants";
 import { useBusinessGetById } from "@/services/business.api";
 import { useParams } from "next/navigation";
 import { LogoLoader } from "@/components/base/logo-loader";
+import { Progress } from "@/components/ui/progress";
+import { useSocketCenter } from "@/provider/socket-provider";
 
 export function PreviewPanel() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -26,8 +29,10 @@ export function PreviewPanel() {
     onSubmitGenerate,
     onSaveDraft,
     setMode,
+    isDraftSaved,
   } = useContentGenerate();
   const { businessId } = useParams() as { businessId: string };
+  const { currentPercentage } = useSocketCenter();
   const { data: businessData } = useBusinessGetById(businessId);
   const businessName = businessData?.data?.data?.name;
 
@@ -47,7 +52,7 @@ export function PreviewPanel() {
   return (
     <div className="h-full flex flex-col p-4 sm:p-6">
       {/* Instagram Feed Style Card */}
-      <CardNoGap className="flex-1 overflow-hidden">
+      <CardNoGap className="flex-1 overflow-auto">
         {/* Header - Instagram style */}
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -58,6 +63,7 @@ export function PreviewPanel() {
               height={200}
               className="w-8 h-8"
             />
+            <span className="font-medium text-sm">{businessName}</span>
           </div>
           <Button
             variant="secondary"
@@ -72,12 +78,12 @@ export function PreviewPanel() {
 
         {/* Image Preview - Instagram style */}
         <div
-          className="relative aspect-[5/4] overflow-hidden cursor-pointer hover:opacity-95 transition-opacity"
+          className="relative w-full h-fit cursor-pointer hover:opacity-95 transition-opacity"
           onClick={onOpenFullscreenImage}
         >
           {/* Business Image Content */}
           {isLoading ? (
-            <div className="flex items-center justify-center h-full bg-background-secondary relative">
+            <div className="flex items-center justify-center w-full h-full bg-background-secondary relative !aspect-square">
               <LogoLoader
                 hideContentBackground={false}
                 className="absolute z-10"
@@ -85,7 +91,7 @@ export function PreviewPanel() {
               <div className="absolute bg-black z-0 w-full h-full opacity-50 blur-sm">
                 <Image
                   src={
-                    selectedHistory?.result?.images[0] || 
+                    selectedHistory?.result?.images[0] ||
                     form.basic.productImage ||
                     DEFAULT_PLACEHOLDER_IMAGE
                   }
@@ -96,7 +102,7 @@ export function PreviewPanel() {
                     DEFAULT_PLACEHOLDER_IMAGE
                   }
                   fill
-                  className="object-cover"
+                  className="object-cover w-full h-full"
                   priority
                 />
               </div>
@@ -114,12 +120,22 @@ export function PreviewPanel() {
                 form.basic.productImage ||
                 DEFAULT_PLACEHOLDER_IMAGE
               }
-              fill
-              className="object-cover"
+              width={800}
+              height={800}
+              className="w-full h-auto"
               priority
             />
           )}
         </div>
+
+        {isLoading &&
+          typeof currentPercentage === "number" &&
+          currentPercentage < 100 && (
+            <div className="p-4 flex flex-row items-center gap-4 border-b">
+              <Progress value={currentPercentage ?? 0} />
+              <span className="text-sm">{currentPercentage}%</span>
+            </div>
+          )}
 
         {/* Caption - Instagram style */}
         <div className="p-4 border-b flex flex-col gap-4">
@@ -180,14 +196,24 @@ export function PreviewPanel() {
 
           {/* Save as Draft Button - Only show after generation */}
           {selectedHistory && (
-            <Button
-              onClick={onSaveDraft}
-              variant="outline"
-              className="w-full mt-2"
-              disabled={isLoading}
-            >
-              Save as a Draft
-            </Button>
+            <>
+              {!isDraftSaved ? (
+                <Button
+                  onClick={onSaveDraft}
+                  variant="outline"
+                  className="w-full mt-2"
+                  disabled={isLoading}
+                >
+                  Save as a Draft
+                </Button>
+              ) : (
+                <Link href={`/business/${businessId}/content-scheduler`}>
+                  <Button variant="outline" className="w-full mt-2">
+                    Lihat di Pustaka Konten
+                  </Button>
+                </Link>
+              )}
+            </>
           )}
         </div>
       </CardNoGap>

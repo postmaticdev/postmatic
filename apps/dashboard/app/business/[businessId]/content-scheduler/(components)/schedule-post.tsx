@@ -17,7 +17,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { MoreVertical, Edit, X, AlertTriangle,  ClipboardClock } from "lucide-react";
+import {
+  MoreVertical,
+  Edit,
+  X,
+  AlertTriangle,
+  ClipboardClock,
+} from "lucide-react";
 import { CreatePostModal } from "./create-post-modal";
 import { useContentOverviewGetUpcoming } from "@/services/content/overview";
 import { useParams } from "next/navigation";
@@ -60,7 +66,8 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
   const [schedulerManualPostingId, setSchedulerManualPostingId] = useState<
     number | null
   >(null);
-  const { data: dataUpcoming, isLoading: isLoadingUpcoming } = useContentOverviewGetUpcoming(businessId);
+  const { data: dataUpcoming, isLoading: isLoadingUpcoming } =
+    useContentOverviewGetUpcoming(businessId);
   const upcomings = dataUpcoming?.data.data || [];
 
   const [formDataDraft, setFormDataDraft] = useState<FormDataDraft>({
@@ -68,8 +75,6 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
     queue: initialQueueForm,
     edit: initialEditForm,
   });
-
-
 
   const onCloseModal = () => {
     setIsModalOpen(false);
@@ -190,10 +195,13 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
       <CardContent className="p-6">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className={onDashboard ? "text-lg font-semibold" : "text-2xl font-bold"}>Penjadwalan Postingan</h2>
-            {/* <Button className=" text-white" onClick={handleAddToQueue}>
-              Add to Queue TODO: kayanya gaperlu
-            </Button> */}
+            <h2
+              className={
+                onDashboard ? "text-lg font-semibold" : "text-2xl font-bold"
+              }
+            >
+              Penjadwalan Postingan
+            </h2>
           </div>
 
           {isLoadingUpcoming ? (
@@ -227,7 +235,8 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
                         <div className="text-xs text-muted-foreground">
                           {post.type === "auto"
                             ? "Penjadwalan Otomatis"
-                            : "Penjadwalan Manual"}
+                            : "Penjadwalan Manual"}{" "}
+                          {dateFormat.getHhMm(new Date(post.date))}
                         </div>
                       </div>
 

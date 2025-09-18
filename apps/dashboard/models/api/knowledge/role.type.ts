@@ -7,7 +7,6 @@ export interface RoleKnowledgePld {
   hashtags: string[];
   callToAction: string;
   goals: string;
-  platforms: string[];
 }
 
 /* response for get role */
@@ -17,7 +16,6 @@ export interface RoleKnowledgeRes {
   callToAction: string;
   goals: string;
   hashtags: string[];
-  platforms: string[];
   rootBusinessId: string;
   targetAudience: string;
   tone: string;

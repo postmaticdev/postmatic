@@ -60,6 +60,7 @@ type Ctx = {
 
   /** Optional: memaksa join RB room lagi */
   joinRoom: (rootBusinessId?: string | null) => void;
+  currentPercentage: number | null;
 };
 
 const SocketCtx = createContext<Ctx | null>(null);
@@ -212,6 +213,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
       // Optional: log ringkas ke console
       if (job.progress) {
+        setStatePerc(job.progress);
+        console.log("statePerc", statePerc);
         console.log(`[imagegen] ${job.id} -> ${job.stage} (${job.progress}%)`);
       } else {
         console.log(`[imagegen] ${job.id} -> ${job.stage}`);
@@ -256,7 +259,11 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     [jobsById]
   );
 
-  const { onSelectHistory } = useContentGenerate();
+  const { onSelectHistory, selectedHistory } = useContentGenerate();
+  const findJob = selectedHistory;
+  const percentage = findJob?.progress;
+  const [statePerc, setStatePerc] = useState<number | null>(percentage || null);
+  console.log("percentage", percentage);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -283,6 +290,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       markAllRead,
 
       joinRoom,
+      currentPercentage: statePerc ?? null,
     }),
     [
       connected,
@@ -295,6 +303,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       unread,
       markAllRead,
       joinRoom,
+      statePerc,
     ]
   );
 

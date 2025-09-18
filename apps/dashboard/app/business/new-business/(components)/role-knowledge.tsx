@@ -20,7 +20,6 @@ export function RoleKnowledge() {
   };
 
   const [currentHashtag, setCurrentHashtag] = useState("");
-  const [currentPlatform, setCurrentPlatform] = useState("");
 
   const addHashtag = () => {
     if (currentHashtag.trim()) {
@@ -33,20 +32,6 @@ export function RoleKnowledge() {
     updateField(
       "hashtags",
       step3.hashtags.filter((_, i) => i !== index)
-    );
-  };
-
-  const addPlatform = () => {
-    if (currentPlatform.trim()) {
-      updateField("platforms", [...step3.platforms, currentPlatform.trim()]);
-      setCurrentPlatform("");
-    }
-  };
-
-  const removePlatform = (index: number) => {
-    updateField(
-      "platforms",
-      step3.platforms.filter((_, i) => i !== index)
     );
   };
 
@@ -106,7 +91,9 @@ export function RoleKnowledge() {
             value={currentHashtag}
             onChange={(e) => setCurrentHashtag(e.target.value)}
             placeholder={finalPlaceholders.hashtagInput}
-            className={`flex-1 bg-background-secondary ${errors.step3.hashtags ? 'border-red-500 focus:border-red-500' : ''}`}
+            className={`flex-1 bg-background-secondary ${
+              errors.step3.hashtags ? "border-red-500 focus:border-red-500" : ""
+            }`}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -158,49 +145,6 @@ export function RoleKnowledge() {
         placeholder={finalPlaceholders.goals}
         error={errors.step3.goals}
       />
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">
-          Platform
-        </label>
-        <div className="flex gap-2 mt-2">
-          <Input
-            value={currentPlatform}
-            onChange={(e) => setCurrentPlatform(e.target.value)}
-            placeholder="Masukkan platform"
-            className={`flex-1 bg-background-secondary ${errors.step3.platforms ? 'border-red-500 focus:border-red-500' : ''}`}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addPlatform();
-              }
-            }}
-          />
-          <Button type="button" onClick={addPlatform} className="px-3">
-            <Plus className="w-4 h-4" color="white" />
-          </Button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {step3.platforms.map((platform, index) => (
-            <span
-              key={index}
-              className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm flex items-center gap-1"
-            >
-              {platform}
-              <button
-                type="button"
-                onClick={() => removePlatform(index)}
-                className="text-green-600 hover:text-green-800"
-              >
-                ×
-              </button>
-            </span>
-          ))}
-        </div>
-        {errors.step3.platforms && (
-          <p className="text-sm text-red-500">{errors.step3.platforms}</p>
-        )}
-      </div>
     </div>
   );
 }

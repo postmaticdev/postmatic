@@ -241,6 +241,12 @@ export const useContentPostedRepost = (businessId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["contentPostedGetAllPostedImage", businessId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["contentOverviewCountUpcoming"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["contentOverviewUpcoming"],
+      });
     },
   });
 };
@@ -279,9 +285,15 @@ export const useContentSchedulerAutoUpsertSetting = () => {
       businessId: string;
       formData: AutoSchedulerPld;
     }) => schedulerAutoService.upsertSetting(businessId, formData),
-    onSuccess: ({ data }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["contentSchedulerAutoGetSettings", data.data.rootBusinessId],
+        queryKey: ["contentSchedulerAutoGetSettings"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["contentOverviewUpcoming"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["contentOverviewCountUpcoming"],
       });
     },
   });
@@ -465,13 +477,13 @@ export const jobContentService = {
     formData: GenerateContentKnowledgePld
   ) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/generate`,
+      `/content/image/job/${businessId}/mock`,
       formData
     );
   },
   rssOnJob: (businessId: string, formData: GenerateContentRssPld) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/rss`,
+      `/content/image/job/${businessId}/mock-rss`,
       formData
     );
   },
@@ -480,7 +492,7 @@ export const jobContentService = {
     formData: GenerateContentRegeneratePld
   ) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/regenerate`,
+      `/content/image/job/${businessId}/mock-regenerate`,
       formData
     );
   },

@@ -43,6 +43,7 @@ interface PaginationWithControlsProps {
   sortOptions?: SortOption[];
   className?: string;
   currData: number;
+  showSort?: boolean;
 }
 
 interface SortOption {
@@ -57,6 +58,7 @@ export function PaginationWithControls({
   sortOptions = [],
   setFilterQuery,
   currData,
+  showSort = true,
 }: PaginationWithControlsProps) {
   const limitOptions = [5, 10, 20, 50];
 
@@ -80,53 +82,85 @@ export function PaginationWithControls({
       {/* Controls Bar */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
         {/* Sort Controls */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-          <div className="flex gap-2">
+        {showSort ? (
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+            <div className="flex gap-2">
+              <Select
+                value={sortBy}
+                onValueChange={(value: string) =>
+                  setFilterQuery({
+                    ...filterQuery,
+                    sortBy: value,
+                  })
+                }
+              >
+                <SelectTrigger className="w-[140px] h-9 text-xs">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allSortOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setFilterQuery({
+                    ...filterQuery,
+                    sort: sort === "asc" ? "desc" : "asc",
+                  })
+                }
+                className="h-9 px-3 text-xs"
+                title={`Urutkan ${sort === "asc" ? "Menurun" : "Menaik"}`}
+              >
+                {sort === "asc" ? (
+                  <ArrowUp className="h-3 w-3" />
+                ) : (
+                  <ArrowDown className="h-3 w-3" />
+                )}
+              </Button>
+            </div>
             <Select
-              value={sortBy}
-              onValueChange={(value: string) =>
+              value={pagination?.limit.toString()}
+              onValueChange={(value) => {
                 setFilterQuery({
                   ...filterQuery,
-                  sortBy: value,
-                })
-              }
+                  limit: parseInt(value) || 10,
+                });
+              }}
             >
-              <SelectTrigger className="w-[140px] h-9 text-xs">
-                <SelectValue placeholder="Sort by" />
+              <SelectTrigger className="w-[100px] h-9 text-xs">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {allSortOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                {limitOptions.map((option) => (
+                  <SelectItem key={option} value={option.toString()}>
+                    {option}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setFilterQuery({
-                  ...filterQuery,
-                  sort: sort === "asc" ? "desc" : "asc",
-                })
-              }
-              className="h-9 px-3 text-xs"
-              title={`Urutkan ${sort === "asc" ? "Menurun" : "Menaik"}`}
-            >
-              {sort === "asc" ? (
-                <ArrowUp className="h-3 w-3" />
-              ) : (
-                <ArrowDown className="h-3 w-3" />
-              )}
-            </Button>
           </div>
+        ) : null}
 
+        {/* Results Info */}
+
+        <div className="text-xs text-muted-foreground">
+          Menampilkan {currData} dari {pagination.total} hasil
+        </div>
+        {!showSort && (
           <Select
             value={pagination?.limit.toString()}
             onValueChange={(value) => {
-              setFilterQuery({ ...filterQuery, limit: parseInt(value) || 10 });
+              setFilterQuery({
+                ...filterQuery,
+                limit: parseInt(value) || 10,
+              });
             }}
           >
             <SelectTrigger className="w-[100px] h-9 text-xs">
@@ -140,13 +174,7 @@ export function PaginationWithControls({
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        {/* Results Info */}
-
-        <div className="text-xs text-muted-foreground">
-          Menampilkan {currData} dari {pagination.total} hasil
-        </div>
+        )}
       </div>
     </div>
   );

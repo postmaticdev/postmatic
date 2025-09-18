@@ -6,28 +6,24 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useBusinessGridFilter } from "@/contexts/business-grid-context";
 
 export function ActionBar() {
   const router = useRouter();
-  const [searchState, setSearchState] = useState("");
   const handleNewBusiness = () => {
     router.push("/business/new-business");
   };
 
-  useDebounce(
-    () => {
-      callbackSearch(searchState);
-    },
-    500,
-    [searchState]
-  );
+  // useDebounce(
+  //   () => {
+  //     callbackSearch(searchState);
+  //   },
+  //   500,
+  //   [searchState]
+  // );
 
-  const callbackSearch = (val: string) => {
-    const searchParams = new URLSearchParams(window.location.search);
-    setSearchState(val);
-    searchParams.set("search", val);
-    router.push(`/business?${searchParams.toString()}`);
-  };
+  const { filterQuery, setFilterQuery } = useBusinessGridFilter();
+  
 
   return (
     <div className="p-6 border-b border-border">
@@ -46,8 +42,8 @@ export function ActionBar() {
             <Input
               type="text"
               placeholder="Cari bisnis"
-              value={searchState}
-              onChange={(e) => setSearchState(e.target.value)}
+              value={filterQuery.search}
+              onChange={(e) => setFilterQuery({ ...filterQuery, search: e.target.value })}
               className="pl-10 bg-muted/50 border-muted-foreground/20 focus:border-blue-500 w-full"
             />
           </div>

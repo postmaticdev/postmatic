@@ -5,11 +5,13 @@ import { showToast } from "@/helper/show-toast";
 import { helperService } from "@/services/helper.api";
 import { Image as ImageIcon, Info, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 interface UploadPhotoProps {
   label: string;
-  onImageChange: (file: string | null) => void;
+  onImageChange:
+    | Dispatch<SetStateAction<string | null>>
+    | ((url: string | null) => void);
   currentImage?: string | null;
   error?: string;
   onFocus?: () => void;

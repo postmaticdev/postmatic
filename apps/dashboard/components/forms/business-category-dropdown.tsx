@@ -22,12 +22,12 @@ interface BusinessCategoryDropdownProps {
 }
 
 const BUSINESS_CATEGORIES = [
-  "food",
-  "retail",
-  "technology",
-  "services",
-  "education",
-  "healthcare",
+  "Food & Beverage",
+  "Retail",
+  "Technology",
+  "Services",
+  "Education",
+  "Healthcare",
   "Lainnya",
 ];
 

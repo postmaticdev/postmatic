@@ -30,6 +30,7 @@ import { PlatformEnum } from "@/models/api/knowledge/platform.type";
 import { usePlatformKnowledgeGetAll } from "@/services/knowledge.api";
 import { SearchNotFound } from "@/components/base/search-not-found";
 import { NoContent } from "@/components/base/no-content";
+import { ContentLibrarySkeleton } from "@/components/grid-skeleton/content-library-skeleton";
 
 export interface FormDataDraft {
   direct: DirectPostContentPld;
@@ -107,7 +108,7 @@ export function ContentLibrary({
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: draftContent } = useContentDraftGetAllDraftImage(businessId, {
+  const { data: draftContent, isLoading: isLoadingDraft } = useContentDraftGetAllDraftImage(businessId, {
     search: searchQuery,
     limit: 50,
   });
@@ -115,7 +116,7 @@ export function ContentLibrary({
     (item) => !item.readyToPost
   );
 
-  const { data: postedContent } = useContentPostedGetAllPostedImage(
+  const { data: postedContent, isLoading: isLoadingPosted } = useContentPostedGetAllPostedImage(
     businessId,
     {
       search: searchQuery,
@@ -294,7 +295,7 @@ export function ContentLibrary({
             key={content.id}
             className="relative group border border-border bg-card  shadow-sm p-3 rounded-lg"
           >
-            <div className="aspect-square bg-gradient-to-br from-yellow-400 via-orange-400 to-yellow-500 rounded-lg overflow-hidden">
+            <div className="aspect-square rounded-lg overflow-hidden">
               {/* Template content placeholder */}
               <div className="relative h-full w-full">
                 <Image
@@ -346,7 +347,7 @@ export function ContentLibrary({
                     className="flex-1 text-white"
                     onClick={() => handleSetFormDataDraft(content, "now")}
                   >
-                    Posting Now
+                    Posting
                   </Button>
                 )}
               </div>
@@ -417,7 +418,9 @@ export function ContentLibrary({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        {renderItems().length === 0 && searchQuery === "" ? (
+        {(isLoadingDraft || isLoadingPosted) ? (
+          <ContentLibrarySkeleton count={8} />
+        ) : renderItems().length === 0 && searchQuery === "" ? (
           <NoContent
             icon={BookOpen}
             title="Belum ada konten"

@@ -39,7 +39,6 @@ const initialFormKnowledge: FormKnowledge = {
     hashtags: [],
     callToAction: "",
     goals: "",
-    platforms: [],
   },
 };
 
@@ -86,9 +85,9 @@ export function ManageKnowledgeProvider({
       }));
     }
     if (roleKnowledgeData) {
-      setFormKnowledge((prev) => ({ 
-        ...prev, 
-        role: roleKnowledgeData.data.data 
+      setFormKnowledge((prev) => ({
+        ...prev,
+        role: roleKnowledgeData.data.data,
       }));
     }
   }, [businessKnowledgeData, roleKnowledgeData]);

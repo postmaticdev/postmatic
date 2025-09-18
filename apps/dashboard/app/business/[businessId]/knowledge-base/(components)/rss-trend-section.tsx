@@ -34,6 +34,7 @@ import { NoContent } from "@/components/base/no-content";
 import { SearchNotFound } from "@/components/base/search-not-found";
 import { getRssSourceImage } from "@/helper/rss-image-helper";
 import { rssKnowledgeSchema } from "@/validator/new-business";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 
 const initialRSS: AddRssPld & { id?: string } = {
   title: "",
@@ -55,6 +56,7 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
   const [selectedRSS, setSelectedRSS] = useState<
     AddRssPld & { id?: string; masterRssCategoryId?: string }
   >(initialRSS);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [rssErrors, setRssErrors] = useState<Record<string, string>>({});
@@ -110,7 +112,19 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
     try {
       const res = await mRssKnowledgeDelete.mutateAsync(rss.id);
       showToast("success", res.data.responseMessage);
+      setIsDeleteModalOpen(false);
+      setSelectedRSS(initialRSS); // Reset selectedRSS after deletion
     } catch {}
+  };
+
+  const handleOpenDeleteModal = (rss: RssRes) => {
+    setSelectedRSS(rss);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedRSS(initialRSS); // Reset selectedRSS when closing modal
   };
 
   const handleToggleStatus = async (rssKnowledgeId: string) => {
@@ -290,7 +304,7 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handleDeleteRSS(trend)}
+                              onClick={() => handleOpenDeleteModal(trend)}
                               className="text-red-600"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
@@ -325,6 +339,15 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
         }}
         onChange={setSelectedRSS}
         errors={rssErrors}
+      />
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={() => handleDeleteRSS(selectedRSS as RssRes)}
+        title="Hapus Sumber RSS"
+        description="Apakah Anda yakin ingin menghapus sumber RSS ini? Tindakan ini tidak dapat dibatalkan."
+        itemName={selectedRSS?.title || "RSS"}
+        isLoading={mRssKnowledgeDelete.isPending}
       />
     </>
   );

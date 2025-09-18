@@ -47,7 +47,13 @@ export function BusinessKnowledge() {
       <div className="flex flex-col md:flex-row w-full gap-6 items-start">
         <UploadPhoto
           label={finalLabels.logoBrand}
-          onImageChange={(file) => updateField("primaryLogo", file)}
+          // onImageChange={(file) => updateField("primaryLogo", file)}
+          onImageChange={(url: string | null) => {
+            setFormData((prev) => ({
+              ...prev,
+              step1: { ...prev.step1, primaryLogo: url },
+            }));
+          }}
           currentImage={step1.primaryLogo}
           error={errors.step1.primaryLogo}
           onFocus={() => clearFieldError(0, "primaryLogo")}
@@ -66,8 +72,8 @@ export function BusinessKnowledge() {
           <BusinessCategoryDropdown
             value={step1.category}
             onChange={(value) => updateField("category", value)}
-            placeholder="Pilih kategori produk"
-            label="Kategori Produk"
+            placeholder="Pilih kategori bisnis"
+            label="Kategori Bisnis"
             error={errors.step1.category}
             onFocus={() => clearFieldError(0, "category")}
           />

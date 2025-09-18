@@ -5,6 +5,7 @@ import { dateFormat } from "@/helper/date-format";
 import { formatIdr } from "@/helper/formatter";
 import { mapEnumPaymentStatus } from "@/helper/map-enum-payment-status";
 import { showToast } from "@/helper/show-toast";
+import { cn } from "@/lib/utils";
 import { PaymentAction } from "@/models/api/purchase/checkout.type";
 import { businessPurchaseService } from "@/services/purchase.api";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,10 +25,12 @@ export function PaymentConfirmation({
   const { product, detailPricing, checkoutResult } = useCheckout();
   const { businessId } = useParams() as { businessId: string };
   const queryClient = useQueryClient();
+  const [isChecking, setIsChecking] = useState(false);
   if (!checkoutResult) return null;
 
   const handleCheckPaymentStatus = async () => {
     try {
+      setIsChecking(true);
       const { data: res } = await businessPurchaseService.getDetail(
         businessId,
         checkoutResult?.id
@@ -37,12 +40,7 @@ export function PaymentConfirmation({
         mapEnumPaymentStatus.getStatusDescription(res.data.status)
       );
       if (res.data.status !== checkoutResult?.status) {
-        queryClient.invalidateQueries({
-          queryKey: ["businessPurchaseHistory"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["businessPurchaseDetail"],
-        });
+        queryClient.clear();
       }
       if (res.data.status === "Success") {
         await sleep(1000);
@@ -50,6 +48,8 @@ export function PaymentConfirmation({
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -372,12 +372,13 @@ export function PaymentConfirmation({
 
       {/* Check Payment Status Button */}
       <button
-        onClick={() => {
-          handleCheckPaymentStatus();
-        }}
-        className="bg-blue-600 dark:bg-blue-500 text-white text-sm sm:text-base lg:text-lg font-medium w-full py-3 sm:py-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors mb-4"
+        onClick={handleCheckPaymentStatus}
+        className={cn(
+          "text-white text-sm sm:text-base lg:text-lg font-medium w-full py-3 sm:py-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors mb-4",
+          isChecking ? "bg-gray-500 dark:bg-gray-700" : "bg-blue-600 dark:bg-blue-500"
+        )}
       >
-        Cek Status Pembayaran
+        {isChecking ? "Memeriksa..." : "Cek Status Pembayaran"}
       </button>
 
       <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 break-words">

@@ -23,21 +23,25 @@ export default function Dashboard() {
   const greeting = `Selamat datang, ${userName}`;
   const { businessId } = useParams() as { businessId: string };
 
-  const { data: countPostedData, isLoading: isLoadingCountPosted } = useContentOverviewGetCountPosted(
-    businessId,
-    {
+  const { data: countPostedData, isLoading: isLoadingCountPosted } =
+    useContentOverviewGetCountPosted(businessId, {
       dateStart: dateManipulation.ymd(
         new Date(new Date().setDate(new Date().getDate() - 30))
       ),
-    }
-  );
+    });
 
   const totalCountPosted = countPostedData?.data?.data?.total || 0;
   const mappedCountPosted = Object.entries(
     countPostedData?.data?.data?.detail || {}
   )
-    .filter(([key]) => 
-      ['linked_in', 'facebook_page', 'instagram_business', 'twitter', 'tiktok'].includes(key)
+    .filter(([key]) =>
+      [
+        "linked_in",
+        "facebook_page",
+        "instagram_business",
+        "twitter",
+        "tiktok",
+      ].includes(key)
     )
     .map(([key, value]) => ({
       label: mapEnumPlatform.getPlatformLabel(key as PlatformEnum),
@@ -45,23 +49,27 @@ export default function Dashboard() {
       color: mapEnumPlatform.getPlaformColor(key as PlatformEnum),
     }));
 
-  const { data: countUpcomingData, isLoading: isLoadingCountUpcoming } = useContentOverviewGetCountUpcoming(
-    businessId,
-    {
+  const { data: countUpcomingData, isLoading: isLoadingCountUpcoming } =
+    useContentOverviewGetCountUpcoming(businessId, {
       dateStart: dateManipulation.ymd(new Date()),
       dateEnd: dateManipulation.ymd(
         new Date(new Date().setDate(new Date().getDate() + 7))
       ),
-    }
-  );
+    });
 
   const totalCountUpcoming = countUpcomingData?.data?.data?.total || 0;
 
   const mappedCountUpcoming = Object.entries(
     countUpcomingData?.data?.data?.detail || {}
   )
-    .filter(([key]) => 
-      ['linked_in', 'facebook_page', 'instagram_business', 'twitter', 'tiktok'].includes(key)
+    .filter(([key]) =>
+      [
+        "linked_in",
+        "facebook_page",
+        "instagram_business",
+        "twitter",
+        "tiktok",
+      ].includes(key)
     )
     .map(([key, value]) => ({
       label: mapEnumPlatform.getPlatformLabel(key as PlatformEnum),
@@ -72,20 +80,22 @@ export default function Dashboard() {
   const { isLoading: isLoadingTokenUsage } = useTokenGetTokenUsage(businessId);
 
   // Combined loading state for analytics section
-  const isLoadingAnalytics = isLoadingCountPosted || isLoadingCountUpcoming || isLoadingTokenUsage;
+  const isLoadingAnalytics =
+    isLoadingCountPosted || isLoadingCountUpcoming || isLoadingTokenUsage;
 
   return (
     <main className="flex-1 flex flex-col p-4 sm:p-6 md:ml-0 gap-2">
       <WelcomeSection
         message="Kelola Media Sosial Anda Secara Otomatis dengan Postmatic."
         title={greeting}
+        showSubscription={true}
       />
 
       {/* Analytics Overview */}
       <h1 className="text-xl font-bold text-foreground mb-2">
         Keseluruhan Analisa
       </h1>
-      
+
       {isLoadingAnalytics ? (
         <AnalyticsSkeleton />
       ) : (

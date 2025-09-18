@@ -40,8 +40,6 @@ import { SearchNotFound } from "@/components/base/search-not-found";
 import { productKnowledgeSchema } from "@/validator/new-business";
 
 const initialProduct: ProductKnowledgePld & { id?: string } = {
-  allergen: "",
-  benefit: "",
   category: "",
   description: "",
   images: [],
@@ -201,12 +199,16 @@ export function ProductSection() {
           ) : products.length === 0 ? (
             <SearchNotFound description=" tambah produk baru" />
           ) : (
-            <div className={`space-y-3 ${products.length > 3 ? 'max-h-[500px] overflow-y-auto ' : ''}`}>
+            <div
+              className={`space-y-3 ${
+                products.length > 3 ? "max-h-[500px] overflow-y-auto " : ""
+              }`}
+            >
               {products.map((product) => (
                 <Card key={product.id} className="bg-background-secondary">
                   <CardContent className="py-4">
                     <div className="flex items-center justify-between gap-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center  gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center  gap-4">
                         <div className="relative  w-32  h-32 rounded-lg overflow-hidden flex-shrink-0">
                           <Image
                             src={product.images[0] || DEFAULT_PRODUCT_IMAGE}

@@ -1,11 +1,17 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useState,
+} from "react";
 import { BusinessKnowledgePld } from "@/models/api/knowledge/business.type";
 import { ProductKnowledgePld } from "@/models/api/knowledge/product.type";
 import { RoleKnowledgePld } from "@/models/api/knowledge/role.type";
 
-interface FormNewBusiness {
+export interface FormNewBusiness {
   step1: BusinessKnowledgePld;
   step2: ProductKnowledgePld;
   step3: RoleKnowledgePld;
@@ -13,7 +19,7 @@ interface FormNewBusiness {
 
 interface FormNewBusinessContext {
   formData: FormNewBusiness;
-  setFormData: (formData: FormNewBusiness) => void;
+  setFormData: Dispatch<SetStateAction<FormNewBusiness>>;
   businessId: string | null;
   setBusinessId: (businessId: string | null) => void;
   errors: {
@@ -55,8 +61,6 @@ export function FormNewBusinessProvider({
       name: "",
       category: "",
       description: "",
-      allergen: "",
-      benefit: "",
       currency: "",
       images: [],
       price: 0,
@@ -68,7 +72,6 @@ export function FormNewBusinessProvider({
       hashtags: [],
       callToAction: "",
       goals: "",
-      platforms: [],
     },
   });
 
@@ -104,7 +107,16 @@ export function FormNewBusinessProvider({
 
   return (
     <FormNewBusinessContext.Provider
-      value={{ formData, setFormData, businessId, setBusinessId, errors, setErrors, clearStepErrors, clearFieldError }}
+      value={{
+        formData,
+        setFormData,
+        businessId,
+        setBusinessId,
+        errors,
+        setErrors,
+        clearStepErrors,
+        clearFieldError,
+      }}
     >
       {children}
     </FormNewBusinessContext.Provider>

@@ -1,10 +1,14 @@
+import { BusinessKnowledgePld } from "../knowledge/business.type";
+import { ProductKnowledgePld } from "../knowledge/product.type";
+import { RoleKnowledgePld } from "../knowledge/role.type";
+
 /* 
 Payload for add & edit bussiness
 */
 export interface BussinessPld {
-  logo: string;
-  name: string;
-  description: string;
+  businessKnowledge: BusinessKnowledgePld;
+  productKnowledge: ProductKnowledgePld;
+  roleKnowledge: RoleKnowledgePld;
 }
 
 /* 

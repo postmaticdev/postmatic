@@ -190,7 +190,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
               <div className="flex justify-center">
                 <UploadPhoto
                   label="Foto Profil"
-                  onImageChange={(image) => {
+                  onImageChange={(image: string | null) => {
                     setFormData((prev) => ({
                       ...prev,
                       image: image,
@@ -249,7 +249,10 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue placeholder="Kode">
-                        {formData.countryCode && countryCodes.find(c => c.dial_code === formData.countryCode)?.dial_code}
+                        {formData.countryCode &&
+                          countryCodes.find(
+                            (c) => c.dial_code === formData.countryCode
+                          )?.dial_code}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>

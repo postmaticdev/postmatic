@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -12,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 import { DEFAULT_BUSINESS_IMAGE } from "@/constants";
 import { useBusinessDelete } from "@/services/business.api";
 import { showToast } from "@/helper/show-toast";
@@ -37,9 +39,10 @@ export function BusinessCard({
   onClickInvite,
 }: BusinessCardProps) {
   const router = useRouter();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleCardClick = () => {
-    router.push(`/business/${id}/dashboard`);
+    router.push(`/business/${id}/content-generate`);
   };
 
   const handleClickInvite = () => {
@@ -52,7 +55,16 @@ export function BusinessCard({
     try {
       const res = await mDelete.mutateAsync(id);
       showToast("success", res.data.responseMessage);
+      setIsDeleteModalOpen(false);
     } catch {}
+  };
+
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
   };
 
   return (
@@ -102,7 +114,7 @@ export function BusinessCard({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete();
+                    handleOpenDeleteModal();
                   }}
                 >
                   Hapus
@@ -132,6 +144,16 @@ export function BusinessCard({
           </div>
         </div>
       </CardContent>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleDelete}
+        title="Hapus Bisnis"
+        description="Apakah Anda yakin ingin menghapus bisnis ini? Tindakan ini tidak dapat dibatalkan."
+        itemName={name}
+        isLoading={mDelete.isPending}
+      />
     </Card>
   );
 }

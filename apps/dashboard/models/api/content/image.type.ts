@@ -43,10 +43,7 @@ export interface GenerateContentAdvanceBase {
     category: boolean;
     description: boolean;
     location: boolean;
-    logo: {
-      primaryLogo: boolean;
-      secondaryLogo: boolean;
-    };
+    logo: boolean;
     uniqueSellingPoint: boolean;
     website: boolean;
     visionMission: boolean;
@@ -56,9 +53,6 @@ export interface GenerateContentAdvanceBase {
     category: boolean;
     description: boolean;
     price: boolean;
-    benefit: boolean;
-    allergen: boolean;
-    composition: boolean;
   };
   roleKnowledge: {
     hashtags: boolean;
@@ -268,10 +262,7 @@ export interface AdvancedGenerate {
     category: boolean;
     description: boolean;
     location: boolean;
-    logo: {
-      primaryLogo: boolean;
-      secondaryLogo: boolean;
-    };
+    logo: boolean;
     uniqueSellingPoint: boolean;
     website: boolean;
     visionMission: boolean;
@@ -281,9 +272,6 @@ export interface AdvancedGenerate {
     category: boolean;
     description: boolean;
     price: boolean;
-    benefit: boolean;
-    allergen: boolean;
-    composition: boolean;
   };
   roleKnowledge: {
     hashtags: boolean;

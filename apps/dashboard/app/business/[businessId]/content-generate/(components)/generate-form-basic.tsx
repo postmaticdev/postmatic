@@ -67,10 +67,9 @@ export const GenerateFormBasic = () => {
             isLoading && "opacity-50 cursor-not-allowed hover:bg-transparent"
           )}
         >
-          <option value="">Select Category</option>
           {CATEGORY_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
           <option value="other">Other</option>
@@ -104,10 +103,9 @@ export const GenerateFormBasic = () => {
             isLoading && "opacity-50 cursor-not-allowed hover:bg-transparent"
           )}
         >
-          <option value="">Select Design Style</option>
           {DESIGN_STYLE_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
 
@@ -139,15 +137,58 @@ export const GenerateFormBasic = () => {
   );
 };
 
-const CATEGORY_OPTIONS = ["Product", "Promotion", "Branding", "Social Media"];
+const CATEGORY_OPTIONS = [
+  {
+    label: "Default",
+    value: "Default",
+  },
+  {
+    label: "Product",
+    value: "Product",
+  },
+  {
+    label: "Promotion",
+    value: "Promotion",
+  },
+  {
+    label: "Branding",
+    value: "Branding",
+  },
+  {
+    label: "Social Media",
+    value: "Social Media",
+  },
+];
 
 const DESIGN_STYLE_OPTIONS = [
-  "Minimalist",
-  "Modern",
-  "Bold",
-  "Vintage",
-  "Corporate",
-  "Social Media",
+  {
+    label: "Default",
+    value: "Default",
+  },
+  {
+    label: "Minimalist",
+    value: "Minimalist",
+  },
+  {
+    label: "Modern",
+    value: "Modern",
+  },
+  {
+    label: "Bold",
+    value: "Bold",
+  },
+  {
+    label: "Vintage",
+    value: "Vintage",
+  },
+  {
+    label: "Corporate",
+    value: "Corporate",
+  },
+  {
+    label: "Social Media",
+    value: "Social Media",
+  },
 ];
 
 const RATIO_OPTIONS = ["1:1", "2:3", "3:2"];

@@ -9,6 +9,7 @@ export interface CountPostRes {
 export type DetailUpcomingPost = Record<PlatformEnum, number>;
 
 export interface UpcomingPostRes {
+  id: number;
   date: string;
   images: string[];
   platforms: PlatformEnum[];

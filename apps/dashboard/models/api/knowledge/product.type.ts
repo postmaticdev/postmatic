@@ -6,8 +6,6 @@ export interface ProductKnowledgePld {
   description: string;
   price: number;
   currency: string;
-  benefit: string;
-  allergen: string;
 }
 
 /* response for get product by id */
@@ -18,9 +16,6 @@ export interface ProductKnowledgeRes {
   description: string;
   currency: string;
   price: number;
-  composition: string;
-  benefit: string;
-  allergen: string;
   images: string[];
   rootBusinessId: string;
   deletedAt: string;
@@ -35,9 +30,6 @@ export interface ProductKnowledgeDeleteRes {
   description: string
   currency: string
   price: number
-  composition: string | null
-  benefit: string | null
-  allergen: string
   images: string[]
   rootBusinessId: string
   deletedAt: string

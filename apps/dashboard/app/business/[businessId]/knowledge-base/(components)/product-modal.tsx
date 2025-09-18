@@ -48,20 +48,6 @@ export function ProductModal({
     onChange({ ...formValue, [key]: value });
   };
 
-  // const handleProductSelect = (product: ProductKnowledgePld & { id?: string }) => {
-  //   setProductData({
-  //     allergen: product.allergen,
-  //     benefit: product.benefit,
-  //     category: product.category,
-  //     description: product.description,
-  //     images: product.images,
-  //     name: product.name,
-  //     price: product.price,
-  //     currency: product.currency,
-  //   });
-  //   setProductAction("edit");
-  // };
-
   const handleSave = () => {
     onSave(formValue);
   };
@@ -72,10 +58,6 @@ export function ProductModal({
     ? "Update informasi produk"
     : "Tambah produk baru ke basis pengetahuan";
   const buttonText = isEditMode ? "Ubah Perubahan" : "Tambah";
-
-  // const { businessId } = useParams() as { businessId: string };
-  // const { data: resProductData } = useProductKnowledgeGetAll(businessId); // TODO: uncomment jika memang yang tadi perlu
-  // const products = resProductData?.data.data || []; // TODO: uncomment jika memang yang tadi perlu
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -107,12 +89,11 @@ export function ProductModal({
             </div>
           )}
 
-
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row w-full gap-6 items-start">
               <UploadPhoto
                 label="Foto Produk"
-                onImageChange={(file) =>
+                onImageChange={(file: string | null) =>
                   updateField("images", file ? [file] : [])
                 }
                 currentImage={formValue.images?.[0]}
@@ -163,22 +144,6 @@ export function ProductModal({
               label="Harga Produk"
               currency={formValue.currency || "IDR"}
               error={errors.price}
-            />
-
-            <TextField
-              label="Manfaat Produk"
-              value={formValue.benefit}
-              onChange={(value) => updateField("benefit", value)}
-              placeholder="Masukkan manfaat produk"
-              error={errors.benefit}
-            />
-
-            <TextField
-              label="Informasi Alergi"
-              value={formValue.allergen}
-              onChange={(value) => updateField("allergen", value)}
-              placeholder="Masukkan informasi alergi"
-              error={errors.allergen}
             />
           </div>
         </div>

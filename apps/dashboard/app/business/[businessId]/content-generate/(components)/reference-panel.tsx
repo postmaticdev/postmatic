@@ -210,6 +210,7 @@ export function ReferencePanel() {
               filterQuery={publishedTemplates.filterQuery}
               currData={publishedTemplates.contents.length}
               setFilterQuery={publishedTemplates.setFilterQuery}
+              showSort={false}
             />
 
             {/* Template Grid */}

@@ -15,16 +15,22 @@ import {
 import { useCheckout } from "@/contexts/checkout-context";
 import { showToast } from "@/helper/show-toast";
 import { useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 export default function CheckoutPage() {
   const { businessId } = useParams() as { businessId: string };
   const mCheckoutPayBank = useCheckoutPayBank();
   const mCheckoutPayEWallet = useCheckoutPayEWallet();
+  const queryClient = useQueryClient();
   const { selectedPayment, product, setCheckoutResult, promoCode } =
     useCheckout();
 
   const [showPaymentConfirmation, setShowPaymentConfirmation] = useState(false);
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+
+  const isLoading = mCheckoutPayBank.isPending || mCheckoutPayEWallet.isPending;
+  const disabled = !selectedPayment || !product?.isValidCode || isLoading;
 
   const handleCheckout = async () => {
     try {
@@ -61,7 +67,10 @@ export default function CheckoutPage() {
         setCheckoutResult(res.data.data);
         setShowPaymentConfirmation(true);
       }
-    } catch {}
+    } catch {
+    } finally {
+      queryClient.clear();
+    }
   };
 
   return (
@@ -105,10 +114,13 @@ export default function CheckoutPage() {
                 {/* Continue button */}
                 <button
                   onClick={handleCheckout}
-                  disabled={!selectedPayment || !product?.isValidCode}
-                  className="bg-blue-600 dark:bg-blue-500 text-white text-sm sm:text-base lg:text-lg font-medium w-full py-3 sm:py-3 lg:py-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={disabled}
+                  className={cn(
+                    "bg-blue-600 dark:bg-blue-500 text-white text-sm sm:text-base lg:text-lg font-medium w-full py-3 sm:py-3 lg:py-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                    disabled && "opacity-50 cursor-not-allowed"
+                  )}
                 >
-                  Continue
+                  {isLoading ? "Memproses..." : "Lanjut"}
                 </button>
               </>
             )}

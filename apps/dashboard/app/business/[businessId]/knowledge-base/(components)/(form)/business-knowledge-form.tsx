@@ -48,7 +48,12 @@ export function BusinessKnowledgeForm() {
       <div className="flex flex-col md:flex-row w-full gap-6 items-start">
         <UploadPhoto
           label={finalLabels.logoBrand}
-          onImageChange={(file) => updateField("primaryLogo", file)}
+          onImageChange={(file: string | null) =>
+            setFormKnowledge({
+              ...formKnowledge,
+              business: { ...formKnowledge.business, primaryLogo: file },
+            })
+          }
           currentImage={formKnowledge?.business?.primaryLogo}
           error={errors.business.primaryLogo}
         />

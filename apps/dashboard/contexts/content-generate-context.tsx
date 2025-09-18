@@ -41,7 +41,14 @@ import {
   useLibraryTemplateSave,
 } from "@/services/library.api";
 import { useParams } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 export interface Template {
   id: string;
@@ -79,8 +86,12 @@ interface ContentGenerateContext {
     enabledAdvance: AdvancedGenerate;
     setEnabledAdvance: (item: AdvancedGenerate) => void;
     mask: string | null;
-    setMask: (item: string | null) => void;
+    setMask: Dispatch<SetStateAction<string | null>>;
   };
+
+  // SELECTED TEMPLATE
+  selectedTemplate: Template | null;
+  setSelectedTemplate: (template: Template | null) => void;
 
   // MODE / HELPER
   mode: ContentMode;
@@ -89,6 +100,18 @@ interface ContentGenerateContext {
   setTab: (item: TabMode) => void;
   isLoading: boolean;
   setIsLoading: (item: boolean) => void;
+
+  // UNSAVE MODAL
+  unsaveModal: {
+    isOpen: boolean;
+    item: Template | null;
+    isLoading: boolean;
+  };
+  setUnsaveModal: (modal: {
+    isOpen: boolean;
+    item: Template | null;
+    isLoading: boolean;
+  }) => void;
 
   //   // TEMPLATE / LIBRARY
   savedTemplates: {
@@ -120,12 +143,23 @@ interface ContentGenerateContext {
   selectedHistory: JobData | null;
   onSelectHistory: (item: JobData | null) => void;
 
+  // Draft saved state
+  isDraftSaved: boolean;
+  setIsDraftSaved: (saved: boolean) => void;
+
   //   // HANDLER
   onSaveUnsave: (item: Template) => void;
+  onConfirmUnsave: () => void;
+  onCloseUnsaveModal: () => void;
   onSelectProduct: (item: ProductKnowledgeRes | null) => void;
-  onSelectReferenceImage: (imageUrl: string, imageName: string | null) => void;
+  onSelectReferenceImage: (
+    imageUrl: string,
+    imageName: string | null,
+    template?: Template
+  ) => void;
   onSubmitGenerate: () => void;
   onSaveDraft: () => void;
+  onResetAdvance: () => void;
   //   onClickUser: (item: Content) => void; // 🔴
 }
 
@@ -139,19 +173,13 @@ const initialEnabledAdvance: ContentGenerateContext["form"]["enabledAdvance"] =
       uniqueSellingPoint: false,
       visionMission: false,
       website: false,
-      logo: {
-        primaryLogo: false,
-        secondaryLogo: false,
-      },
+      logo: false,
     },
     productKnowledge: {
       name: false,
       category: false,
       description: false,
       price: false,
-      benefit: false,
-      allergen: false,
-      composition: false,
     },
     roleKnowledge: {
       hashtags: false,
@@ -182,16 +210,10 @@ const initialFormAdvance: GenerateContentAdvanceBase = {
     uniqueSellingPoint: false,
     visionMission: false,
     website: false,
-    logo: {
-      primaryLogo: false,
-      secondaryLogo: false,
-    },
+    logo: false,
   },
   productKnowledge: {
-    allergen: false,
-    benefit: false,
     category: false,
-    composition: false,
     description: false,
     name: false,
     price: false,
@@ -236,6 +258,10 @@ export const ContentGenerateProvider = ({
     useContentJobGetAllJob(businessId);
   const histories = historiesRes?.data?.data || [];
   const [selectedHistory, setSelectedHistory] = useState<JobData | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null
+  );
+  const [isDraftSaved, setIsDraftSaved] = useState<boolean>(false);
   const onSelectHistory = (item: JobData | null) => {
     if (item) {
       setMode("regenerate");
@@ -263,6 +289,7 @@ export const ContentGenerateProvider = ({
       form.setAdvance(initialFormAdvance);
     }
     setFormRss(null);
+    setIsDraftSaved(false); // Reset draft saved state when selecting new history
   };
 
   /**
@@ -337,6 +364,19 @@ export const ContentGenerateProvider = ({
     setLoadingState(item);
   };
 
+  /**
+   *
+   * UNSAVE MODAL
+   *
+   */
+  const [unsaveModal, setUnsaveModal] = useState<
+    ContentGenerateContext["unsaveModal"]
+  >({
+    isOpen: false,
+    item: null,
+    isLoading: false,
+  });
+
   const notLoadingJobStatus: JobStatus[] = ["done", "error"];
   const notLoadingJobStages: JobStage[] = ["done", "error"];
   const isLoading =
@@ -357,10 +397,8 @@ export const ContentGenerateProvider = ({
     sortBy: "createdAt",
     sort: "desc",
   });
-  const { data: publishedRes, isLoading: isLoadingPublished } = useLibraryTemplateGetPublished(
-    businessId,
-    publishedQuery
-  );
+  const { data: publishedRes, isLoading: isLoadingPublished } =
+    useLibraryTemplateGetPublished(businessId, publishedQuery);
   useEffect(() => {
     if (publishedRes) {
       setPublishedPagination(publishedRes?.data?.pagination);
@@ -407,7 +445,8 @@ export const ContentGenerateProvider = ({
     sortBy: "createdAt",
     sort: "desc",
   });
-  const { data: savedRes, isLoading: isLoadingSaved } = useLibraryTemplateGetSaved(businessId, savedQuery);
+  const { data: savedRes, isLoading: isLoadingSaved } =
+    useLibraryTemplateGetSaved(businessId, savedQuery);
   useEffect(() => {
     if (savedRes) {
       setSavedPagination(savedRes?.data?.pagination);
@@ -495,14 +534,47 @@ export const ContentGenerateProvider = ({
           showToast("success", resPub.data.responseMessage);
           break;
         case "saved":
-          const resSaved = await mUnsave.mutateAsync({
-            businessId,
-            templateId: item.id,
+          // Show confirmation modal for saved items
+          setUnsaveModal({
+            isOpen: true,
+            item: item,
+            isLoading: false,
           });
-          showToast("success", resSaved.data.responseMessage);
           break;
       }
     } catch {}
+  };
+
+  const onConfirmUnsave = async () => {
+    if (!unsaveModal.item) return;
+
+    try {
+      setUnsaveModal((prev) => ({ ...prev, isLoading: true }));
+
+      const resSaved = await mUnsave.mutateAsync({
+        businessId,
+        templateId: unsaveModal.item.id,
+      });
+
+      showToast("success", resSaved.data.responseMessage);
+
+      // Close modal
+      setUnsaveModal({
+        isOpen: false,
+        item: null,
+        isLoading: false,
+      });
+    } catch (error) {
+      setUnsaveModal((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const onCloseUnsaveModal = () => {
+    setUnsaveModal({
+      isOpen: false,
+      item: null,
+      isLoading: false,
+    });
   };
 
   const onSelectProduct = (item: ProductKnowledgeRes | null) => {
@@ -520,21 +592,32 @@ export const ContentGenerateProvider = ({
 
   const onSelectReferenceImage = (
     imageUrl: string,
-    imageName: string | null
+    imageName: string | null,
+    template?: Template
   ) => {
     form.setBasic({
       ...form.basic,
       referenceImage: imageUrl,
       referenceImageName: imageName,
     });
-    
+
+    // Set selected template for visual feedback
+    if (template) {
+      setSelectedTemplate(template);
+    }
+
     // Add automatic scrolling to generation panel on mobile
     setTimeout(() => {
-      const generationPanelElement = document.getElementById('generation-panel');
+      const generationPanelElement =
+        document.getElementById("generation-panel");
       if (generationPanelElement && window.innerWidth < 768) {
-        generationPanelElement.scrollIntoView({ behavior: 'smooth' });
+        generationPanelElement.scrollIntoView({ behavior: "smooth" });
       }
     }, 100);
+  };
+
+  const onResetAdvance = () => {
+    setFormAdvance(initialFormAdvance);
   };
 
   /**
@@ -691,6 +774,7 @@ export const ContentGenerateProvider = ({
     );
     if (findJob) {
       setSelectedHistory(findJob || null);
+      setIsDraftSaved(false); // Reset draft saved state when new content is generated
     }
   };
 
@@ -731,6 +815,7 @@ export const ContentGenerateProvider = ({
         },
       });
       showToast("success", resSaveDraft.data.responseMessage);
+      setIsDraftSaved(true); // Set draft saved state to true after successful save
     } catch {}
   };
 
@@ -744,7 +829,11 @@ export const ContentGenerateProvider = ({
         setTab,
         publishedTemplates,
         savedTemplates,
+        unsaveModal,
+        setUnsaveModal,
         onSaveUnsave,
+        onConfirmUnsave,
+        onCloseUnsaveModal,
         onSelectProduct,
         rssArticles,
         productKnowledges,
@@ -753,9 +842,14 @@ export const ContentGenerateProvider = ({
         histories,
         selectedHistory,
         onSelectHistory,
+        selectedTemplate,
+        setSelectedTemplate,
         isLoading,
         onSaveDraft,
         setIsLoading,
+        onResetAdvance,
+        isDraftSaved,
+        setIsDraftSaved,
       }}
     >
       {children}

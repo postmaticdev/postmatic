@@ -16,7 +16,7 @@ const useCheckBusiness = () => {
   return useEffect(() => {
     /* Ambil token dari query string */
     const params = new URLSearchParams(window.location.search);
-    const tokenFromParam = params.get("postmaticToken");
+    const tokenFromParam = params.get("postmaticAccessToken");
     const refreshTokenFromParam = params.get("postmaticRefreshToken");
     const rootBusinessIdFromParam = params.get("rootBusinessId");
 

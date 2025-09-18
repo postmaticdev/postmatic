@@ -12,7 +12,10 @@ export interface SchedulerAutoPosting {
   dayId: number;
   day: string;
   isActive: boolean;
-  times: string[];
+  schedulerAutoPostingTimes: {
+    hhmm: string;
+    platforms: PlatformEnum[];
+  }[];
 }
 
 /*
@@ -29,7 +32,10 @@ export interface SchedulerAutoPosting {
   dayId: number;
   day: string;
   isActive: boolean;
-  times: string[];
+  schedulerAutoPostingTimes: {
+    hhmm: string;
+    platforms: PlatformEnum[];
+  }[];
 }
 
 /*

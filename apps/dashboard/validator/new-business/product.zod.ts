@@ -17,13 +17,6 @@ export const productKnowledgeSchema = z
       .min(1, "Harap masukkan harga produk")
       .max(999999999, "Price is too high"),
     currency: z.string().min(1, "Harap masukkan mata uang"),
-    benefit: z
-      .string()
-      .min(1, "Harap masukkan manfaat produk")
-      .max(500, "Manfaat produk harus kurang dari 500 karakter"),
-    allergen: z
-      .string()
-      .max(500, "Informasi alergi harus kurang dari 500 karakter"),
   })
 
 export type ProductKnowledgePld = z.infer<typeof productKnowledgeSchema>;

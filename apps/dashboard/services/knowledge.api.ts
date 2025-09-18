@@ -191,7 +191,7 @@ const roleKnowledgeService = {
   upsert: (businessId: string, formData: RoleKnowledgePld) => {
     return api.post<BaseResponse<RoleKnowledgeRes>>(
       `/knowledge/role/${businessId}`,
-      { ...formData, platforms: ["TODO_DELETE_THIS_PLATFORMS:DEPRECATED"] }
+      { ...formData }
     );
   },
 };
@@ -274,6 +274,9 @@ export const useRssKnowledgeCreate = () => {
       queryClient.invalidateQueries({
         queryKey: ["rssKnowledge"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["libraryRSSArticle"],
+      });
     },
   });
 };
@@ -330,7 +333,7 @@ export const usePlatformKnowledgeGetAll = (
   from?: string
 ) => {
   return useQuery({
-    queryKey: ["platformKnowledge", businessId],
+    queryKey: ["platformKnowledge", businessId, from],
     queryFn: () => platformService.getAll(businessId, from),
     enabled: !!businessId,
   });

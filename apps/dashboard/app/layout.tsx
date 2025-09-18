@@ -11,6 +11,8 @@ import { CheckoutProvider } from "@/contexts/checkout-context";
 import { ContentGenerateProvider } from "@/contexts/content-generate-context";
 import { SocketProvider } from "@/provider/socket-provider";
 import { Suspense } from "react";
+import { BusinessGridFilterProvider } from "@/contexts/business-grid-context";
+import { RoleProvider } from "@/contexts/role-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>loading...</div>}>
         <ClientLayoutWrapper>
           <QueryProvider>
             <ThemeProvider
@@ -43,21 +45,25 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <ContentGenerateProvider>
-                <SocketProvider>
-                  <FormNewBusinessProvider>
-                    <ManageKnowledgeProvider>
-                      <CheckoutProvider>
-                        <main
-                          className={`${geistSans.variable} ${geistMono.variable}`}
-                        >
-                          {children}
-                        </main>
-                      </CheckoutProvider>
-                    </ManageKnowledgeProvider>
-                  </FormNewBusinessProvider>
-                </SocketProvider>
-              </ContentGenerateProvider>
+              <RoleProvider>
+                <ContentGenerateProvider>
+                  <SocketProvider>
+                    <FormNewBusinessProvider>
+                      <ManageKnowledgeProvider>
+                        <CheckoutProvider>
+                          <BusinessGridFilterProvider>
+                            <main
+                              className={`${geistSans.variable} ${geistMono.variable}`}
+                            >
+                              {children}
+                            </main>
+                          </BusinessGridFilterProvider>
+                        </CheckoutProvider>
+                      </ManageKnowledgeProvider>
+                    </FormNewBusinessProvider>
+                  </SocketProvider>
+                </ContentGenerateProvider>
+              </RoleProvider>
               <Toaster />
             </ThemeProvider>
           </QueryProvider>

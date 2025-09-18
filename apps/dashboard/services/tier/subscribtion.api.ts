@@ -15,5 +15,6 @@ export const useSubscribtionGetSubscription = (businessId: string) => {
   return useQuery({
     queryKey: ["subscribtionSubscription", businessId],
     queryFn: () => subscribtionService.getSubscription(businessId),
+    enabled: !!businessId,
   });
 };

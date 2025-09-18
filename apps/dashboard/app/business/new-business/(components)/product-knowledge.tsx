@@ -17,7 +17,10 @@ export function ProductKnowledge() {
     key: keyof ProductKnowledgePld,
     value: ProductKnowledgePld[keyof ProductKnowledgePld]
   ) => {
-    setFormData({ ...formData, step2: { ...formData.step2, [key]: value } });
+    setFormData((prev) => ({
+      ...prev,
+      step2: { ...prev.step2, [key]: value },
+    }));
   };
 
   const defaultLabels = {
@@ -26,8 +29,6 @@ export function ProductKnowledge() {
     productCategory: "Kategori Produk",
     productDescription: "Deskripsi Produk",
     price: "Harga Produk",
-    productBenefits: "Manfaat Produk",
-    allergenInformation: "Informasi Alergi",
     currency: "Mata Uang",
   };
 
@@ -36,8 +37,6 @@ export function ProductKnowledge() {
     productCategory: "Masukkan kategori produk",
     productDescription: "Masukkan deskripsi produk",
     price: "Masukkan harga produk",
-    productBenefits: "Masukkan manfaat produk",
-    allergenInformation: "Masukkan informasi alergi",
     currency: "Masukkan mata uang",
   };
 
@@ -49,7 +48,13 @@ export function ProductKnowledge() {
       <div className="flex flex-col md:flex-row w-full gap-6 items-start">
         <UploadPhoto
           label={finalLabels.productPhoto}
-          onImageChange={(file) => updateField("images", file ? [file] : [])}
+          // onImageChange={(file) => updateField("images", file ? [file] : [])}
+          onImageChange={(url: string | null) => {
+            setFormData((prev) => ({
+              ...prev,
+              step2: { ...prev.step2, images: url ? [url] : [] },
+            }));
+          }}
           currentImage={step2.images?.[0]}
           error={errors.step2.images}
           onFocus={() => clearFieldError(1, "images")}
@@ -104,24 +109,6 @@ export function ProductKnowledge() {
         currency={step2.currency || "IDR"}
         error={errors.step2.price}
         onFocus={() => clearFieldError(1, "price")}
-      />
-
-      <TextField
-        label={finalLabels.productBenefits}
-        value={step2.benefit}
-        onChange={(value) => updateField("benefit", value)}
-        placeholder={finalPlaceholders.productBenefits}
-        error={errors.step2.benefit}
-        onFocus={() => clearFieldError(1, "benefit")}
-      />
-
-      <TextField
-        label={finalLabels.allergenInformation}
-        value={step2.allergen}
-        onChange={(value) => updateField("allergen", value)}
-        placeholder={finalPlaceholders.allergenInformation}
-        error={errors.step2.allergen}
-        onFocus={() => clearFieldError(1, "allergen")}
       />
     </div>
   );

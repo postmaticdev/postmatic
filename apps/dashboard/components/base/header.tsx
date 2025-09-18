@@ -33,11 +33,6 @@ export function Header() {
 
   const { businessId } = useParams() as { businessId?: string };
 
-  const { data: subscriptionData } = useSubscribtionGetSubscription(
-    businessId ?? ""
-  );
-  const subscription = subscriptionData?.data?.data ?? null;
-
   const { data: businessesData, isLoading: isLoadingBusinesses } =
     useBusinessGetAll({
       limit: 40,
@@ -47,11 +42,9 @@ export function Header() {
 
   // Panggil usage hanya kalau ada businessId (kalau hook-mu dukung options)
   const { data: tokenUsageData } = useTokenGetTokenUsage(businessId ?? "");
-  // Kalau hook-mu TIDAK menerima options, pakai ini saja:
-  // const { data: tokenUsageData } = useTokenGetTokenUsage(businessId ?? "");
 
   const credits = tokenUsageData?.data?.data?.availableToken ?? 0;
-  
+
   const businesses = useMemo(
     () => businessesData?.data?.data ?? [],
     [businessesData?.data?.data]
@@ -84,7 +77,7 @@ export function Header() {
   const onBusinessChange = (targetBusinessId: string) => {
     queryClient.clear(); // bersihkan cache TanStack
     router.push(buildBusinessPath(targetBusinessId));
-    // router.refresh(); // <- aktifkan kalau perlu refetch RSC
+    router.refresh(); // <- aktifkan kalau perlu refetch RSC
   };
 
   // Cegah redirect otomatis saat di "/business" (tanpa id)
@@ -95,10 +88,10 @@ export function Header() {
     if (isLoadingBusinesses) return;
 
     const hasBusinesses = businesses.length > 0;
-    
+
     // Check if isNewBusiness=true is in the URL
     const isNewBusiness = searchParams.get("isNewBusiness") === "true";
-    
+
     // Skip redirect if isNewBusiness=true
     if (isNewBusiness) return;
 
@@ -126,7 +119,14 @@ export function Header() {
       return;
     }
     // Kalau valid, tidak melakukan apa-apa
-  }, [isLoadingBusinesses, pathname, businessId, businesses, router, searchParams]);
+  }, [
+    isLoadingBusinesses,
+    pathname,
+    businessId,
+    businesses,
+    router,
+    searchParams,
+  ]);
 
   return (
     <header className="flex items-center justify-between w-full px-4 sm:px-6 py-4 bg-card border-b border-border fixed top-0 left-0 right-0 z-50">
@@ -154,6 +154,13 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
+                <Button
+                  onClick={() => router.push("/business/new-business")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white w-full justify-start"
+                >
+                  <Plus className="w-4 h-4" />
+                  Buat Bisnis Baru
+                </Button>
                 {businesses.map((business) => (
                   <DropdownMenuItem
                     key={business.id}
@@ -180,15 +187,6 @@ export function Header() {
         {businessId && (
           <div className="hidden md:flex items-center gap-2">
             <div className="flex flex-col items-end">
-              <span className="text-sm text-muted-foreground">
-                {subscription?.subscription?.productName || "Paket Gratis"}
-              </span>
-              {subscription?.expiredAt && (
-                <span className="text-sm text-muted-foreground">
-                  Valid sampai{" "}
-                  {dateFormat.indonesianDate(new Date(subscription?.expiredAt))}
-                </span>
-              )}
               <div className="flex items-center gap-1">
                 <span className="text-sm font-bold">{credits}</span>
                 <Zap className="w-4 h-4 text-blue-500" strokeWidth={1.5} />

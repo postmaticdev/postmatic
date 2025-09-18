@@ -133,7 +133,7 @@ export function EditKnowledgeModal({
         <DialogHeader>
           <DialogTitle>Edit Knowledge</DialogTitle>
           <DialogDescription>
-            Update your business and role knowledge information
+            Update your business and role knowledge informationaa
           </DialogDescription>
         </DialogHeader>
 

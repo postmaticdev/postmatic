@@ -31,7 +31,6 @@ export const useContentOverviewGetCountPosted = (
   businessId: string,
   filterQuery?: Partial<FilterQuery>
 ) => {
-  console.log("useContentOverviewGetCountPosted", filterQuery?.dateStart);
   return useQuery({
     queryKey: ["contentOverviewCountPosted", businessId, filterQuery],
     queryFn: () => overviewService.getCountPosted(businessId, filterQuery),

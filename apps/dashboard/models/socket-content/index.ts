@@ -114,12 +114,9 @@ export interface Product {
   name: string;
   description: string;
   category: string;
-  allergen: string;
-  benefit: string;
   currency: string;
   price: number;
   images: string[];
-  composition: string | null;
 }
 
 export interface Result {

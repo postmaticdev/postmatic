@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { SyntheticEvent, MouseEvent, KeyboardEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, RefreshCcw } from "lucide-react";
 import { useContentGenerate } from "@/contexts/content-generate-context";
 import { GenerateContentAdvanceBase } from "@/models/api/content/image.type";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type BK = GenerateContentAdvanceBase["businessKnowledge"];
 type PK = GenerateContentAdvanceBase["productKnowledge"];
@@ -17,14 +17,13 @@ export const GenerateFormAdvanced = () => {
   const [productKnowledgeExpanded, setProductKnowledgeExpanded] =
     useState(false);
   const [roleKnowledgeExpanded, setRoleKnowledgeExpanded] = useState(false);
-  const [logoExpanded, setLogoExpanded] = useState(false);
 
-  const { form, isLoading } = useContentGenerate();
+  const { form, isLoading, onResetAdvance } = useContentGenerate();
   const { advance, setAdvance, enabledAdvance } = form;
   const { businessKnowledge, productKnowledge, roleKnowledge } = advance;
 
   const BUSINESS_OPTIONS: {
-    key: Exclude<keyof BK, "logo">;
+    key: keyof BK;
     label: string;
     enabled: boolean;
   }[] = [
@@ -64,6 +63,11 @@ export const GenerateFormAdvanced = () => {
       label: "Visi & Misi",
       enabled: enabledAdvance?.businessKnowledge?.visionMission && !isLoading,
     },
+    {
+      key: "logo",
+      label: "Logo",
+      enabled: enabledAdvance?.businessKnowledge?.logo && !isLoading,
+    },
   ];
 
   const PRODUCT_OPTIONS: { key: keyof PK; label: string; enabled: boolean }[] =
@@ -88,21 +92,6 @@ export const GenerateFormAdvanced = () => {
         label: "Harga",
         enabled: enabledAdvance?.productKnowledge?.price && !isLoading,
       },
-      {
-        key: "benefit",
-        label: "Manfaat / Benefit",
-        enabled: enabledAdvance?.productKnowledge?.benefit && !isLoading,
-      },
-      {
-        key: "allergen",
-        label: "Alergen",
-        enabled: enabledAdvance?.productKnowledge?.allergen && !isLoading,
-      },
-      {
-        key: "composition",
-        label: "Komposisi",
-        enabled: enabledAdvance?.productKnowledge?.composition && !isLoading,
-      },
     ];
 
   const ROLE_OPTIONS: { key: keyof RK; label: string; enabled: boolean }[] = [
@@ -113,7 +102,7 @@ export const GenerateFormAdvanced = () => {
     },
   ];
 
-  const toggleBusiness = (key: Exclude<keyof BK, "logo">, enabled: boolean) => {
+  const toggleBusiness = (key: keyof BK, enabled: boolean) => {
     if (!enabled) return;
     setAdvance({
       ...advance,
@@ -142,24 +131,6 @@ export const GenerateFormAdvanced = () => {
       roleKnowledge: {
         ...advance.roleKnowledge,
         [key]: !advance.roleKnowledge[key],
-      },
-    });
-  };
-
-  const [switchLogo, setSwitchLogo] = useState<
-    "primaryLogo" | "secondaryLogo" | "none"
-  >("none");
-  // Radio-like: hanya satu logo aktif
-  const selectLogo = (which: "primaryLogo" | "secondaryLogo" | "none") => {
-    setSwitchLogo(which);
-    setAdvance({
-      ...advance,
-      businessKnowledge: {
-        ...advance.businessKnowledge,
-        logo: {
-          primaryLogo: switchLogo === "primaryLogo" ? true : false,
-          secondaryLogo: switchLogo === "secondaryLogo" ? true : false,
-        },
       },
     });
   };
@@ -272,140 +243,6 @@ export const GenerateFormAdvanced = () => {
                     );
                   })}
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Logo */}
-          <div className="border rounded-sm bg-background-secondary">
-            <button
-              onClick={() => setLogoExpanded((s) => !s)}
-              className="w-full px-3 py-2 flex items-center justify-between text-left"
-            >
-              <span className="text-sm">Logo</span>
-              {logoExpanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </button>
-
-            {logoExpanded && (
-              <div className="px-3 pb-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Card
-                    className={`transition-colors ${
-                      switchLogo === "primaryLogo"
-                        ? "ring-2 ring-primary bg-accent"
-                        : ""
-                    } cursor-pointer hover:bg-accent`}
-                    onClick={() => {
-                      if (
-                        isLoading ||
-                        !enabledAdvance?.businessKnowledge?.logo?.primaryLogo
-                      )
-                        return;
-                      selectLogo(
-                        switchLogo === "primaryLogo" ? "none" : "primaryLogo"
-                      );
-                    }}
-                    aria-disabled={isLoading}
-                  >
-                    <CardContent
-                      className={cn(
-                        "flex items-center space-x-3 p-4",
-                        (!enabledAdvance?.businessKnowledge?.logo
-                          ?.primaryLogo ||
-                          isLoading) &&
-                          "opacity-50 cursor-not-allowed hover:bg-transparent"
-                      )}
-                    >
-                      <input
-                        id="logo-primary"
-                        type="checkbox"
-                        checked={switchLogo === "primaryLogo"}
-                        disabled={
-                          isLoading ||
-                          !enabledAdvance?.businessKnowledge?.logo?.primaryLogo
-                        }
-                        onChange={() =>
-                          selectLogo(
-                            switchLogo === "primaryLogo"
-                              ? "none"
-                              : "primaryLogo"
-                          )
-                        }
-                        className="rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                      <label
-                        htmlFor="logo-primary"
-                        className="text-sm font-medium"
-                      >
-                        Primary Logo
-                      </label>
-                    </CardContent>
-                  </Card>
-
-                  <Card
-                    className={`transition-colors ${
-                      switchLogo === "secondaryLogo"
-                        ? "ring-2 ring-primary bg-accent"
-                        : ""
-                    } cursor-pointer hover:bg-accent`}
-                    aria-disabled={isLoading}
-                    onClick={() => {
-                      if (
-                        isLoading ||
-                        !enabledAdvance?.businessKnowledge?.logo?.secondaryLogo
-                      )
-                        return;
-                      selectLogo(
-                        switchLogo === "secondaryLogo"
-                          ? "none"
-                          : "secondaryLogo"
-                      );
-                    }}
-                  >
-                    <CardContent
-                      className={cn(
-                        "flex items-center space-x-3 p-4",
-                        (!enabledAdvance?.businessKnowledge?.logo
-                          ?.secondaryLogo ||
-                          isLoading) &&
-                          "opacity-50 cursor-not-allowed hover:bg-transparent"
-                      )}
-                    >
-                      <input
-                        id="logo-secondary"
-                        type="checkbox"
-                        checked={switchLogo === "secondaryLogo"}
-                        disabled={
-                          isLoading ||
-                          !enabledAdvance?.businessKnowledge?.logo
-                            ?.secondaryLogo
-                        }
-                        onChange={() =>
-                          selectLogo(
-                            switchLogo === "secondaryLogo"
-                              ? "none"
-                              : "secondaryLogo"
-                          )
-                        }
-                        className="rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                      <label
-                        htmlFor="logo-secondary"
-                        className="text-sm font-medium"
-                      >
-                        Secondary Logo
-                      </label>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <p className="text-xs text-muted-foreground mt-2">
-                  Pilih salah satu logo yang ingin digunakan sebagai referensi.
-                </p>
               </div>
             )}
           </div>
@@ -560,6 +397,12 @@ export const GenerateFormAdvanced = () => {
                 </div>
               </div>
             )}
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={onResetAdvance}>
+              <RefreshCcw className="h-4 w-4" />
+              Reset
+            </Button>
           </div>
         </div>
       )}

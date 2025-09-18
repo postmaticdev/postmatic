@@ -380,7 +380,6 @@ export class ImageContentService extends BaseService {
             currency: true,
             price: true,
             images: true,
-            composition: true,
           },
           take: 1,
         },

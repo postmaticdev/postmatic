@@ -162,7 +162,6 @@ export class ImageGenJobStore {
         currency: true,
         price: true,
         images: true,
-        composition: true,
       },
     });
     return product ?? {};

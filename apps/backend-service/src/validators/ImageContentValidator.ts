@@ -29,7 +29,6 @@ export const ImageContentAdvancedGenerateSchema = z.object({
     category: z.boolean(),
     description: z.boolean(),
     price: z.boolean(),
-    composition: z.boolean(),
   }),
   roleKnowledge: z.object({
     hashtags: z.boolean(),

@@ -239,7 +239,6 @@ export class BusinessService extends BaseService {
               currency: data.productKnowledge.currency,
               price: data.productKnowledge.price,
               images: data.productKnowledge.images,
-              composition: data.productKnowledge.composition,
             },
           },
           roleKnowledge: {

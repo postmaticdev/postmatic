@@ -10,7 +10,6 @@ export const ProductKnowledgeSchema = z.object({
   description: z.string().min(1, "Description is required"),
   price: z.number().min(1, "Price is required"),
   currency: z.string().min(1, "Currency is required"),
-  composition: z.string().nullable().optional(),
 });
 
 export type ProductKnowledgeDTO = z.infer<typeof ProductKnowledgeSchema>;

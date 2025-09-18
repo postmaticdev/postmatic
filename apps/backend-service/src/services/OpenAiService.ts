@@ -473,12 +473,10 @@ export class OpenAiService extends BaseService {
     product: Partial<ProductKnowledge>,
     advancedGenerate: ImageContentAdvancedGenerateDTO
   ) {
-    const { category, composition, currency, description, name, price } =
-      product;
+    const { category, currency, description, name, price } = product;
 
     const {
       attachProductCategory,
-      attachProductComposition,
       attachProductDescription,
       attachProductName,
       attachProductPrice,
@@ -493,12 +491,7 @@ export class OpenAiService extends BaseService {
     }
     ${attachProductCategory && category ? `Category: ${category}` : ""}
     ${attachProductPrice && price ? `${currency || ""} ${price}` : ""}
-    ${
-      attachProductComposition && composition
-        ? `Composition: ${composition}`
-        : ""
-    }
-
+ 
     PRODUCT KNOWLEDGE NOTE:
     - Make sure to use this information if available and relevant with reference image / template
     - If not available, use generic product information.
@@ -651,7 +644,6 @@ export class OpenAiService extends BaseService {
       name: attachProductName,
       description: attachProductDescription,
       category: attachProductCategory,
-      composition: attachProductComposition,
       price: attachProductPrice,
     } = advancedGenerate.productKnowledge;
     const { hashtags: attachRoleHashtags } = advancedGenerate.roleKnowledge;
@@ -671,7 +663,6 @@ export class OpenAiService extends BaseService {
         attachProductName,
         attachProductDescription,
         attachProductCategory,
-        attachProductComposition,
         attachProductPrice,
       },
       roleKnowledge: {

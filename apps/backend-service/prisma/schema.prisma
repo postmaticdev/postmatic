@@ -40,8 +40,6 @@ model ProductKnowledge {
   currency String
   price    Float
 
-  composition String? @db.Text()
-
   images String[]
 
   rootBusinessId         String

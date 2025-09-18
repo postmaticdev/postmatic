@@ -82,7 +82,6 @@ export class ProductKnowledgeService extends BaseService {
               category: true,
               description: true,
               price: true,
-              composition: true,
             },
           },
           roleKnowledge: {
@@ -112,7 +111,6 @@ export class ProductKnowledgeService extends BaseService {
           category: !!business?.productKnowledges[0]?.category,
           description: !!business?.productKnowledges[0]?.description,
           price: !!business?.productKnowledges[0]?.price,
-          composition: !!business?.productKnowledges[0]?.composition,
         },
         roleKnowledge: {
           hashtags: (business?.roleKnowledge?.hashtags?.length || 0) > 0,

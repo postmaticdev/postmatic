@@ -32,6 +32,8 @@ export class SchedulerController extends BaseController {
         data,
         rootBusinessId
       );
+      if (typeof edit === "string")
+        return this.sendError(res, new Error(edit), 400);
       return this.sendCreated(
         res,
         edit,
@@ -73,7 +75,8 @@ export class SchedulerController extends BaseController {
   editFromQueue = async (req: Request, res: Response) => {
     try {
       const data = req.body as ManualSchedulerDTO;
-      const { schedulerManualPostingId, rootBusinessId } = req.params as unknown as ManualParamsDTO;
+      const { schedulerManualPostingId, rootBusinessId } =
+        req.params as unknown as ManualParamsDTO;
       const post = await this.sched.editFromQueue(
         data,
         rootBusinessId,

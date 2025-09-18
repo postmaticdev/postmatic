@@ -15,7 +15,8 @@ import { FacebookPageService } from "./FacebookPageService";
 import { InstagramBusinessService } from "./InstagramBusinessService";
 import { PlatformKnowledgeService } from "./PlatformKnowledgeService";
 import { stringManipulation } from "../helper/string-manipulation";
-
+import { Prisma } from ".prisma/client";
+import { SchedulerAutoPostingTime } from "@prisma/client";
 interface SchedulerServiceDependencies {
   platformService: PlatformKnowledgeService;
   platformDeps: {
@@ -66,7 +67,11 @@ export class SchedulerService extends BaseService {
       let schedule = await db.schedulerAutoPreference.findUnique({
         where: { rootBusinessId: rootBusinessId },
         include: {
-          schedulerAutoPostings: true,
+          schedulerAutoPostings: {
+            include: {
+              schedulerAutoPostingTimes: true,
+            },
+          },
         },
       });
       if (!schedule) {
@@ -76,7 +81,11 @@ export class SchedulerService extends BaseService {
             isAutoPosting: false,
           },
           include: {
-            schedulerAutoPostings: true,
+            schedulerAutoPostings: {
+              include: {
+                schedulerAutoPostingTimes: true,
+              },
+            },
           },
         });
       }
@@ -91,14 +100,14 @@ export class SchedulerService extends BaseService {
               dayId: day.value,
               day: day.name,
               isActive: find.isActive,
-              times: find.times,
+              schedulerAutoPostingTimes: find.schedulerAutoPostingTimes,
             };
           }
           return {
             dayId: day.value,
             day: day.name,
             isActive: false,
-            times: [],
+            schedulerAutoPostingTimes: [],
           };
         }),
       };
@@ -114,17 +123,43 @@ export class SchedulerService extends BaseService {
   ) {
     try {
       const { isAutoPosting, schedulerAutoPostings } = data;
+      const platforms = schedulerAutoPostings.flatMap((autoPosting) =>
+        autoPosting.schedulerAutoPostingTimes.flatMap((time) => time.platforms)
+      );
+      const uniquePlatforms = [...new Set(platforms)];
+
       const [tz] = await Promise.all([
         db.schedulerTimeZone.findUnique({
           where: { rootBusinessId },
-          select: { timezone: true },
-        }),
-        db.schedulerAutoPosting.deleteMany({
-          where: {
-            rootBusinessId: rootBusinessId,
+          select: {
+            timezone: true,
+            rootBusiness: {
+              select: {
+                socialFacebookPage: true,
+                socialInstagramBusiness: true,
+                socialLinkedIn: true,
+              },
+            },
           },
         }),
       ]);
+
+      for (const platform of uniquePlatforms) {
+        const connectedPlatform =
+          stringManipulation.transformPlatform(platform);
+        if (tz?.rootBusiness?.[connectedPlatform]) {
+          continue;
+        }
+        return `${stringManipulation.snakeToReadable(
+          platform
+        )} belum terhubung.`;
+      }
+
+      await db.schedulerAutoPosting.deleteMany({
+        where: {
+          rootBusinessId: rootBusinessId,
+        },
+      });
       if (!tz?.timezone) {
         await db.schedulerTimeZone.create({
           data: {
@@ -134,20 +169,35 @@ export class SchedulerService extends BaseService {
         });
       }
 
+      const mappedSchedulerAutoPostings = schedulerAutoPostings.map(
+        (autoPosting) => {
+          return {
+            day: autoPosting.day,
+            isActive: autoPosting.isActive,
+            rootBusinessId: rootBusinessId,
+          };
+        }
+      );
+
+      const mappedSchedulerAutoPostingTimes = (
+        schedulerAutoPostingId: number,
+        schedulerAutoPostingTimes: SchedulerAutoPostingTime[]
+      ): Prisma.SchedulerAutoPostingTimeCreateManyInput[] =>
+        schedulerAutoPostingTimes.map((time) => {
+          return {
+            hhmm: time.hhmm,
+            platforms: time.platforms,
+            schedulerAutoPostingId: schedulerAutoPostingId,
+          };
+        });
+
       const schedule = await db.schedulerAutoPreference.upsert({
         where: { rootBusinessId: rootBusinessId },
         update: {
           isAutoPosting: isAutoPosting,
           schedulerAutoPostings: {
             createMany: {
-              data: schedulerAutoPostings.map((autoPosting) => {
-                return {
-                  day: autoPosting.day,
-                  isActive: autoPosting.isActive,
-                  times: autoPosting.times,
-                  rootBusinessId: rootBusinessId,
-                };
-              }),
+              data: mappedSchedulerAutoPostings,
             },
           },
         },
@@ -156,21 +206,35 @@ export class SchedulerService extends BaseService {
           isAutoPosting: isAutoPosting,
           schedulerAutoPostings: {
             createMany: {
-              data: schedulerAutoPostings.map((autoPosting) => {
-                return {
-                  day: autoPosting.day,
-                  isActive: autoPosting.isActive,
-                  times: autoPosting.times,
-                  rootBusinessId: rootBusinessId,
-                };
-              }),
+              data: mappedSchedulerAutoPostings,
             },
           },
         },
         include: {
-          schedulerAutoPostings: true,
+          schedulerAutoPostings: {
+            include: {
+              schedulerAutoPostingTimes: true,
+            },
+          },
         },
       });
+      for (const item of data.schedulerAutoPostings) {
+        for (const time of item.schedulerAutoPostingTimes) {
+          const find = schedule.schedulerAutoPostings.find(
+            (autoPosting) => autoPosting.day === item.day
+          );
+          if (find) {
+            const create = await db.schedulerAutoPostingTime.create({
+              data: {
+                hhmm: time.hhmm,
+                platforms: time.platforms,
+                schedulerAutoPostingId: find.id,
+              },
+            });
+            find.schedulerAutoPostingTimes.push(create);
+          }
+        }
+      }
 
       const returnData = {
         ...schedule,
@@ -183,14 +247,14 @@ export class SchedulerService extends BaseService {
               dayId: day.value,
               day: day.name,
               isActive: find.isActive,
-              times: find.times,
+              schedulerAutoPostingTimes: find.schedulerAutoPostingTimes,
             };
           }
           return {
             dayId: day.value,
             day: day.name,
             isActive: false,
-            times: [],
+            schedulerAutoPostingTimes: [],
           };
         }),
       };

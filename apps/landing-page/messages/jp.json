@@ -1,0 +1,976 @@
+{
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "cookieConsent": {
+    "title": "当サイトはクッキーを使用します",
+    "description": "当サイトでは、ユーザー体験の向上、トラフィック分析、関連性の高い広告の表示のためにクッキーを使用しています。",
+    "learnMore": "詳細を見る",
+    "acceptAll": "すべて同意",
+    "manageCookies": "クッキーを管理",
+    "close": "閉じる"
+  },
+  "cookieSettings": {
+    "title": "クッキー設定",
+    "cookieWajib": "必須クッキー",
+    "cookieWajibDescription": "サイトを適切に機能させるために必要なクッキーです。無効にすることはできません。",
+    "cookieAnalitik": "分析クッキー",
+    "cookieAnalitikDescription": "訪問者が当サイトをどのように利用しているかを理解するのに役立ちます。",
+    "cookieIklan": "広告クッキー",
+    "cookieIklanDescription": "関連性の高い広告の表示とキャンペーン効果の測定に使用します。",
+    "simpanDanTerima": "保存して同意",
+    "tolakSemua": "すべて拒否"
+  },
+  "navigation": {
+    "about": "概要",
+    "features": "機能",
+    "tutorial": "チュートリアル",
+    "pricing": "料金"
+  },
+  "buttons": {
+    "getStarted": "今すぐ始める"
+  },
+  "hero": {
+    "title1": "あなたのソーシャルメディアを自動化",
+    "title2": "Postmatic で",
+    "getStarted": "今すぐ始める"
+  },
+  "introduction": {
+    "headline": "とは何ですか",
+    "brand": "Postmatic",
+    "subHeadline": "Postmatic は、ビジネスのソーシャルメディア運用を自動化する AI プラットフォームです。トレンド分析、コンテンツ作成、キャプション生成、投稿予約、広告運用まで、ビジネス情報を一度入力するだけで実行できます。"
+  },
+  "comparison": {
+    "titleLine1": "あなたのソーシャルメディアのコンテンツを",
+    "titleLine2": "魔法のように変える"
+  },
+  "problemSection": {
+    "title": "なぜ 83.46% の中小企業（UMKM）がデジタル時代に出遅れているのか？",
+    "subtitle": "INDEF 2024 のデータは、インドネシアの UMKM の現状について驚くべき事実を示しています",
+    "stats": [
+      {
+        "icon": "TrendingDown",
+        "value": "83.46%",
+        "label": "UMKM の多くがデザイン/デジタルマーケのスキルを保有していない",
+        "color": "red"
+      },
+      {
+        "icon": "Clock",
+        "value": "8時間以上",
+        "label": "質の高いコンテンツを 3〜4 件作るのに必要な時間",
+        "color": "orange"
+      },
+      {
+        "icon": "DollarSign",
+        "value": "450万",
+        "label": "代理店/フリーランスの平均月額コスト",
+        "color": "yellow"
+      },
+      {
+        "icon": "AlertTriangle",
+        "value": "34.2万+",
+        "label": "ソリューションを必要としているジョグジャカルタの UMKM",
+        "color": "purple"
+      }
+    ],
+    "fakeSolutionsTitle": "なぜ既存の解決策は効果的でないのか？",
+    "existingTools": {
+      "title": "❌ コンテンツ作成ツール",
+      "points": [
+        "依然としてデザイン/コピーのスキルが必要",
+        "セットアップに長時間を要する",
+        "UI が複雑で使いにくい",
+        "インドネシアのローカルな文脈を理解していない"
+      ]
+    },
+    "agencyFreelancer": {
+      "title": "❌ 代理店・フリーランサー",
+      "points": [
+        "UMKM には高額（Rp 4,5 juta/月）",
+        "34.2万超の UMKM に対してスケールしにくい",
+        "コミュニケーションと修正に時間がかかる",
+        "長期的に持続可能ではない"
+      ]
+    }
+  },
+  "solutionSection": {
+    "title": "すべてを",
+    "titleHighlight": "変える AI プラットフォーム",
+    "subtitle": "包括的でスケーラブルな自動デジタルソリューション。数百万の事業者に同時にリーチし、現実的なデジタル経済・マーケティングへのアクセスを提供します。",
+    "steps": [
+      {
+        "icon": "Zap",
+        "title": "ワンタイム入力",
+        "description": "ブランド名、ロゴ、商品、説明、商品写真などのビジネス情報を一度入力するだけ。",
+        "benefit": "時間とスキルの制約を解消",
+        "colors": "from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10"
+      },
+      {
+        "icon": "Target",
+        "title": "自動トレンド分析",
+        "description": "最新のコンテンツ/ニュースのアイデアやトレンドを分析。",
+        "benefit": "トレンドに乗り遅れない",
+        "colors": "from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "AI によるコンテンツ生成",
+        "description": "最先端 AI により魅力的で関連性の高いビジュアルとキャプションを生成。",
+        "benefit": "デザイン/コピーのスキル不要",
+        "colors": "from-orange-50 to-red-50 dark:from-orange-900/10 dark:to-red-900/10"
+      },
+      {
+        "icon": "Calendar",
+        "title": "スケジューリング最適化",
+        "description": "ソーシャルメディアへの投稿時間を設定・推薦。",
+        "benefit": "最適なタイミングで投稿",
+        "colors": "from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "自動ブースト/広告運用",
+        "description": "広告価値の高いコンテンツを推薦し、自動で広告運用。",
+        "benefit": "的確なターゲティングで収益化",
+        "colors": "from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10"
+      },
+      {
+        "icon": "CheckCircle",
+        "title": "AI チャットアシスタント",
+        "description": "DM/チャット/コメントに、ブランドのトーンに沿った迅速で的確な自動応答。",
+        "benefit": "エンゲージメント向上と時間節約",
+        "colors": "from-cyan-50 to-blue-50 dark:from-cyan-900/10 dark:to-blue-900/10"
+      }
+    ],
+    "impactTitle": "より前進し効率的なインドネシア UMKM を実現",
+    "impactStats": [
+      {
+        "value": "90%+",
+        "label": "手作業モデルに比べ時間とコストを大幅削減"
+      },
+      { "value": "20,000+", "label": "2年間のオンボーディング目標 UMKM" },
+      {
+        "value": "100万+",
+        "label": "自動生成されるソーシャルメディアコンテンツ"
+      },
+      { "value": "156%", "label": "ユーザー企業のエンゲージメント向上" }
+    ]
+  },
+  "featuresSection": {
+    "title": "完全な機能で",
+    "titleHighlight": "マーケ自動化",
+    "subtitle": "インドネシアの UMKM のために設計されたオールインワンプラットフォーム",
+    "features": [
+      {
+        "icon": "Bot",
+        "title": "AI コンテンツジェネレーター",
+        "description": "最先端 AI で高品質なビジュアルとコピーを生成",
+        "color": "from-blue-500 to-cyan-500"
+      },
+      {
+        "icon": "Target",
+        "title": "トレンド分析",
+        "description": "リアルタイム分析で常に関連性と拡散性を確保",
+        "color": "from-green-500 to-emerald-500"
+      },
+      {
+        "icon": "Calendar",
+        "title": "スマートスケジューリング",
+        "description": "全てのソーシャルメディアへ手動/自動で予約投稿",
+        "color": "from-purple-500 to-pink-500"
+      },
+      {
+        "icon": "Megaphone",
+        "title": "自動広告運用",
+        "description": "賢いターゲティングと予算最適化で自動運用",
+        "color": "from-orange-500 to-red-500"
+      },
+      {
+        "icon": "BarChart3",
+        "title": "アナリティクスダッシュボード",
+        "description": "マーケ成果を深く可視化する包括的なダッシュボード",
+        "color": "from-indigo-500 to-purple-500"
+      },
+      {
+        "icon": "Zap",
+        "title": "ワンクリックセットアップ",
+        "description": "ビジネス知識を一度設定すれば、あとは自動で稼働",
+        "color": "from-yellow-500 to-orange-500"
+      },
+      {
+        "icon": "Shield",
+        "title": "AI チャットアシスタント",
+        "description": "迅速・適切・ブランド一貫の自動応答",
+        "color": "from-cyan-500 to-blue-500"
+      },
+      {
+        "icon": "Users",
+        "title": "マルチプラットフォーム",
+        "description": "人気の各ソーシャルメディアへ自動配信",
+        "color": "from-pink-500 to-red-500"
+      }
+    ],
+    "highlight": {
+      "title": "なぜ POSTMATIC は違うのか？",
+      "points": [
+        {
+          "title": "インドネシアのビジネス特化",
+          "description": "ローカルの文化や消費者の嗜好を理解"
+        },
+        {
+          "title": "学習コストゼロ",
+          "description": "初期セットアップ後は技術的スキル不要で自動化"
+        },
+        {
+          "title": "手頃でスケーラブル",
+          "description": "プレミアム代理店並みの成果を手頃な価格で"
+        },
+        {
+          "title": "継続的イノベーション",
+          "description": "最新トレンドに合わせて AI が進化・学習"
+        }
+      ]
+    }
+  },
+  "endToEnd": {
+    "title": "自動化は",
+    "highlight": "エンドツーエンドで",
+    "description": "AI がコンテンツとキャプションを作成 → ソーシャルメディアに予約投稿 → 広告を運用 → 次のサイクルを改善。",
+    "steps": [
+      "ブランドアセットを一度入力",
+      "AI がトレンドとオーディエンスを分析",
+      "ビジュアル + コピーを生成",
+      "最適な時間にスケジュール",
+      "有料広告を自動運用",
+      "分析を提供し継続学習"
+    ]
+  },
+  "introVideo": {
+    "titleLine1": "すごくないですか？",
+    "title": "はじめまして、",
+    "brand": "POSTMATIC",
+    "subtitle": "短い紹介動画で、POSTMATIC がどのようにしてマーケティングキャンペーンをより簡単・高速・効果的にするのかをご覧ください。",
+    "windowTitle": "Postmatic"
+  },
+  "ctaSection": {
+    "title": "ソーシャルメディアの",
+    "titleHighlight": "自動化を",
+    "subtitle": "始めませんか？",
+    "cta": "Postmatic を使って、AI があなたのビジネスをどう変えられるか体感してください。最初の30日でエンゲージメントを最大 156% 向上！",
+    "contactUs": "お問い合わせ",
+    "getStarted": "今すぐ始める"
+  },
+  "footer": {
+    "companyDescription": "インドネシアのビジネス向けデジタルマーケ自動化の最先端 AI プラットフォーム。",
+    "platform": "プラットフォーム",
+    "fitur": "機能",
+    "tutorial": "チュートリアル",
+    "helpCenter": "ヘルプセンター",
+    "community": "コミュニティ",
+    "statusSystem": "システムステータス",
+    "harga": "料金",
+    "resources": "リソース",
+    "contact": "お問い合わせ",
+    "privacyPolicy": "プライバシーポリシー",
+    "termsOfService": "利用規約",
+    "dataDeletion": "データ削除",
+    "cookiePolicy": "クッキーポリシー",
+    "supportedBy": "インドネシアのビジネスのソーシャルメディア自動化を、最先端 AI が支えています 🇮🇩"
+  },
+  "pricing": {
+    "title": "あなたのビジネスに",
+    "titleHighlight": "最適なプランを選ぶ",
+    "subtitle": "先進の AI ソーシャルメディア自動化を、手頃な価格で",
+    "tabs": {
+      "subscription": "サブスクリプション",
+      "tokens": "トークン購入"
+    },
+    "badge": "一番人気",
+    "cta": {
+      "free": "無料で開始",
+      "paid": "プランを選択",
+      "token": "トークンを購入",
+      "sales": "営業に連絡"
+    },
+    "currency": "IDR",
+    "tokenUnit": "トークン",
+    "validFor": "有効期間 {days} 日間",
+    "perToken": "1トークンあたり {price}",
+    "saveBadge": "20%お得",
+    "tokenTitle": "コンテンツ生成用トークン",
+    "tokenSubtitle": "月額契約なしで必要な分だけ購入",
+    "enterpriseHelp": {
+      "title": "もっとトークンが必要ですか？",
+      "desc": "エンタープライズ向け特別価格についてお問い合わせください"
+    },
+    "plans": [
+      {
+        "id": "788cce03-7e8e-4bda-a211-554bc56ea937",
+        "name": "無料",
+        "icon": "Star",
+        "color": "from-gray-500 to-gray-600",
+        "bgColor": "bg-gray-50 border-gray-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "1か月のトライアル",
+          "最大3件のコンテンツ作成",
+          "ソーシャル投稿は最大3回まで"
+        ],
+        "items": [
+          {
+            "id": "f37c15ce-6a05-48ba-92e2-a4f01296504e",
+            "name": "無料",
+            "price": 0,
+            "description": "今すぐお試し",
+            "tokenValidFor": 30,
+            "tokenImage": 30000,
+            "originalPrice": 0
+          }
+        ]
+      },
+      {
+        "id": "0cb0f83d-9868-417e-aed0-4bc7590ce8bc",
+        "name": "Professional",
+        "icon": "Zap",
+        "color": "from-blue-500 to-indigo-600",
+        "bgColor": "bg-blue-50 border-blue-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": true,
+        "benefits": [
+          "月あたり最大50件のコンテンツ",
+          "最大50件の生成に対応",
+          "無制限アップロード",
+          "優先処理",
+          "高度なカスタマイズ",
+          "全機能にアクセス"
+        ],
+        "items": [
+          {
+            "id": "73cc0502-1ba3-4254-84fc-f3cfd236649b",
+            "name": "月額",
+            "price": 450000,
+            "description": "Rp 150,000 お得",
+            "tokenValidFor": 30,
+            "tokenImage": 500000,
+            "originalPrice": 600000
+          },
+          {
+            "id": "3031f5f5-e84e-498c-9878-186b4c735dd2",
+            "name": "年額",
+            "price": 5175000,
+            "description": "Rp 2,025,000 お得",
+            "tokenValidFor": 365,
+            "tokenImage": 6000000,
+            "originalPrice": 7200000
+          }
+        ]
+      },
+      {
+        "id": "1f5d87d8-0f93-4ebe-a9c9-333df9ec500b",
+        "name": "Enterprise",
+        "icon": "Crown",
+        "color": "from-purple-500 to-pink-600",
+        "bgColor": "bg-purple-50 border-purple-200 dark:bg-slate-800 dark:border-slate-700",
+        "popular": false,
+        "benefits": [
+          "月あたり最大150件のコンテンツ",
+          "最大150件の生成に対応",
+          "無制限アップロード",
+          "優先処理",
+          "高度なカスタマイズ",
+          "全機能にアクセス",
+          "優先サポート",
+          "最高性能の AI モデル",
+          "より高品質な画像生成",
+          "年額プランでさらにお得"
+        ],
+        "items": [
+          {
+            "id": "d2ec82c2-c2ed-4fe5-bf6c-2afa26fff14b",
+            "name": "月額",
+            "price": 1250000,
+            "description": "Rp 350,000 お得",
+            "tokenValidFor": 30,
+            "tokenImage": 1500000,
+            "originalPrice": 1600000
+          },
+          {
+            "id": "ff318282-b0ba-4ef6-ab5c-80d9a91825b7",
+            "name": "年額",
+            "price": 14375000,
+            "description": "Rp 4,825,000 お得",
+            "tokenValidFor": 365,
+            "tokenImage": 18000000,
+            "originalPrice": 19200000
+          }
+        ]
+      }
+    ],
+    "tokens": [
+      {
+        "id": "b858d06e-9e88-4e31-bf89-bb7a74f39e99",
+        "token": 50000,
+        "price": 60000,
+        "tokenType": "画像"
+      },
+      {
+        "id": "e5eb12df-d347-4c23-bba9-9d379d85adf7",
+        "token": 100000,
+        "price": 110000,
+        "tokenType": "画像",
+        "deletedAt": null
+      },
+      {
+        "id": "96552efd-6e6f-4bda-a234-92774120883e",
+        "token": 250000,
+        "price": 250000,
+        "tokenType": "画像"
+      },
+      {
+        "id": "0c42705d-8c6c-4f4c-9b9c-8e23ae34f0a2",
+        "token": 500000,
+        "price": 450000,
+        "tokenType": "画像"
+      },
+      {
+        "id": "24945acc-3998-4ade-9bfb-edbf88b17617",
+        "token": 1000000,
+        "price": 800000,
+        "tokenType": "画像"
+      }
+    ]
+  },
+  "privacyPolicy": {
+    "title": "Postmatic のプライバシーポリシー",
+    "lastUpdated": "最終更新日: 2025年7月2日",
+    "sections": [
+      {
+        "title": "解釈および定義",
+        "description": [
+          {
+            "type": "bold",
+            "content": "解釈"
+          },
+          {
+            "type": "text",
+            "content": "先頭が大文字の語は、以下の条件に従って定義された意味を持ちます。"
+          },
+          {
+            "type": "bold",
+            "content": "定義"
+          },
+          {
+            "type": "list",
+            "items": [
+              "アカウント：当社のサービスへアクセスするために作成されるお客様固有のアカウント。",
+              "当社（「Postmatic」「当社」「私たち」）：Jl. Lempongsari No.353, Indonesia。",
+              "個人データ：特定の個人を識別できる、または識別し得る情報。",
+              "サービス： https://postmatic.id からアクセスできるウェブサイト。",
+              "利用データ：自動的に収集されるデータ（IP アドレス、ブラウザ、閲覧ページなど）。",
+              "クッキー：閲覧情報を保存するためにお使いの端末に配置される小さなファイル。",
+              "サードパーティのソーシャルメディアサービス：Google、Facebook、Instagram、Twitter、LinkedIn。",
+              "お客様：当社サービスを利用する個人または法人。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "個人データの収集と利用",
+        "description": [
+          {
+            "type": "bold",
+            "content": "収集するデータの種類"
+          },
+          {
+            "type": "list",
+            "items": [
+              "個人データ：メール、氏名、電話番号、住所、都市、州/県、郵便番号、利用データ。",
+              "利用データ：IP アドレス、ブラウザの種類/バージョン、タイムスタンプ、端末情報、診断データ。",
+              "サードパーティのソーシャルメディア：Google/Facebook/Instagram/Twitter/LinkedIn で登録した場合、氏名、メール、アクティビティ、連絡先リストを取得する場合があります。",
+              "トラッキング技術 & クッキー：必須（セッション）/クッキー通知同意（永続）/機能（永続）の各クッキー"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "個人データの利用目的",
+        "description": [
+          {
+            "type": "text",
+            "content": "当社はお客様の個人データを以下の目的で利用する場合があります。"
+          },
+          {
+            "type": "list",
+            "items": [
+              "サービスの提供および維持。",
+              "アカウント管理と登録手続き。",
+              "契約の履行（例：購入手続き）。",
+              "メール・電話・SMS・プッシュ通知による連絡。",
+              "ニュースやオファー、一般情報の送信（オプトアウト可）。",
+              "ご要望への対応。",
+              "事業譲渡等の評価・実行（合併、売却など）。",
+              "データ分析、キャンペーン効果測定、製品/サービス改善の実施。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "個人データの保管期間",
+        "description": [
+          {
+            "type": "text",
+            "content": "本ポリシーに定める目的を達成するために必要な期間に限り個人データを保管します（法令遵守、紛争解決、ポリシー執行等）。"
+          },
+          {
+            "type": "text",
+            "content": "利用データは、セキュリティや機能改善に必要な場合を除き、一般的により短期間保管されます。"
+          }
+        ]
+      },
+      {
+        "title": "個人データの移転",
+        "description": [
+          {
+            "type": "text",
+            "content": "お客様の情報は、お客様の法域外に所在するサーバーへ転送・保管される場合があります。適用法が異なる可能性があります。"
+          },
+          {
+            "type": "text",
+            "content": "当社は合理的な措置を講じ、個人データが安全に、本ポリシーに従って取り扱われるよう努めます。"
+          }
+        ]
+      },
+      {
+        "title": "個人データの削除",
+        "description": [
+          {
+            "type": "text",
+            "content": "お客様は、当社が収集した個人データの削除、または削除支援を請求する権利を有します。"
+          },
+          {
+            "type": "text",
+            "content": "アカウント設定から、または team@postmatic.idへのご連絡により、情報の更新・修正・削除が可能です。"
+          },
+          {
+            "type": "text",
+            "content": "法令により保存が義務付けられている情報は一部保持する場合があります。"
+          }
+        ]
+      },
+      {
+        "title": "個人データの開示",
+        "description": [
+          {
+            "type": "bold",
+            "content": "事業譲渡等"
+          },
+          {
+            "type": "text",
+            "content": "当社が合併・買収・資産売却等に関与する場合、個人データが移転されることがあります。その際は、別のプライバシーポリシーが適用される前に通知します。"
+          },
+          {
+            "type": "bold",
+            "content": "法執行機関"
+          },
+          {
+            "type": "text",
+            "content": "法令により、または公的機関からの正当な要請に応じて、個人データを開示する場合があります。"
+          },
+          {
+            "type": "bold",
+            "content": "その他の法的要件"
+          },
+          {
+            "type": "text",
+            "content": "法的義務の遵守、権利または財産の保護、違法行為の防止、ユーザーの安全確保、法的責任からの防御等のために必要と判断した場合、個人データを開示することがあります。"
+          }
+        ]
+      },
+      {
+        "title": "個人データの安全性",
+        "description": [
+          {
+            "type": "text",
+            "content": "インターネット送信および電子保存は100%安全ではありませんが、当社は商業的に妥当な手段で保護に努めます。"
+          }
+        ]
+      },
+      {
+        "title": "お子様のプライバシー",
+        "description": [
+          {
+            "type": "text",
+            "content": "当社サービスは13歳未満を対象としていません。13歳未満のお子様から個人データを故意に収集することはありません。万一ご提供が判明した場合、当社までご連絡ください。速やかに削除します。"
+          }
+        ]
+      },
+      {
+        "title": "他サイトへのリンク",
+        "description": [
+          {
+            "type": "text",
+            "content": "当社サービスには第三者サイトへのリンクが含まれる場合があります。当社は第三者サイトの内容・ポリシー・慣行について責任を負いません。"
+          }
+        ]
+      },
+      {
+        "title": "本ポリシーの変更",
+        "description": [
+          {
+            "type": "text",
+            "content": "本ポリシーは随時更新される場合があります。変更は本ページに掲載した時点で有効となります。変更の発効前に、メールまたはサービス上の明示的な通知によりお知らせし、「最終更新日」を更新します。"
+          }
+        ]
+      },
+      {
+        "title": "お問い合わせ",
+        "description": [
+          {
+            "type": "text",
+            "content": "本プライバシーポリシーに関するご質問は、以下までご連絡ください。"
+          },
+          {
+            "type": "list",
+            "items": [
+              "メール: team@postmatic.id",
+              "ウェブサイト: https://postmatic.id"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "cookiePolicy": {
+    "title": "クッキーポリシー",
+    "lastUpdated": "最終更新日: 2025年8月6日",
+    "sections": [
+      {
+        "title": "クッキーとは？",
+        "content": [
+          {
+            "type": "text",
+            "text": "クッキーは、ウェブサイト訪問時にお使いの端末に保存される小さなテキストファイルです。クッキーは、サイト運営、体験向上、トラフィック分析、関連広告の表示に役立ちます。"
+          }
+        ]
+      },
+      {
+        "title": "当社のクッキー利用方法",
+        "content": [
+          {
+            "type": "text",
+            "text": "当社は、以下に説明する目的でクッキーを使用します。不要なクッキーは、いつでもクッキー設定モーダルから制御できます。"
+          }
+        ]
+      },
+      {
+        "title": "使用するクッキーのカテゴリ",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "<strong>1. 必須クッキー（常に有効）</strong><br/>サイトの基本的機能、セキュリティ、ネットワーク管理に不可欠です。これらがないと、ログインやフォーム入力などのサービスを提供できません。",
+              "<strong>2. 分析クッキー</strong><br/>訪問者数、閲覧ページ、セッション時間などの集計情報を収集し、サイトの利用状況の把握とパフォーマンス改善に役立てます。",
+              "<strong>3. マーケティング/広告クッキー</strong><br/>複数サイト間で訪問者を追跡し、関連性の高いパーソナライズ広告の表示とキャンペーン効果の測定に使用します。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "第三者クッキー",
+        "content": [
+          {
+            "type": "text",
+            "text": "当社は、信頼できる第三者サービス（例：Google Analytics、Meta Pixel）が分析またはマーケティング目的でクッキーを設定することを許可する場合があります。提供者は、適用法に従い責任をもってデータを取り扱う契約上の義務を負います。"
+          }
+        ]
+      },
+      {
+        "title": "クッキー設定の管理",
+        "content": [
+          {
+            "type": "text",
+            "text": "初回訪問時にクッキー同意バナーが表示されます。次の選択が可能です。"
+          },
+          {
+            "type": "list",
+            "items": [
+              "すべてのクッキーに同意する",
+              "任意クッキーをすべて拒否する",
+              "「クッキー設定」を開いてカテゴリごとに選択する"
+            ]
+          },
+          {
+            "type": "text",
+            "text": "フッターの「クッキー設定」リンクをクリックするか、ローカルストレージを削除してページを更新することで、いつでも選択を変更できます。"
+          }
+        ]
+      },
+      {
+        "title": "データの保存期間",
+        "content": [
+          {
+            "type": "text",
+            "text": "保存期間はカテゴリによって異なります。必須クッキーはセッション終了時または30日以内、分析クッキーは最大24か月、広告クッキーは通常6〜12か月、または同意撤回まで保存されます。"
+          }
+        ]
+      },
+      {
+        "title": "お問い合わせ",
+        "content": [
+          {
+            "type": "text",
+            "text": "本クッキーポリシーに関するご質問は、以下までご連絡ください。"
+          },
+          {
+            "type": "list",
+            "items": [
+              "<strong>メール:</strong> <a href='mailto:team@postmatic.id' class='text-blue-600 underline'>team@postmatic.id</a>",
+              "<strong>ウェブサイト:</strong> <a href='https://postmatic.id' target='_blank' rel='noopener noreferrer' class='text-blue-600 underline'>https://postmatic.id</a>"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "dataDeletion": {
+    "title": "データ削除ポリシー",
+    "lastUpdated": "最終更新日: 2025年8月6日",
+    "sections": [
+      {
+        "title": "データ削除リクエスト手順",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "<strong>1. リクエスト送信</strong><br/>件名を「データ削除リクエスト」として、<a href='mailto:team@postmatic.id'>team@postmatic.id</a> へメールしてください。フルネーム、登録メール、電話番号、任意の説明を記載してください。",
+              "<strong>2. 本人確認</strong><br/>確認メールをお送りします。身元確認のため、速やかにご返信ください。",
+              "<strong>3. 処理時間</strong><br/>確認後、7〜14営業日以内に削除を完了し、メールでお知らせします。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "削除対象の範囲",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "個人識別情報（氏名、メール、電話番号）",
+              "プロジェクトやナレッジベースに関連するすべてのデータ",
+              "生成された画像・動画・キャプション等の保存メディア",
+              "接続されたソーシャルメディアのトークン・認証情報（即時無効化）",
+              "自動チャット/返信の設定およびチャット履歴"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "例外",
+        "content": [
+          {
+            "type": "text",
+            "text": "以下の目的で、一部データを保存する場合があります。"
+          },
+          {
+            "type": "list",
+            "items": [
+              "税務・会計報告のための取引記録（法定保存）",
+              "内部レポート・性能分析のための匿名化データ"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "サブスクリプションと支払い情報",
+        "content": [
+          {
+            "type": "text",
+            "text": "支払い/購読データは <strong>Midtrans</strong> により処理・管理され、同社のプライバシーポリシーが適用されます。削除をご希望の場合は、公式窓口から Midtrans に直接ご連絡ください。"
+          }
+        ]
+      },
+      {
+        "title": "削除後のアクセス",
+        "content": [
+          {
+            "type": "text",
+            "text": "削除完了後は、プロジェクト、生成コンテンツ、関連サービスへのアクセスはできなくなります。"
+          }
+        ]
+      },
+      {
+        "title": "お問い合わせ",
+        "content": [
+          {
+            "type": "text",
+            "text": "ご不明点は <a href='mailto:team@postmatic.id'>team@postmatic.id</a> までメールでお問い合わせください。"
+          }
+        ]
+      }
+    ]
+  },
+  "termsOfService": {
+    "title": "利用規約",
+    "lastUpdated": "最終更新日: 2025年8月6日",
+    "sections": [
+      {
+        "title": "規約の受諾",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic（「Postmatic」「当社」）のサービスにアクセスまたは利用することにより、本利用規約（「規約」）に同意したものとみなされます。一部でも同意できない場合は、サービスを利用しないでください。"
+          }
+        ]
+      },
+      {
+        "title": "登録とアカウントの安全性",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "アカウント登録時は正確かつ完全な情報（氏名、メール、電話番号、パスワード）を提供してください。",
+              "アカウント資格情報の管理およびアカウント下で発生するすべての活動に責任を負います。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "提供サービス",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "AI による画像・動画・キャプション等のソーシャルメディアコンテンツ自動化。",
+              "接続済みソーシャルアカウントへの自動投稿機能。",
+              "AI によるチャットおよび自動応答機能。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "ユーザーの責任",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "ロゴ、ブランド名、説明、商品情報、価格等、提供するビジネス情報が正確で適法であり、知的財産権を侵害しないことを保証してください。",
+              "Postmatic と連携する第三者ソーシャルメディアプラットフォームの規約・ポリシーに従うことに同意します。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "知的財産",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Postmatic は、AI 生成テンプレート、ソフトウェア、アルゴリズム等、サービスに関するすべての知的財産権を保持します。",
+              "ユーザーは、Postmatic に提供・アップロードしたビジネス情報やコンテンツの所有権を保持します。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "サブスクリプションと支払い",
+        "content": [
+          {
+            "type": "list",
+            "items": [
+              "Postmatic はトークンベースのサブスクリプションモデルを採用しています。",
+              "支払いは <strong>Midtrans</strong> により安全に処理されます。",
+              "購入したトークンは返金不可であり、購入時に示された有効期限に従います。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "禁止事項",
+        "content": [
+          {
+            "type": "text",
+            "text": "お客様は次の行為を行わないことに同意します。"
+          },
+          {
+            "type": "list",
+            "items": [
+              "違法・詐欺・有害な目的で Postmatic を使用すること。",
+              "Postmatic の機能・性能・セキュリティを妨害・侵害すること。",
+              "有害、脅迫的、虐待的、名誉毀損、わいせつ、攻撃的、または不適切なコンテンツをアップロードまたは生成すること。"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "データプライバシー",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic は、当社のプライバシーポリシーに従って個人データおよびビジネスデータを処理します。Postmatic を利用することで、サービス品質改善のための分析データの収集・利用に同意したものとみなされます。"
+          }
+        ]
+      },
+      {
+        "title": "責任の制限",
+        "content": [
+          {
+            "type": "text",
+            "text": "Postmatic は、間接的・付随的・特別・結果的・懲罰的損害、または利益/収益の喪失について、一切の責任を負いません。"
+          }
+        ]
+      },
+      {
+        "title": "補償",
+        "content": [
+          {
+            "type": "text",
+            "text": "お客様は、サービスの利用または本規約違反に起因する請求・損害・責任・費用等から、Postmatic を防御し、損害を与えないことに同意します。"
+          }
+        ]
+      },
+      {
+        "title": "規約の変更",
+        "content": [
+          {
+            "type": "text",
+            "text": "当社は本規約を随時改定する権利を有します。変更はメールまたはサイト上の通知でお知らせします。通知後も継続利用することで、改定に同意したものとみなされます。"
+          }
+        ]
+      },
+      {
+        "title": "契約の終了",
+        "content": [
+          {
+            "type": "text",
+            "text": "お客様が本規約に違反した場合、当社は事前通知なくサービスへのアクセスを停止または終了することがあります。"
+          }
+        ]
+      },
+      {
+        "title": "準拠法",
+        "content": [
+          {
+            "type": "text",
+            "text": "本規約はインドネシア共和国の法令に準拠し、これに従って解釈されます。"
+          }
+        ]
+      },
+      {
+        "title": "連絡先",
+        "content": [
+          {
+            "type": "text",
+            "text": "本規約に関するお問い合わせは、以下までご連絡ください。"
+          },
+          {
+            "type": "list",
+            "items": [
+              "<strong>メール:</strong> team@postmatic.id",
+              "<strong>ウェブサイト:</strong> <a href='https://postmatic.id' target='_blank' rel='noopener noreferrer' class='text-blue-600 underline'>https://postmatic.id</a>"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

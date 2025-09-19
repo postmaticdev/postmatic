@@ -103,7 +103,8 @@ export default function PricingSection() {
                               variant="secondary"
                               className="text-xs text-gray-900 dark:text-white"
                             >
-                              {t('saveBadge')}
+                              {/* {t('saveBadge')} */}
+                              {plan.items[0].description}
                             </Badge>
                           )}
                         </div>
@@ -152,7 +153,8 @@ export default function PricingSection() {
                                     variant="secondary"
                                     className="text-xs text-gray-900 dark:text-white"
                                   >
-                                    {t('saveBadge')}
+                                    {/* {t('saveBadge')} */}
+                                    {item.description}
                                   </Badge>
                                 )}
                               </div>

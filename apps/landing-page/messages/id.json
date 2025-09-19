@@ -26,14 +26,14 @@
   "navigation": {
     "about": "Tentang",
     "features": "Fitur",
-    "tutorial": "Tutorial", 
+    "tutorial": "Tutorial",
     "pricing": "Harga"
   },
   "buttons": {
     "getStarted": "Mulai Sekarang"
   },
   "hero": {
-    "title1": "Otomasi Media Sosial Anda",  
+    "title1": "Otomasi Media Sosial Anda",
     "title2": "dengan Postmatic",
     "getStarted": "Mulai Sekarang"
   },
@@ -150,7 +150,10 @@
         "label": "Lebih efisien waktu & biaya dibanding model manual"
       },
       { "value": "20.000+", "label": "Target UMKM onboarding dalam 2 tahun" },
-      { "value": "1 Juta+", "label": "Konten social media yang akan dihasilkan secara otomatis" },
+      {
+        "value": "1 Juta+",
+        "label": "Konten social media yang akan dihasilkan secara otomatis"
+      },
       { "value": "156%", "label": "Peningkatan engagement bisnis pengguna" }
     ]
   },
@@ -259,7 +262,6 @@
     "getStarted": "Mulai Sekarang"
   },
   "footer": {
- 
     "companyDescription": "Platform AI terdepan untuk mengotomasi pemasaran digital suatu Bisnis Indonesia.",
     "platform": "Platform",
     "fitur": "Fitur",
@@ -270,7 +272,7 @@
     "harga": "Harga",
     "resources": "Resources",
     "contact": "Kontak",
-    "privacyPolicy": "Kebijakan Privasi", 
+    "privacyPolicy": "Kebijakan Privasi",
     "termsOfService": "Syarat dan Ketentuan",
     "dataDeletion": "Hapus Data",
     "cookiePolicy": "Kebijakan Cookie",
@@ -305,24 +307,24 @@
     "plans": [
       {
         "id": "788cce03-7e8e-4bda-a211-554bc56ea937",
-        "name": "Free",
+        "name": "Gratis",
         "icon": "Star",
         "color": "from-gray-500 to-gray-600",
         "bgColor": "bg-gray-50 border-gray-200 dark:bg-slate-800 dark:border-slate-700",
         "popular": false,
         "benefits": [
-          "300 Token untuk Generate Konten",
-          "atau 3 Konten Terotomasi",
-          "Valid dalam 30 days"
+          "Uji coba 1 bulan",
+          "Buat hingga 3 konten",
+          "Posting ke sosial media hingga 3 kali"
         ],
         "items": [
           {
             "id": "f37c15ce-6a05-48ba-92e2-a4f01296504e",
-            "name": "Free",
+            "name": "Gratis",
             "price": 0,
-            "description": null,
+            "description": "Coba Sekarang",
             "tokenValidFor": 30,
-            "tokenImage": 1000,
+            "tokenImage": 30000,
             "originalPrice": 0
           }
         ]
@@ -335,30 +337,31 @@
         "bgColor": "bg-blue-50 border-blue-200 dark:bg-slate-800 dark:border-slate-700",
         "popular": true,
         "benefits": [
-          "30.000 Token untuk Generate Konten",
-          "atau 100 Konten Terotomasi",
-          "Pemrosesan Lebih Cepat",
-          "Penyesuaian Lanjutan",
-          "Akses penuh ke semua fitur"
+          "Buat hingga 50 konten tiap bulan",
+          "Hasilkan hingga 50 konten",
+          "Upload konten tanpa batas",
+          "Prioritas pemrosesan",
+          "Kustomisasi lanjutan",
+          "Akses ke semua fitur"
         ],
         "items": [
           {
             "id": "73cc0502-1ba3-4254-84fc-f3cfd236649b",
-            "name": "Monthly",
-            "price": 299000,
-            "description": null,
+            "name": "Bulanan",
+            "price": 450000,
+            "description": "Hemat Rp 150.000",
             "tokenValidFor": 30,
-            "tokenImage": 30000,
-            "originalPrice": 299000
+            "tokenImage": 500000,
+            "originalPrice": 600000
           },
           {
             "id": "3031f5f5-e84e-498c-9878-186b4c735dd2",
-            "name": "Annually",
-            "price": 2870400,
-            "description": "Save 20% with annual billing",
+            "name": "Tahunan",
+            "price": 5175000,
+            "description": "Hemat Rp 2.025.000",
             "tokenValidFor": 365,
-            "tokenImage": 180000,
-            "originalPrice": 3588000
+            "tokenImage": 6000000,
+            "originalPrice": 7200000
           }
         ]
       },
@@ -370,30 +373,35 @@
         "bgColor": "bg-purple-50 border-purple-200 dark:bg-slate-800 dark:border-slate-700",
         "popular": false,
         "benefits": [
-          "100.000 Token untuk Generate Konten",
-          "atau 500 Konten Terotomasi",
-          "Pemrosesan Lebih Cepat",
-          "Penyesuaian Lanjutan",
-          "Akses penuh ke semua fitur"
+          "Buat hingga 150 konten tiap bulan",
+          "Hasilkan hingga 150 konten",
+          "Upload konten tanpa batas",
+          "Prioritas pemrosesan",
+          "Kustomisasi lanjutan",
+          "Akses ke semua fitur",
+          "Penanganan masalah prioritas",
+          "Model AI terbaik",
+          "Generate gambar lebih baik",
+          "Hemat lebih banyak dengan paket tahunan"
         ],
         "items": [
           {
             "id": "d2ec82c2-c2ed-4fe5-bf6c-2afa26fff14b",
-            "name": "Monthly",
-            "price": 800000,
-            "description": null,
+            "name": "Bulanan",
+            "price": 1250000,
+            "description": "Hemat Rp 350.000",
             "tokenValidFor": 30,
-            "tokenImage": 100000,
-            "originalPrice": 800000
+            "tokenImage": 1500000,
+            "originalPrice": 1600000
           },
           {
             "id": "ff318282-b0ba-4ef6-ab5c-80d9a91825b7",
-            "name": "Annually",
-            "price": 7680000,
-            "description": "Save 20% with annual billing",
-            "tokenValidFor": 60,
-            "tokenImage": 600000,
-            "originalPrice": 9600000
+            "name": "Tahunan",
+            "price": 14375000,
+            "description": "Hemat Rp 4.825.000",
+            "tokenValidFor": 365,
+            "tokenImage": 18000000,
+            "originalPrice": 19200000
           }
         ]
       }
@@ -401,33 +409,34 @@
     "tokens": [
       {
         "id": "b858d06e-9e88-4e31-bf89-bb7a74f39e99",
-        "price": 32835,
-        "token": 500,
-        "tokenValidFor": 30
+        "token": 50000,
+        "price": 60000,
+        "tokenType": "Image"
       },
       {
         "id": "e5eb12df-d347-4c23-bba9-9d379d85adf7",
-        "price": 57585,
-        "token": 1000,
-        "tokenValidFor": 30
+        "token": 100000,
+        "price": 110000,
+        "tokenType": "Image",
+        "deletedAt": null
       },
       {
         "id": "96552efd-6e6f-4bda-a234-92774120883e",
-        "price": 98835,
-        "token": 2000,
-        "tokenValidFor": 30
+        "token": 250000,
+        "price": 250000,
+        "tokenType": "Image"
       },
       {
         "id": "0c42705d-8c6c-4f4c-9b9c-8e23ae34f0a2",
-        "price": 164835,
-        "token": 5000,
-        "tokenValidFor": 30
+        "token": 500000,
+        "price": 450000,
+        "tokenType": "Image"
       },
       {
         "id": "24945acc-3998-4ade-9bfb-edbf88b17617",
-        "price": 313335,
-        "token": 10000,
-        "tokenValidFor": 30
+        "token": 1000000,
+        "price": 800000,
+        "tokenType": "Image"
       }
     ]
   },

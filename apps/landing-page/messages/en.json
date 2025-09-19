@@ -25,7 +25,7 @@
   },
   "navigation": {
     "about": "About",
-    "features": "Features", 
+    "features": "Features",
     "tutorial": "Tutorial",
     "pricing": "Pricing"
   },
@@ -150,7 +150,10 @@
         "label": "More efficient time & cost compared to manual model"
       },
       { "value": "20,000+", "label": "Target SME onboarding in 2 years" },
-      { "value": "1 Million+", "label": "Social media content that will be generated automatically" },
+      {
+        "value": "1 Million+",
+        "label": "Social media content that will be generated automatically"
+      },
       { "value": "156%", "label": "Increase in user business engagement" }
     ]
   },
@@ -310,18 +313,18 @@
         "bgColor": "bg-gray-50 border-gray-200 dark:bg-slate-800 dark:border-slate-700",
         "popular": false,
         "benefits": [
-          "300 Tokens for Content Generation",
-          "or 3 Automated Content",
-          "Valid for 30 days"
+          "1-month trial",
+          "Create up to 3 pieces of content",
+          "Post to social media up to 3 times"
         ],
         "items": [
           {
             "id": "f37c15ce-6a05-48ba-92e2-a4f01296504e",
             "name": "Free",
             "price": 0,
-            "description": null,
+            "description": "Try Now",
             "tokenValidFor": 30,
-            "tokenImage": 1000,
+            "tokenImage": 30000,
             "originalPrice": 0
           }
         ]
@@ -334,30 +337,31 @@
         "bgColor": "bg-blue-50 border-blue-200 dark:bg-slate-800 dark:border-slate-700",
         "popular": true,
         "benefits": [
-          "30,000 Tokens for Content Generation",
-          "or 100 Automated Content",
-          "Faster Processing",
-          "Advanced Customization",
-          "Full access to all features"
+          "Create up to 50 posts per month",
+          "Generate up to 50 AI contents",
+          "Unlimited uploads",
+          "Priority processing",
+          "Advanced customization",
+          "Access to all features"
         ],
         "items": [
           {
             "id": "73cc0502-1ba3-4254-84fc-f3cfd236649b",
             "name": "Monthly",
-            "price": 299000,
-            "description": null,
+            "price": 450000,
+            "description": "Save Rp 150,000",
             "tokenValidFor": 30,
-            "tokenImage": 30000,
-            "originalPrice": 299000
+            "tokenImage": 500000,
+            "originalPrice": 600000
           },
           {
             "id": "3031f5f5-e84e-498c-9878-186b4c735dd2",
             "name": "Annually",
-            "price": 2870400,
-            "description": "Save 20% with annual billing",
+            "price": 5175000,
+            "description": "Save Rp 2,025,000",
             "tokenValidFor": 365,
-            "tokenImage": 180000,
-            "originalPrice": 3588000
+            "tokenImage": 6000000,
+            "originalPrice": 7200000
           }
         ]
       },
@@ -369,30 +373,35 @@
         "bgColor": "bg-purple-50 border-purple-200 dark:bg-slate-800 dark:border-slate-700",
         "popular": false,
         "benefits": [
-          "100,000 Tokens for Content Generation",
-          "or 500 Automated Content",
-          "Faster Processing",
-          "Advanced Customization",
-          "Full access to all features"
+          "Create up to 150 posts per month",
+          "Generate up to 150 AI contents",
+          "Unlimited uploads",
+          "Priority processing",
+          "Advanced customization",
+          "Access to all features",
+          "Priority issue handling",
+          "Best AI models",
+          "Better image generation",
+          "Even more savings on the annual plan"
         ],
         "items": [
           {
             "id": "d2ec82c2-c2ed-4fe5-bf6c-2afa26fff14b",
             "name": "Monthly",
-            "price": 800000,
-            "description": null,
+            "price": 1250000,
+            "description": "Save Rp 350,000",
             "tokenValidFor": 30,
-            "tokenImage": 100000,
-            "originalPrice": 800000
+            "tokenImage": 1500000,
+            "originalPrice": 1600000
           },
           {
             "id": "ff318282-b0ba-4ef6-ab5c-80d9a91825b7",
             "name": "Annually",
-            "price": 7680000,
-            "description": "Save 20% with annual billing",
-            "tokenValidFor": 60,
-            "tokenImage": 600000,
-            "originalPrice": 9600000
+            "price": 14375000,
+            "description": "Save Rp 4,825,000",
+            "tokenValidFor": 365,
+            "tokenImage": 18000000,
+            "originalPrice": 19200000
           }
         ]
       }
@@ -400,36 +409,38 @@
     "tokens": [
       {
         "id": "b858d06e-9e88-4e31-bf89-bb7a74f39e99",
-        "price": 32835,
-        "token": 500,
-        "tokenValidFor": 30
+        "token": 50000,
+        "price": 60000,
+        "tokenType": "Image"
       },
       {
         "id": "e5eb12df-d347-4c23-bba9-9d379d85adf7",
-        "price": 57585,
-        "token": 1000,
-        "tokenValidFor": 30
+        "token": 100000,
+        "price": 110000,
+        "tokenType": "Image",
+        "deletedAt": null
       },
       {
         "id": "96552efd-6e6f-4bda-a234-92774120883e",
-        "price": 98835,
-        "token": 2000,
-        "tokenValidFor": 30
+        "token": 250000,
+        "price": 250000,
+        "tokenType": "Image"
       },
       {
         "id": "0c42705d-8c6c-4f4c-9b9c-8e23ae34f0a2",
-        "price": 164835,
-        "token": 5000,
-        "tokenValidFor": 30
+        "token": 500000,
+        "price": 450000,
+        "tokenType": "Image"
       },
       {
         "id": "24945acc-3998-4ade-9bfb-edbf88b17617",
-        "price": 313335,
-        "token": 10000,
-        "tokenValidFor": 30
+        "token": 1000000,
+        "price": 800000,
+        "tokenType": "Image"
       }
     ]
   },
+
   "privacyPolicy": {
     "title": "Privacy Policy for Postmatic",
     "lastUpdated": "Last updated: July 02, 2025",

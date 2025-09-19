@@ -88,28 +88,58 @@ export class LinkedInService extends BaseService {
       }
 
       const response = await this.getAccessToken(code);
-      if (!response)
+      if (!response) {
+        console.log(
+          "=========== CALLBACK LINKEDIN ERROR [no response] ==========="
+        );
+        console.log("response", response);
+        console.log("code", code);
+        console.log("stateFromLinkedIn", stateFromLinkedIn);
+        console.log("sessionState", sessionState);
+        console.log("================================================");
         return {
           success: false,
           message: "Token tidak valid",
           from,
         };
+      }
       const accessToken = response.access_token;
       const idToken = response.id_token;
-      if (!accessToken || !idToken)
+      if (!accessToken || !idToken) {
+        console.log(
+          "=========== CALLBACK LINKEDIN ERROR [no accessToken or idToken] ==========="
+        );
+        console.log("response", response);
+        console.log("code", code);
+        console.log("stateFromLinkedIn", stateFromLinkedIn);
+        console.log("sessionState", sessionState);
+        console.log("================================================");
         return {
           success: false,
           message: "Token tidak valid",
           from,
         };
+      }
 
       const decoded = jwt.decode(idToken) as LinkedInDecoded;
-      if (!decoded.sub || !decoded.name || !decoded.picture || !decoded.exp)
+      if (!decoded.sub || !decoded.name || !decoded.picture || !decoded.exp) {
+        console.log(
+          "=========== CALLBACK LINKEDIN ERROR [no decoded.sub or decoded.name or decoded.picture or decoded.exp] ==========="
+        );
+        console.log("response", response);
+        console.log("code", code);
+        console.log("stateFromLinkedIn", stateFromLinkedIn);
+        console.log("sessionState", sessionState);
+        console.log("decoded", decoded);
+        console.log("idToken", idToken);
+        console.log("accessToken", accessToken);
+        console.log("================================================");
         return {
           success: false,
           message: "Token tidak valid",
           from,
         };
+      }
       const authorUrn = `urn:li:person:${decoded.sub}`;
 
       const [checkBusiness, checkIsLinkedAlready] = await Promise.all([

@@ -1,6 +1,6 @@
 
 
-const TITLE_APP = process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "POSTMATIC";
+const TITLE_APP = process.env.NEXT_PUBLIC_TITLE_APP || "Postmatic";
 const LANDINGPAGE_URL = process.env.NEXT_PUBLIC_LANDINGPAGE_URL || "https://postmatic.id";
 const LOGIN_URL = process.env.NEXT_PUBLIC_LOGIN_URL || "#";
 const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL || "#";

@@ -20,7 +20,7 @@ import { LanguageToggle } from "@/components/language-toggle";
 import { getMessages, getTranslations } from "next-intl/server";
 import { Locale, routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const poppins = Poppins({
@@ -50,18 +50,18 @@ export default async function RootLayout({
 }>) {
   const { locale } = await params;
   if (!routing.locales.includes(locale as Locale)) {
-    notFound();
+    redirect(routing.defaultLocale);
   }
-  
-  const t = await getTranslations('navigation');
-  const tButtons = await getTranslations('buttons');
+
+  const t = await getTranslations("navigation");
+  const tButtons = await getTranslations("buttons");
   const navItems = [
-    { name: t('about'), link: "/#about" },
-    { name: t('features'), link: "/#features" },
-    { name: t('tutorial'), link: "/#tutorial" },
-    { name: t('pricing'), link: "/#pricing" },
+    { name: t("about"), link: "/#about" },
+    { name: t("features"), link: "/#features" },
+    { name: t("tutorial"), link: "/#tutorial" },
+    { name: t("pricing"), link: "/#pricing" },
   ];
-  
+
   // Providing all messages to the client
   // side is the easiest way to get started
   const messages = await getMessages();
@@ -80,37 +80,37 @@ export default async function RootLayout({
         className={`${poppins.className} bg-white dark:bg-[#0A0A0A] antialiased`}
       >
         <NextIntlClientProvider messages={messages}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Navbar className="top-0">
-            <NavBody>
-              <NavbarLogo />
-              <NavItems items={navItems} />
-              <div className="flex items-center gap-2">
-                {/* tombol ID / EN */}
-                <LanguageToggle />
-                <ThemeToggle />
-                <NavbarButton
-                  href={LOGIN_URL}
-                  className="flex items-center gap-6"
-                  variant="primary"
-                >
-                  <LogIn size="16" />
-                  {tButtons('getStarted')}
-                </NavbarButton>
-              </div>
-            </NavBody>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Navbar className="top-0">
+              <NavBody>
+                <NavbarLogo />
+                <NavItems items={navItems} />
+                <div className="flex items-center gap-2">
+                  {/* tombol ID / EN */}
+                  <LanguageToggle />
+                  <ThemeToggle />
+                  <NavbarButton
+                    href={LOGIN_URL}
+                    className="flex items-center gap-6"
+                    variant="primary"
+                  >
+                    <LogIn size="16" />
+                    {tButtons("getStarted")}
+                  </NavbarButton>
+                </div>
+              </NavBody>
 
-            <MobileNavWrapper items={navItems} />
-          </Navbar>
-          {children}
-          <Footer />
-          <CookieConsentPopup />
-        </ThemeProvider>
+              <MobileNavWrapper items={navItems} />
+            </Navbar>
+            {children}
+            <Footer />
+            <CookieConsentPopup />
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

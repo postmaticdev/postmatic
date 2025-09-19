@@ -10,10 +10,19 @@ import Introduction from "@/components/introduction";
 import { Comparison } from "@/components/comparison";
 import EndToEnd from "@/components/end-to-end";
 import IntroVideoPage from "@/components/intro-video";
-import { GOOGLE_SITE_VERIFICATION, LANDINGPAGE_URL, TITLE_APP, YAHOO_SITE_VERIFICATION, YANDEX_SITE_VERIFICATION } from "@/constants";
+import {
+  GOOGLE_SITE_VERIFICATION,
+  LANDINGPAGE_URL,
+  TITLE_APP,
+  YAHOO_SITE_VERIFICATION,
+  YANDEX_SITE_VERIFICATION,
+} from "@/constants";
 
 export const metadata: Metadata = {
-  title: TITLE_APP,
+  title: {
+    default: TITLE_APP,
+    template: `${TITLE_APP} | %s`,
+  },
   description:
     "Solusi AI/ML terdepan untuk mengotomasi seluruh proses pemasaran digital bisnis...",
   keywords:

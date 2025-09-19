@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   title: {
     default: TITLE_APP,
-    template: `${TITLE_APP} | %s`,
+    template: TITLE_APP,
   },
   description:
     "Platform SaaS berbasis AI/ML yang mengotomasi seluruh proses pemasaran digital bisnis Indonesia.",

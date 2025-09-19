@@ -102,7 +102,6 @@ export class AuthService extends BaseService {
 
       if (!profile) return null;
 
-      console.log("profile.discountCodes", profile.discountCodes);
       if (profile.discountCodes.length === 0) {
         const createdDiscount = await this.discount.createFirstUserDiscount(
           profile.id,

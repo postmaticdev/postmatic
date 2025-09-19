@@ -102,6 +102,29 @@ export class AuthService extends BaseService {
 
       if (!profile) return null;
 
+      console.log("profile.discountCodes", profile.discountCodes);
+      if (profile.discountCodes.length === 0) {
+        const createdDiscount = await this.discount.createFirstUserDiscount(
+          profile.id,
+          profile.name
+        );
+        profile.discountCodes = [
+          {
+            code: createdDiscount.code,
+            discount: createdDiscount.discount,
+            type: createdDiscount.type,
+            isReusable: createdDiscount.isReusable,
+            maxDiscount: createdDiscount.maxDiscount,
+            maxUses: createdDiscount.maxUses,
+            expiredAt: createdDiscount.expiredAt,
+            id: createdDiscount.id,
+            _count: {
+              discountUsages: 0,
+            },
+          },
+        ];
+      }
+
       // Tarik "sessions" dari Redis (pengganti user.sessions dari Prisma)
       const idxKey = sessIndexKey(id);
       const tokens = await redisClient.smembers(idxKey);

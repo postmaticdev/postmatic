@@ -338,6 +338,15 @@ export class BusinessService extends BaseService {
         where: { id },
         data: {
           deletedAt: new Date(),
+          socialFacebookPage: {
+            disconnect: true,
+          },
+          socialInstagramBusiness: {
+            disconnect: true,
+          },
+          socialLinkedIn: {
+            disconnect: true,
+          },
         },
       });
       for (const member of check.members) {

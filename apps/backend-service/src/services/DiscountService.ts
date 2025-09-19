@@ -85,6 +85,7 @@ export class DiscountService extends BaseService {
         maxDiscount: 20000,
         maxUses: null,
         reward: 20000,
+        profileId,
       },
     });
     return discount;

@@ -429,8 +429,8 @@ export class ImageContentService extends BaseService {
       return "Role knowledge belum diatur";
     }
 
-    if (token?.availableToken <= 0) {
-      return "Token tidak mencukupi";
+    if (token?.availableToken < 8000) {
+      return `Token tidak mencukupi. Anda memiliki ${token?.availableToken} token. Untuk menggunakan fitur ini, Anda membutuhkan minimal 8000 token.`;
     }
 
     if (!subscription?.valid) {

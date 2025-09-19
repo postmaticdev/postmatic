@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 import { useManageKnowledge } from "@/contexts/manage-knowledge-context";
 import { mapEnumPlatform } from "@/helper/map-enum-platform";
 import { showToast } from "@/helper/show-toast";
@@ -8,21 +9,34 @@ import { PlatformRes } from "@/models/api/knowledge/platform.type";
 import { usePlatformKnowledgeDisconnect } from "@/services/knowledge.api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 
 export function ConnectedPlatformForm() {
   const { businessId } = useParams() as { businessId: string };
   const queryClient = useQueryClient();
   const { platforms } = useManageKnowledge();
   const mdDisconnectPlatform = usePlatformKnowledgeDisconnect();
+  const [isDisconnectDialogOpen, setIsDisconnectDialogOpen] = useState(false);
+  const [platformToDisconnect, setPlatformToDisconnect] =
+    useState<PlatformRes | null>(null);
+
+  const handleDisconnect = async () => {
+    try {
+      if (!platformToDisconnect) return;
+      const response = await mdDisconnectPlatform.mutateAsync({
+        businessId,
+        platform: platformToDisconnect.platform,
+      });
+      showToast("success", response.data.responseMessage);
+    } catch {}
+  };
+
   const handleConnect = async (platform: PlatformRes) => {
     try {
       switch (platform.status) {
         case "connected":
-          const response = await mdDisconnectPlatform.mutateAsync({
-            businessId,
-            platform: platform.platform,
-          });
-          showToast("success", response.data.responseMessage);
+          setPlatformToDisconnect(platform);
+          setIsDisconnectDialogOpen(true);
           break;
         case "unconnected":
           await queryClient.invalidateQueries({
@@ -51,8 +65,14 @@ export function ConnectedPlatformForm() {
   };
 
   // Filter platforms to only show the allowed ones
-  const allowedPlatforms = ['linked_in', 'facebook_page', 'instagram_business', 'twitter', 'tiktok'];
-  const filteredPlatforms = platforms.filter(platform => 
+  const allowedPlatforms = [
+    "linked_in",
+    "facebook_page",
+    "instagram_business",
+    "twitter",
+    "tiktok",
+  ];
+  const filteredPlatforms = platforms.filter((platform) =>
     allowedPlatforms.includes(platform.platform)
   );
 
@@ -90,6 +110,17 @@ export function ConnectedPlatformForm() {
           </div>
         </div>
       ))}
+
+      <DeleteConfirmationModal
+        isOpen={isDisconnectDialogOpen}
+        title="Putuskan Platform"
+        description="Tindakan ini tidak dapat dibatalkan. Platform ini akan diputus secara permanen dari sistem."
+        onClose={() => setIsDisconnectDialogOpen(false)}
+        onConfirm={handleDisconnect}
+        withDetailItem={false}
+        isLoading={mdDisconnectPlatform.isPending}
+        itemName={platformToDisconnect?.name || ""}
+      />
     </div>
   );
 }

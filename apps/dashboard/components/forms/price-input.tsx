@@ -33,7 +33,7 @@ export function PriceInput({
   value,
   onChange,
   placeholder = "Masukkan harga produk",
-  label = "Harga Produk",
+
   currency = "IDR",
   error,
   onFocus,
@@ -110,10 +110,7 @@ export function PriceInput({
   };
 
   return (
-    <div className="space-y-1">
-      <Label className="text-sm font-medium text-foreground" htmlFor="price">
-        {label}
-      </Label>
+    <div className="space-y-1 flex-grow">
       <div className="relative">
         <Input
           id="price"

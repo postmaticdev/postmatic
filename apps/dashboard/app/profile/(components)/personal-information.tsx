@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 import Image from "next/image";
 import { EditProfileModal } from "./edit-profile-modal";
-import {
-  useAuthProfileGetProfile
-} from "@/services/auth.api";
+import { useAuthProfileGetProfile } from "@/services/auth.api";
 import { DEFAULT_USER_AVATAR } from "@/constants";
 
 export function PersonalInformation() {
@@ -54,23 +52,12 @@ export function PersonalInformation() {
             />
           </div>
           <div className=" md:max-w-[70%]">
-            <h3 className="font-semibold text-lg mb-2">{profile?.name || "-"}</h3>
+            <h3 className="font-semibold text-lg mb-2">
+              {profile?.name || "-"}
+            </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {profile?.description || "-"}
+              {profile?.description || "Belum ada deskripsi"}
             </p>
-
-            {/* Status Badges */}
-            <div className="flex flex-wrap gap-2 mt-3 justify-start">
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-                Pengguna Gratis
-              </span>
-              <span className="px-3 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
-                Afiliator
-              </span>
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">
-                Kreator
-              </span>
-            </div>
           </div>
         </div>
 
@@ -79,14 +66,18 @@ export function PersonalInformation() {
             <label className="text-sm font-medium text-muted-foreground">
               Nama Lengkap
             </label>
-            <p className="text-foreground font-medium">{profile?.name || "-"}</p>
+            <p className="text-foreground font-medium">
+              {profile?.name || "-"}
+            </p>
           </div>
 
           <div>
             <label className="text-sm font-medium text-muted-foreground">
               Email
             </label>
-            <p className="text-foreground font-medium">{profile?.email || "-"}</p>
+            <p className="text-foreground font-medium">
+              {profile?.email || "-"}
+            </p>
           </div>
 
           <div>

@@ -311,15 +311,18 @@ export default function Pricing() {
 
                         {/* Button */}
                         <Button
-                          className={` m-12 absolute bottom-0 left-0 right-0 ${"bg-blue-600 hover:bg-blue-700 text-white"}`}
+                          className={`m-12 absolute bottom-0 left-0 right-0 ${
+                            plan.appProductSubscriptionItems?.[0]?.isClaimed
+                              ? "bg-gray-400 hover:bg-gray-400 text-white cursor-not-allowed opacity-60"
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
+                          disabled={plan.appProductSubscriptionItems?.[0]?.isClaimed}
                           onClick={() => {
+                            if (plan.appProductSubscriptionItems?.[0]?.isClaimed) {
+                              return; // Prevent action if already claimed
+                            }
+                            
                             if (selectedItem?.price === 0) {
-                              if (
-                                plan.appProductSubscriptionItems?.[0]?.isClaimed
-                              ) {
-                                showToast("error", "Product sudah diambil");
-                                return;
-                              }
                               checkoutFreeProduct(selectedItem?.id);
                             } else {
                               onSelectItem(

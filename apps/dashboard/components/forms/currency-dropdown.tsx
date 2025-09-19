@@ -1,6 +1,5 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -46,21 +45,29 @@ export function CurrencyDropdown({
   value,
   onChange,
   placeholder = "Pilih mata uang",
-  label = "Mata Uang",
+
   error,
   onFocus,
 }: CurrencyDropdownProps) {
+  // Find the selected currency to display in the trigger
+  const selectedCurrency = CURRENCIES.find(currency => currency.code === value);
+
   return (
     <div className="space-y-1">
-      <Label className="text-sm font-medium text-foreground" htmlFor="currency">
-        {label}
-      </Label>
+  
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
           className={error ? "border-red-500 focus:border-red-500" : ""}
           onFocus={onFocus}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}>
+            {selectedCurrency && (
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm">{selectedCurrency.symbol}</span>
+                <span className="font-medium">{selectedCurrency.code}</span>
+              </div>
+            )}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {CURRENCIES.map((currency) => (

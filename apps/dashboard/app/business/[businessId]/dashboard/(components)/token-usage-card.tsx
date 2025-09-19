@@ -32,7 +32,7 @@ export function TokenUsageCard() {
         <p className="text-sm text-muted-foreground">{subtitle}</p>
 
         {subscription?.expiredAt && (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-red-500">
             (Valid sampai{" "}
             {dateFormat.indonesianDate(new Date(subscription?.expiredAt))})
           </span>

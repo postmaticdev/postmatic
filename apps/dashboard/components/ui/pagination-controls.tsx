@@ -37,10 +37,10 @@ export function PaginationControls({
 }: PaginationControlsProps) {
   const { page, totalPages, hasNextPage, hasPrevPage } = pagination;
 
-  // Don't render if there's only one page or no pages
-  if (totalPages <= 1) {
-    return null;
-  }
+  // // Don't render if there's only one page or no pages
+  // if (totalPages <= 1) {
+  //   return null;
+  // }
 
   return (
     <div

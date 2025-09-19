@@ -7,6 +7,7 @@ import { TextField } from "@/components/forms/text-field";
 import { UploadPhoto } from "@/components/forms/upload-photo";
 import { useFormNewBusiness } from "@/contexts/form-new-business-context";
 import { ProductKnowledgePld } from "@/models/api/knowledge/product.type";
+import { Label } from "@/components/ui/label";
 
 export function ProductKnowledge() {
   const { formData, setFormData, errors, clearFieldError } =
@@ -33,11 +34,11 @@ export function ProductKnowledge() {
   };
 
   const defaultPlaceholders = {
-    productName: "Masukkan nama produk",
-    productCategory: "Masukkan kategori produk",
-    productDescription: "Masukkan deskripsi produk",
-    price: "Masukkan harga produk",
-    currency: "Masukkan mata uang",
+    productName: "Kopi Kapal Langit",
+    productCategory: "Kopi",
+    productDescription: "Kopi Kapal adalah kopi yang berasal dari Kapal",
+    price: "100000",
+    currency: "IDR",
   };
 
   const finalLabels = { ...defaultLabels };
@@ -92,24 +93,27 @@ export function ProductKnowledge() {
         onFocus={() => clearFieldError(1, "description")}
       />
 
-      <CurrencyDropdown
-        value={step2.currency}
-        onChange={(value) => updateField("currency", value)}
-        placeholder="Pilih mata uang"
-        label="Mata Uang"
-        error={errors.step2.currency}
-        onFocus={() => clearFieldError(1, "currency")}
-      />
+      <Label className="text-sm font-medium text-foreground mb-1">
+        Harga Produk
+      </Label>
+      <div className="flex w-full gap-6 items-start justify-between">
+        <CurrencyDropdown
+          value={step2.currency}
+          onChange={(value) => updateField("currency", value)}
+          placeholder="Pilih mata uang"
+          error={errors.step2.currency}
+          onFocus={() => clearFieldError(1, "currency")}
+        />
 
       <PriceInput
         value={step2.price}
         onChange={(value) => updateField("price", value)}
-        placeholder="Masukkan harga produk"
-        label="Harga Produk"
+        placeholder={defaultPlaceholders.price}
         currency={step2.currency || "IDR"}
         error={errors.step2.price}
         onFocus={() => clearFieldError(1, "price")}
       />
+      </div>
     </div>
   );
 }

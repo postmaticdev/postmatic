@@ -9,7 +9,6 @@ import { FormNewBusinessProvider } from "@/contexts/form-new-business-context";
 import { ManageKnowledgeProvider } from "@/contexts/manage-knowledge-context";
 import { CheckoutProvider } from "@/contexts/checkout-context";
 import { ContentGenerateProvider } from "@/contexts/content-generate-context";
-import { SocketProvider } from "@/provider/socket-provider";
 import { Suspense } from "react";
 import { BusinessGridFilterProvider } from "@/contexts/business-grid-context";
 import { RoleProvider } from "@/contexts/role-context";
@@ -47,21 +46,19 @@ export default function RootLayout({
             >
               <RoleProvider>
                 <ContentGenerateProvider>
-                  <SocketProvider>
-                    <FormNewBusinessProvider>
-                      <ManageKnowledgeProvider>
-                        <CheckoutProvider>
-                          <BusinessGridFilterProvider>
-                            <main
-                              className={`${geistSans.variable} ${geistMono.variable}`}
-                            >
-                              {children}
-                            </main>
-                          </BusinessGridFilterProvider>
-                        </CheckoutProvider>
-                      </ManageKnowledgeProvider>
-                    </FormNewBusinessProvider>
-                  </SocketProvider>
+                  <FormNewBusinessProvider>
+                    <ManageKnowledgeProvider>
+                      <CheckoutProvider>
+                        <BusinessGridFilterProvider>
+                          <main
+                            className={`${geistSans.variable} ${geistMono.variable}`}
+                          >
+                            {children}
+                          </main>
+                        </BusinessGridFilterProvider>
+                      </CheckoutProvider>
+                    </ManageKnowledgeProvider>
+                  </FormNewBusinessProvider>
                 </ContentGenerateProvider>
               </RoleProvider>
               <Toaster />

@@ -10,7 +10,7 @@ import { Suspense } from "react";
 export default function BusinessPage() {
   const { data: profile } = useAuthProfileGetProfile();
   const userName = profile?.data?.data?.name;
-  const greeting = `Selamat datang, ${userName}`;
+  const greeting = userName ? `Selamat datang, ${userName}` : "Loading...";
   return (
     <div className="min-h-screen bg-background">
       <Suspense fallback={<div>Loading...</div>}>

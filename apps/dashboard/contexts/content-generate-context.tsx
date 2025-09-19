@@ -1,6 +1,8 @@
 "use client";
 
+import { ACCESS_TOKEN_KEY } from "@/constants";
 import { showToast } from "@/helper/show-toast";
+import { createSocket, destroySocket, getSocket } from "@/lib/socket";
 import { FilterQuery, Pagination } from "@/models/api/base-response.type";
 import {
   AdvancedGenerate,
@@ -40,15 +42,20 @@ import {
   useLibraryTemplateGetSaved,
   useLibraryTemplateSave,
 } from "@/services/library.api";
-import { useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   Dispatch,
   SetStateAction,
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 
 export interface Template {
   id: string;
@@ -157,10 +164,17 @@ interface ContentGenerateContext {
     imageName: string | null,
     template?: Template
   ) => void;
-  onSubmitGenerate: () => void;
+  onSubmitGenerate: (overrides?: {
+    mode?: ContentMode;
+    maskUrl?: string;
+  }) => void;
   onSaveDraft: () => void;
   onResetAdvance: () => void;
-  //   onClickUser: (item: Content) => void; // 🔴
+
+  // // Socket
+  socketEvent: {
+    isConnected: boolean;
+  };
 }
 
 const initialEnabledAdvance: ContentGenerateContext["form"]["enabledAdvance"] =
@@ -187,8 +201,8 @@ const initialEnabledAdvance: ContentGenerateContext["form"]["enabledAdvance"] =
   };
 
 const initialFormBasic: ContentGenerateContext["form"]["basic"] = {
-  category: "",
-  designStyle: "",
+  category: "Default",
+  designStyle: "Default",
   productKnowledgeId: "",
   prompt: "",
   ratio: "1:1",
@@ -247,7 +261,8 @@ export const ContentGenerateProvider = ({
    *
    */
   const { businessId } = useParams() as { businessId: string };
-
+  const queryClient = useQueryClient();
+  const pathname = usePathname();
   /**
    *
    * LIBRARY HISTORY
@@ -256,41 +271,71 @@ export const ContentGenerateProvider = ({
 
   const { data: historiesRes, refetch: refetchHistories } =
     useContentJobGetAllJob(businessId);
-  const histories = historiesRes?.data?.data || [];
-  const [selectedHistory, setSelectedHistory] = useState<JobData | null>(null);
+
+  const [histories, setHistories] = useState<GetAllJob[]>([]);
+
+  //DEBUG
+  const flattenedHistories = useMemo(() => {
+    return histories.flatMap((item) => item.jobs);
+  }, [histories]);
+  const findMaskGenerated = useMemo(() => {
+    return flattenedHistories.find((item) => item.type === "mask");
+  }, [flattenedHistories]);
+  console.log("findMaskGenerated", findMaskGenerated);
+
+  useEffect(() => {
+    if (historiesRes) {
+      setHistories(historiesRes?.data?.data || []);
+    }
+  }, [historiesRes]);
+
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const selectedHistory = useMemo(() => {
+    if (!selectedJobId) return null;
+    return (
+      histories
+        .flatMap((item) => item.jobs)
+        .find((job) => job.id === selectedJobId) || null
+    );
+  }, [histories, selectedJobId]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null
   );
   const [isDraftSaved, setIsDraftSaved] = useState<boolean>(false);
-  const onSelectHistory = (item: JobData | null) => {
+
+  const onSelectHistory = useCallback((item: JobData | null) => {
     if (item) {
       setMode("regenerate");
-      setSelectedHistory(item);
-      form.setBasic({
-        ...form.basic,
+      setFormBasic((prev) => ({
+        ...prev,
+        prompt: "",
+        referenceImageName: "",
         caption: item?.result?.caption || "",
         productKnowledgeId: item?.input?.productKnowledgeId || "",
         productName: item?.product?.name || "",
         productImage: item?.result?.images[0] || "",
-        category: "other",
+        category: item?.input?.category || "other",
         customCategory: item?.input?.category || "",
-        designStyle: "other",
+        designStyle: item?.input?.designStyle || "",
         customDesignStyle: item?.input?.designStyle || "",
         referenceImage: item?.result?.images[0] || "",
         ratio: item?.result?.ratio || "1:1",
-      });
+      }));
+      setSelectedJobId(item.id);
+      setFormAdvance(initialFormAdvance);
+      setFormRss(null);
       setMode("regenerate");
       setTab("knowledge");
     } else {
       setMode("knowledge");
       setTab("knowledge");
-      setSelectedHistory(null);
+      setSelectedJobId(null);
       form.setBasic(initialFormBasic);
       form.setAdvance(initialFormAdvance);
     }
     setFormRss(null);
     setIsDraftSaved(false); // Reset draft saved state when selecting new history
-  };
+  }, []);
 
   /**
    *
@@ -302,7 +347,7 @@ export const ContentGenerateProvider = ({
   const rssArticles = rssArtRes?.data?.data || [];
 
   const onRssSelect = (item: GenerateContentRssBase | null) => {
-    setSelectedHistory(null);
+    setSelectedJobId(null);
     setFormRss(item);
     setFormBasic({
       ...formBasic,
@@ -564,7 +609,7 @@ export const ContentGenerateProvider = ({
         item: null,
         isLoading: false,
       });
-    } catch (error) {
+    } catch {
       setUnsaveModal((prev) => ({ ...prev, isLoading: false }));
     }
   };
@@ -630,11 +675,17 @@ export const ContentGenerateProvider = ({
   const mGenerateRegenerate = useContentJobRegenerateOnJob();
   const mGenerateMask = useContentJobMaskOnJob();
 
-  const onSubmitGenerate = async () => {
+  const onSubmitGenerate = async (overrides?: {
+    mode?: ContentMode;
+    maskUrl?: string;
+  }) => {
     try {
-      if (isLoading) return;
+      if (isLoading) return; // tetap cegah spam
       setIsLoading(true);
-      switch (mode) {
+
+      const effMode = overrides?.mode ?? mode;
+
+      switch (effMode) {
         case "knowledge":
           const resKnowledge = await mGenerateKnowledge.mutateAsync({
             businessId,
@@ -656,7 +707,7 @@ export const ContentGenerateProvider = ({
 
           showToast(
             "success",
-            "Harap tunggu, generate content sedang berlangsung [TODO: KNOWLEDGE]"
+            "Harap tunggu, generate content sedang berlangsung"
           );
           break;
         case "rss":
@@ -685,7 +736,7 @@ export const ContentGenerateProvider = ({
 
           showToast(
             "success",
-            "Harap tunggu, generate content sedang berlangsung [TODO: RSS]"
+            "Harap tunggu, generate content sedang berlangsung"
           );
           break;
         case "regenerate":
@@ -717,11 +768,11 @@ export const ContentGenerateProvider = ({
 
           showToast(
             "success",
-            "Harap tunggu, generate content sedang berlangsung [TODO: REGENERATE]"
+            "Harap tunggu, generate content sedang berlangsung"
           );
           break;
         case "mask":
-          if (!form.mask) {
+          if (!form.mask && !overrides?.maskUrl) {
             showToast("error", "Harap pilih mask");
             return;
           }
@@ -732,7 +783,7 @@ export const ContentGenerateProvider = ({
           const resMask = await mGenerateMask.mutateAsync({
             businessId,
             formData: {
-              mask: form.mask,
+              mask: form.mask || overrides?.maskUrl || "",
               prompt: form.basic.prompt || "",
               referenceImage: selectedHistory?.result?.images[0] || "",
               caption:
@@ -753,7 +804,7 @@ export const ContentGenerateProvider = ({
           await afterSubmitGenerate(resMask?.data?.data?.jobId);
           showToast(
             "success",
-            "Harap tunggu, generate content sedang berlangsung [TODO: MASK]"
+            "Harap tunggu, generate content sedang berlangsung"
           );
           break;
         default:
@@ -773,7 +824,7 @@ export const ContentGenerateProvider = ({
       (job) => job.id === jobId
     );
     if (findJob) {
-      setSelectedHistory(findJob || null);
+      setSelectedJobId(findJob.id);
       setIsDraftSaved(false); // Reset draft saved state when new content is generated
     }
   };
@@ -819,6 +870,124 @@ export const ContentGenerateProvider = ({
     } catch {}
   };
 
+  /**
+   *
+   * HANDLER SOCKET
+   *
+   */
+  const [isConnected, setIsConnected] = useState(false);
+  const rbRef = useRef<string | null>(null);
+  const router = useRouter();
+  const joinRoom = useCallback((rb?: string | null) => {
+    const s = getSocket();
+    if (!s || !s.connected) return;
+    if (!rb) return;
+    s.emit("join:business", rb);
+  }, []);
+
+  // private function
+  const toastFinal = useCallback(
+    (job: JobData) => {
+      const phase = job.stage;
+      const isFinal = phase === "done" || phase === "error";
+      if (!isFinal) return;
+
+      const title =
+        phase === "done" ? "Selesai Generate Konten" : "Gagal Generate Konten";
+      const desc =
+        phase === "error"
+          ? job.error?.message ?? "Terjadi kesalahan"
+          : `Selesai generate konten ${job.product?.name ?? ""}`;
+
+      toast(title, {
+        description: desc,
+        action: {
+          label: "Open",
+          onClick: () => {
+            if (!pathname.includes("content-generate")) {
+              router.push(`/business/${businessId}/content-generate`);
+            }
+            onSelectHistory(job);
+          },
+        },
+      });
+    },
+    [onSelectHistory, businessId, router, pathname]
+  );
+
+  const updateJobData = useCallback((incoming: JobData) => {
+    setHistories((prev) =>
+      prev.map((group) => {
+        const exists = group.jobs.some((j) => j.id === incoming.id);
+        if (!exists) return group;
+        return {
+          ...group,
+          jobs: group.jobs.map((j) => (j.id === incoming.id ? incoming : j)),
+        };
+      })
+    );
+  }, []);
+
+  /** ===== Socket lifecycle ===== */
+  useEffect(() => {
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem(ACCESS_TOKEN_KEY)
+        : null;
+    const socket = createSocket({ token });
+
+    const onConnect = () => {
+      console.log("connect");
+      setIsConnected(true);
+      const rb = rbRef.current ?? businessId;
+      console.log("rb", rb);
+      if (rb) joinRoom(rb);
+    };
+    const onDisconnect = () => {
+      console.log("disconnect");
+      setIsConnected(false);
+    };
+    const onReconnect = () => {
+      console.log("reconnect");
+      setIsConnected(true);
+      const rb = rbRef.current ?? businessId;
+      if (rb) joinRoom(rb);
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("reconnect", onReconnect);
+
+    /** === EVENT: imagegen:update (SIMPAN SEMUA PROGRESS) === */
+    socket.on("imagegen:update", (job: JobData) => {
+      updateJobData(job);
+
+      // Toast + notifikasi hanya saat final
+      const phase = job.stage;
+      if (phase === "done" || phase === "error") {
+        queryClient.invalidateQueries({
+          queryKey: ["contentJobGetAllJob"],
+        });
+        if (pathname.includes("content-generate")) {
+          onSelectHistory(job);
+        } else {
+          toastFinal(job);
+        }
+      }
+    });
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("reconnect", onReconnect);
+      socket.off("imagegen:update");
+      destroySocket();
+    };
+  }, [businessId, joinRoom, toastFinal, updateJobData]);
+
+  const socketEvent: ContentGenerateContext["socketEvent"] = {
+    isConnected,
+  };
   return (
     <ContentGenerateContext.Provider
       value={{
@@ -850,6 +1019,7 @@ export const ContentGenerateProvider = ({
         onResetAdvance,
         isDraftSaved,
         setIsDraftSaved,
+        socketEvent,
       }}
     >
       {children}

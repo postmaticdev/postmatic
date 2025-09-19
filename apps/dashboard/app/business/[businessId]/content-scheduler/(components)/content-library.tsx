@@ -108,21 +108,20 @@ export function ContentLibrary({
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: draftContent, isLoading: isLoadingDraft } = useContentDraftGetAllDraftImage(businessId, {
-    search: searchQuery,
-    limit: 50,
-  });
+  const { data: draftContent, isLoading: isLoadingDraft } =
+    useContentDraftGetAllDraftImage(businessId, {
+      search: searchQuery,
+      limit: 50,
+    });
   const filteredContentDraft = (draftContent?.data.data || []).filter(
     (item) => !item.readyToPost
   );
 
-  const { data: postedContent, isLoading: isLoadingPosted } = useContentPostedGetAllPostedImage(
-    businessId,
-    {
+  const { data: postedContent, isLoading: isLoadingPosted } =
+    useContentPostedGetAllPostedImage(businessId, {
       search: searchQuery,
       limit: 50,
-    }
-  );
+    });
   const filteredPostedContent = postedContent?.data.data || [];
 
   const { data: platformData } = usePlatformKnowledgeGetAll(businessId);
@@ -255,7 +254,6 @@ export function ContentLibrary({
               ...formDataDraft.queue,
               generatedImageContentId:
                 formDataDraft.queue.generatedImageContentId,
-              caption: formDataDraft.edit.caption,
               dateTime: new Date(
                 formDataDraft.queue.date + " " + formDataDraft.queue.time
               ).toISOString(),
@@ -265,6 +263,7 @@ export function ContentLibrary({
           onCloseModalPost();
           break;
       }
+      onCloseModalPost();
     } catch {}
   };
 
@@ -293,7 +292,7 @@ export function ContentLibrary({
         return filteredContentDraft.map((content) => (
           <div
             key={content.id}
-            className="relative group border border-border bg-card  shadow-sm p-3 rounded-lg"
+            className="relative border border-border bg-card  shadow-sm p-3 rounded-lg  group transition-all duration-300 hover:scale-105 cursor-pointer"
           >
             <div className="aspect-square rounded-lg overflow-hidden">
               {/* Template content placeholder */}
@@ -301,7 +300,9 @@ export function ContentLibrary({
                 <Image
                   src={content.images[0] || DEFAULT_PLACEHOLDER_IMAGE}
                   alt="Hino Dutro"
-                  className="w-full h-full object-cover"
+                  className="object-cover rounded-xl select-none pointer-events-none
+             transform-gpu transition-transform duration-500 ease-out will-change-transform
+             group-hover:scale-110"
                   width={500}
                   height={500}
                 />
@@ -418,7 +419,7 @@ export function ContentLibrary({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        {(isLoadingDraft || isLoadingPosted) ? (
+        {isLoadingDraft || isLoadingPosted ? (
           <ContentLibrarySkeleton count={8} />
         ) : renderItems().length === 0 && searchQuery === "" ? (
           <NoContent
@@ -426,7 +427,9 @@ export function ContentLibrary({
             title="Belum ada konten"
             titleDescription="Tambahkan konten baru"
             buttonText="Tambah Konten"
-            onButtonClick={() => router.push(`/business/${businessId}/content-generate`)}
+            onButtonClick={() =>
+              router.push(`/business/${businessId}/content-generate`)
+            }
           />
         ) : renderItems().length === 0 ? (
           <SearchNotFound description="" />
@@ -438,13 +441,18 @@ export function ContentLibrary({
 
         <CreatePostModal
           isOpen={modalPost}
-          onClose={() => onCloseModalPost()}
+          onClose={onCloseModalPost}
           showScheduling={showScheduling}
           formData={formDataDraft}
           setFormData={setFormDataDraft}
           onSave={handleSave}
           postType={initialPostType}
           setPostType={setInitialPostType}
+          isLoading={
+            mAddToQueue?.isPending ||
+            mDirectPostFromDraft?.isPending ||
+            mSchedulePost?.isPending
+          }
         />
 
         <ViewPostModal

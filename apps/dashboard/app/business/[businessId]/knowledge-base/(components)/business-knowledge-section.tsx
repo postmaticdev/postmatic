@@ -16,6 +16,9 @@ import {
 import { DEFAULT_BUSINESS_IMAGE } from "@/constants";
 import { mapEnumPlatform } from "@/helper/map-enum-platform";
 import { cn } from "@/lib/utils";
+import { useRole } from "@/contexts/role-context";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
+import { PlatformRes } from "@/models/api/knowledge/platform.type";
 
 export function BusinessKnowledgeSection() {
   const { businessId } = useParams() as { businessId: string };
@@ -30,6 +33,9 @@ export function BusinessKnowledgeSection() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPlatformModalOpen, setIsPlatformModalOpen] = useState(false);
+
+  const { access } = useRole();
+  const { businessKnowledge, platformKnowledge } = access;
 
   const handleEditClick = () => {
     setIsEditModalOpen(true);
@@ -47,14 +53,16 @@ export function BusinessKnowledgeSection() {
             <h1 className="text-xl font-semibold text-foreground">
               Pengetahuan Bisnis
             </h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={handleEditClick}
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
+            {businessKnowledge.write && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={handleEditClick}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Image Card - 4:3 ratio */}
@@ -76,7 +84,9 @@ export function BusinessKnowledgeSection() {
 
             {/* Company Information */}
             <div>
-              <h3 className="font-semibold text-foreground mb-2">{businessKnowledgeData?.data?.data?.name || "Tidak tersedia"}</h3>
+              <h3 className="font-semibold text-foreground mb-2">
+                {businessKnowledgeData?.data?.data?.name || "Tidak tersedia"}
+              </h3>
               <p className="text-sm text-muted-foreground mb-3">
                 {businessKnowledgeData?.data?.data?.category}
               </p>
@@ -85,24 +95,28 @@ export function BusinessKnowledgeSection() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-6 px-2 text-xs"
+                  className="h-6 px-2 text-xs max-w-[200px] truncate"
                 >
-                  <Globe className="w-3 h-3 mr-1" />
-                  {businessKnowledgeData?.data?.data?.website ||
-                    "Tidak tersedia"}
+                  <Globe className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">
+                    {businessKnowledgeData?.data?.data?.website ||
+                      "Tidak tersedia"}
+                  </span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-6 px-2 text-xs bg-pink-50 border-pink-200 text-pink-700"
+                  className="h-6 px-2 text-xs bg-pink-50 border-pink-200 text-pink-700 max-w-[200px] truncate"
                 >
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {businessKnowledgeData?.data?.data?.location ||
-                    "Tidak tersedia"}
+                  <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">
+                    {businessKnowledgeData?.data?.data?.location ||
+                      "Tidak tersedia"}
+                  </span>
                 </Button>
               </div>
 
-              <p className="text-sm text-muted-foreground mb-3">
+              <p className="text-sm text-muted-foreground mb-3 line-clamp-4">
                 {businessKnowledgeData?.data?.data?.description ||
                   "Tidak tersedia"}
               </p>
@@ -126,12 +140,14 @@ export function BusinessKnowledgeSection() {
                   </div>
                 ))}
                 {/* Plus Button */}
-                <button
-                  onClick={handlePlatformClick}
-                  className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex flex-shrink-0 items-center justify-center hover:from-gray-500 hover:to-gray-600 transition-colors"
-                >
-                  <Plus className="w-6 h-6 text-white" />
-                </button>
+                {platformKnowledge.write && (
+                  <button
+                    onClick={handlePlatformClick}
+                    className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex flex-shrink-0 items-center justify-center hover:from-gray-500 hover:to-gray-600 transition-colors"
+                  >
+                    <Plus className="w-6 h-6 text-white" />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -141,7 +157,7 @@ export function BusinessKnowledgeSection() {
                 <h3 className="font-semibold text-foreground mb-2">
                   Keunikan Bisnis
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground line-clamp-4">
                   {businessKnowledgeData?.data?.data?.uniqueSellingPoint ||
                     "Tidak tersedia"}
                 </p>
@@ -151,7 +167,7 @@ export function BusinessKnowledgeSection() {
                 <h3 className="font-semibold text-foreground mb-2">
                   Visi & Misi
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground line-clamp-4">
                   {businessKnowledgeData?.data?.data?.visionMission ||
                     "Tidak tersedia"}
                 </p>

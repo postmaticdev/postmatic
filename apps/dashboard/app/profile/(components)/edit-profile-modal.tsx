@@ -20,14 +20,9 @@ import {
 } from "@/services/auth.api";
 import { ProfilePld, UpdatePasswordPld } from "@/models/api/auth/profile.type";
 import { showToast } from "@/helper/show-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../components/ui/select";
+import { SearchableCountrySelect } from "./searchable-select-content";
 import countryCodes from "@/lib/country-code.json";
+import { FcGoogle } from "react-icons/fc";
 
 type ViewMode = "profile" | "password";
 
@@ -63,6 +58,10 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
   const profile = profileData?.data?.data;
   const mUpdateProfile = useAuthProfileUpdateProfile();
   const mChangePassword = useAuthProfileChangePassword();
+
+  const isSocialAccount = profile?.users?.some(
+    (user) => user.provider === "google"
+  );
 
   const [formData, setFormData] = useState<ProfilePld>(initialFormData);
   const [passwordData, setPasswordData] =
@@ -237,59 +236,62 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                 />
               </div>
 
-              {/* Phone with Country Code */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">No HP</label>
-                <div className="flex space-x-2">
-                  <Select
-                    value={formData.countryCode}
-                    onValueChange={(value) =>
-                      handleInputChange("countryCode", value)
-                    }
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Kode">
-                        {formData.countryCode &&
-                          countryCodes.find(
-                            (c) => c.dial_code === formData.countryCode
-                          )?.dial_code}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countryCodes.map((country) => (
-                        <SelectItem
-                          key={country.dial_code}
-                          value={country.dial_code}
-                        >
-                          {country.name} ({country.dial_code})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    className="bg-card flex-1"
-                    placeholder="Masukkan nomor HP..."
-                  />
-                </div>
-              </div>
+               {/* Phone with Country Code */}
+               <div className="space-y-2">
+                 <label className="text-sm font-medium">No HP</label>
+                 <div className="flex space-x-2">
+                   <SearchableCountrySelect
+                     countries={countryCodes}
+                     value={formData.countryCode}
+                     onValueChange={(value) =>
+                       handleInputChange("countryCode", value)
+                     }
+                     placeholder="Kode"
+                     searchPlaceholder="Cari negara..."
+                     className="w-40 bg-card"
+                   />
+                   <Input
+                     type="tel"
+                     value={formData.phone}
+                     onChange={(e) => handleInputChange("phone", e.target.value)}
+                     className="bg-card flex-1"
+                     placeholder="Masukkan nomor HP..."
+                   />
+                 </div>
+               </div>
 
               {/* Change Password Button */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Password</label>
-                <Button
-                  variant="outline"
-                  className="w-full h-12 justify-between space-x-3 bg-card text-muted-foreground hover:bg-background"
-                  onClick={handleChangePassword}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Lock className="h-5 w-5" />
-                    <span className="text-sm font-medium">Ganti Password</span>
-                  </div>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <label className="text-sm font-medium">
+                  {isSocialAccount ? "Akun" : "Password"}
+                </label>
+                {isSocialAccount ? (
+                  <Button
+                    variant="outline"
+                    className="w-full h-12 justify-between space-x-3 bg-card text-foreground hover:bg-background"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <FcGoogle className="h-5 w-5" />
+                      <span className="text-sm font-medium">
+                        Terhubung dengan Google
+                      </span>
+                    </div>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full h-12 justify-between space-x-3 bg-card text-muted-foreground hover:bg-background"
+                    onClick={handleChangePassword}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Lock className="h-5 w-5" />
+                      <span className="text-sm font-medium">
+                        Ganti Password
+                      </span>
+                    </div>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </>
           ) : (

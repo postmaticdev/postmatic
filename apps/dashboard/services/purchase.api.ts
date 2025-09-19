@@ -1,5 +1,9 @@
 import { api } from "@/config/api";
-import { BaseResponse } from "@/models/api/base-response.type";
+import {
+  BaseResponse,
+  BaseResponseFiltered,
+  FilterQuery,
+} from "@/models/api/base-response.type";
 import { BusinessPurchaseRes } from "@/models/api/purchase/business.type";
 import {
   BankPld,
@@ -39,9 +43,12 @@ export const useUserPurchaseGetDetail = (businessId: string) => {
 // ============================== BUSINESS PURCHASE ==============================
 
 export const businessPurchaseService = {
-  getHistory: (businessId: string) => {
-    return api.get<BaseResponse<BusinessPurchaseRes[]>>(
-      `/purchase/business/${businessId}`
+  getHistory: (businessId: string, filterQuery: Partial<FilterQuery>) => {
+    return api.get<BaseResponseFiltered<BusinessPurchaseRes[]>>(
+      `/purchase/business/${businessId}`,
+      {
+        params: filterQuery,
+      }
     );
   },
   getDetail: (businessId: string, paymentId: string) => {
@@ -51,10 +58,13 @@ export const businessPurchaseService = {
   },
 };
 
-export const useBusinessPurchaseGetHistory = (businessId: string) => {
+export const useBusinessPurchaseGetHistory = (
+  businessId: string,
+  filterQuery: Partial<FilterQuery>
+) => {
   return useQuery({
-    queryKey: ["businessPurchaseHistory", businessId],
-    queryFn: () => businessPurchaseService.getHistory(businessId),
+    queryKey: ["businessPurchaseHistory", businessId, filterQuery],
+    queryFn: () => businessPurchaseService.getHistory(businessId, filterQuery),
     enabled: !!businessId,
   });
 };

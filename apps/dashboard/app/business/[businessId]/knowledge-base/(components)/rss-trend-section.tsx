@@ -35,6 +35,7 @@ import { SearchNotFound } from "@/components/base/search-not-found";
 import { getRssSourceImage } from "@/helper/rss-image-helper";
 import { rssKnowledgeSchema } from "@/validator/new-business";
 import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
+import { useRole } from "@/contexts/role-context";
 
 const initialRSS: AddRssPld & { id?: string } = {
   title: "",
@@ -47,7 +48,9 @@ interface RSSTrendSectionProps {
   openRssModal?: boolean;
 }
 
-export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) {
+export function RSSTrendSection({
+  openRssModal = false,
+}: RSSTrendSectionProps) {
   const { businessId } = useParams() as { businessId: string };
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,7 +60,8 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
     AddRssPld & { id?: string; masterRssCategoryId?: string }
   >(initialRSS);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  const { access } = useRole();
+  const { rssKnowledge } = access;
   const [searchQuery, setSearchQuery] = useState("");
   const [rssErrors, setRssErrors] = useState<Record<string, string>>({});
 
@@ -87,7 +91,7 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
       // Clear the URL parameter after opening the modal
       const newSearchParams = new URLSearchParams(searchParams.toString());
       newSearchParams.delete("openRssModal");
-      const newUrl = newSearchParams.toString() 
+      const newUrl = newSearchParams.toString()
         ? `${window.location.pathname}?${newSearchParams.toString()}`
         : window.location.pathname;
       router.replace(newUrl);
@@ -174,7 +178,10 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
       }
       setIsModalOpen(false);
     } catch (error) {
-      if (error instanceof Error && error.message === "Harap perbaiki data yang tidak valid") {
+      if (
+        error instanceof Error &&
+        error.message === "Harap perbaiki data yang tidak valid"
+      ) {
         // Validation errors are already set, don't show toast
         return;
       }
@@ -204,13 +211,15 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
                     className="pl-10 bg-background"
                   />
                 </div>
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 whitespace-nowrap"
-                  onClick={handleAddRSS}
-                >
-                  <Plus className="w-4 h-4" />
-                  Tambah Sumber RSS
-                </Button>
+                {rssKnowledge.write && (
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 whitespace-nowrap"
+                    onClick={handleAddRSS}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Tambah Sumber RSS
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -225,7 +234,11 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
             ) : rss.length === 0 ? (
               <SearchNotFound description=" atau tambah sumber RSS baru" />
             ) : (
-              <div className={`space-y-3 ${rss.length > 3 ? 'max-h-[500px] overflow-y-auto ' : ''}`}>
+              <div
+                className={`space-y-3 ${
+                  rss.length > 3 ? "max-h-[500px] overflow-y-auto " : ""
+                }`}
+              >
                 {rss.map((trend) => (
                   <Card key={trend.id} className="bg-background-secondary">
                     <CardContent className="p-4">
@@ -259,13 +272,15 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
 
                           {/* Status Toggle */}
                           <div className="flex items-center gap-3">
-                            <Switch
-                              checked={trend.isActive}
-                              onCheckedChange={() =>
-                                handleToggleStatus(trend.id)
-                              }
-                              className="data-[state=checked]:bg-primary"
-                            />
+                            {rssKnowledge.write && (
+                              <Switch
+                                checked={trend.isActive}
+                                onCheckedChange={() =>
+                                  handleToggleStatus(trend.id)
+                                }
+                                className="data-[state=checked]:bg-primary"
+                              />
+                            )}
                             <span className="text-sm font-medium text-foreground">
                               Status:{" "}
                               <span
@@ -281,37 +296,39 @@ export function RSSTrendSection({ openRssModal = false }: RSSTrendSectionProps) 
                           </div>
                         </div>
 
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleEditRSS({
-                                  ...trend,
-                                  id: trend.id,
-                                })
-                              }
-                            >
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleOpenDeleteModal(trend)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {rssKnowledge.write && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                              >
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleEditRSS({
+                                    ...trend,
+                                    id: trend.id,
+                                  })
+                                }
+                              >
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleOpenDeleteModal(trend)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

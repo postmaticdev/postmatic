@@ -2,9 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Upload, Plus, Loader2 } from "lucide-react";
+import { Search, Upload, Loader2 } from "lucide-react";
 import { ReferenceFullviewModal } from "./reference-fullview-modal";
 import {
   PaginationControls,
@@ -150,6 +149,15 @@ export function ReferencePanel() {
     [form]
   );
 
+  const handleCardClick = useCallback(() => {
+    if (!isUploading) {
+      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.click();
+      }
+    }
+  }, [isUploading]);
+
   const onDetail = useCallback((item: Template | null) => {
     setSelectedTemplate(item);
     setIsDetailDialogOpen(true);
@@ -258,6 +266,7 @@ export function ReferencePanel() {
               filterQuery={savedTemplates.filterQuery}
               currData={savedTemplates.contents.length}
               setFilterQuery={savedTemplates.setFilterQuery}
+              showSort={false}
             />
             {/* Saved References Grid */}
             {savedTemplates.isLoading ? (
@@ -272,12 +281,13 @@ export function ReferencePanel() {
                         ? "border-blue-500 bg-background"
                         : isUploading
                         ? "border-blue-300 bg-background"
-                        : "border-border bg-background-secondary"
+                        : "border-border bg-background-secondary cursor-pointer hover:border-blue-300"
                     }`}
                     onDragEnter={!isUploading ? handleDrag : undefined}
                     onDragLeave={!isUploading ? handleDrag : undefined}
                     onDragOver={!isUploading ? handleDrag : undefined}
                     onDrop={!isUploading ? handleDrop : undefined}
+                    onClick={!isUploading ? handleCardClick : undefined}
                   >
                     <div className="flex flex-col items-center justify-center text-center p-4 w-full">
                       {isUploading ? (
@@ -300,27 +310,15 @@ export function ReferencePanel() {
                           <p className="text-sm text-muted-foreground mb-2">
                             Drag & drop an image here
                           </p>
-                          <p className="text-xs text-muted-foreground mb-3">or</p>
-                          <label htmlFor="file-upload" className="cursor-pointer">
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                              asChild
-                            >
-                              <span>
-                                <Plus className="h-4 w-4 mr-1" />
-                                Browse Files
-                              </span>
-                            </Button>
-                            <input
-                              id="file-upload"
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleFileInput}
-                              disabled={isUploading}
-                            />
-                          </label>
+                          <p className="text-xs text-muted-foreground mb-3">or click to browse</p>
+                          <input
+                            id="file-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileInput}
+                            disabled={isUploading}
+                          />
                         </>
                       )}
                     </div>

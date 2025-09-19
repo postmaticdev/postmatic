@@ -22,19 +22,16 @@ export function PlatformModal({ isOpen, onClose }: PlatformModalProps) {
         <DialogHeader>
           <DialogTitle>Kelola Platform Social Media</DialogTitle>
           <DialogDescription>
-            Hubungkan atau putuskan platform media sosial Anda untuk meningkatkan strategi konten
+            Hubungkan atau putuskan platform media sosial Anda untuk
+            meningkatkan strategi konten
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           <ConnectedPlatformForm />
         </div>
-        <DialogFooterWithButton
-          buttonMessage="Tutup"
-          onClick={onClose}
-        />
+        <DialogFooterWithButton buttonMessage="Tutup" onClick={onClose} />
       </DialogContent>
-      
     </Dialog>
   );
 }

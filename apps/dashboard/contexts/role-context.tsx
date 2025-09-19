@@ -10,6 +10,10 @@ export interface PermissionAccess {
   dashboard: {
     overview: boolean;
   };
+  business: {
+    read: boolean;
+    write: boolean;
+  };
   businessKnowledge: {
     write: boolean;
     read: boolean;
@@ -59,6 +63,10 @@ export interface PermissionAccess {
 interface PermissionRight {
   dashboard: {
     overview: MemberRole[];
+  };
+  business: {
+    read: MemberRole[];
+    write: MemberRole[];
   };
   businessKnowledge: {
     write: MemberRole[];
@@ -111,9 +119,13 @@ const permissionRight: PermissionRight = {
   dashboard: {
     overview: ["Owner", "Admin", "Member"],
   },
-  businessKnowledge: {
+  business: {
     read: ["Owner", "Admin", "Member"],
     write: ["Owner"],
+  },
+  businessKnowledge: {
+    read: ["Owner", "Admin", "Member"],
+    write: ["Owner", "Admin"],
   },
   roleKnowledge: {
     read: ["Owner", "Admin", "Member"],
@@ -129,7 +141,7 @@ const permissionRight: PermissionRight = {
   },
   productKnowledge: {
     read: ["Owner", "Admin", "Member"],
-    write: ["Owner"],
+    write: ["Owner", "Admin"],
   },
   contentGenerate: {
     readHistory: ["Owner", "Admin", "Member"],
@@ -138,8 +150,8 @@ const permissionRight: PermissionRight = {
   },
   contentScheduler: {
     read: ["Owner", "Admin", "Member"],
-    write: ["Owner", "Admin"],
-    directPost: ["Owner"],
+    write: ["Owner", "Admin", "Member"],
+    directPost: ["Owner", "Admin", "Member"],
   },
   member: {
     read: ["Owner", "Admin", "Member"],
@@ -156,13 +168,13 @@ const permissionRight: PermissionRight = {
     write: ["Owner", "Admin"],
   },
 };
-
 /** ====== Helper: buat PermissionAccess dari role ====== */
 function getAccess(role: MemberRole | null): PermissionAccess {
   const has = (allowed: MemberRole[]) => !!role && allowed.includes(role);
 
   const {
     dashboard,
+    business,
     businessKnowledge,
     roleKnowledge,
     rssKnowledge,
@@ -178,6 +190,10 @@ function getAccess(role: MemberRole | null): PermissionAccess {
   return {
     dashboard: {
       overview: has(dashboard.overview),
+    },
+    business: {
+      read: has(business.read),
+      write: has(business.write),
     },
     businessKnowledge: {
       read: has(businessKnowledge.read),

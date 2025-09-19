@@ -1,5 +1,9 @@
 import { api } from "@/config/api";
-import { BaseResponse, BaseResponseFiltered, FilterQuery } from "@/models/api/base-response.type";
+import {
+  BaseResponse,
+  BaseResponseFiltered,
+  FilterQuery,
+} from "@/models/api/base-response.type";
 import {
   BusinessDetailRes,
   BusinessRes,
@@ -25,6 +29,9 @@ const businessService = {
   },
   delete: (idData: string) => {
     return api.delete<BaseResponse<BusinessRes>>(`/business/${idData}`);
+  },
+  outBusiness: (idData: string) => {
+    return api.delete<BaseResponse<BusinessRes>>(`/business/${idData}/out`);
   },
 };
 
@@ -86,6 +93,17 @@ export const useBusinessDelete = () => {
     mutationFn: (idData: string) => businessService.delete(idData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["businesses"] });
+    },
+  });
+};
+
+export const useBusinessOutBusiness = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (idData: string) => businessService.outBusiness(idData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["businesses"] });
+      queryClient.invalidateQueries({ queryKey: ["business"] });
     },
   });
 };

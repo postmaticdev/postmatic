@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 
 export const SelectedReferenceImage = () => {
   const { form, selectedHistory, isLoading } = useContentGenerate();
-  const imageHistory = selectedHistory?.input?.referenceImage;
+  const imageHistory =
+    selectedHistory?.result?.images[0] ||
+    selectedHistory?.input?.referenceImage;
+
   if (
     !form?.basic?.referenceImage ||
     form.basic.referenceImage === imageHistory

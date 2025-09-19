@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
 
 export const GenerateFormBasic = () => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const { form, isLoading } = useContentGenerate();
+  const { form, isLoading, selectedHistory } = useContentGenerate();
   const { basic, setBasic } = form;
+  const disabled = selectedHistory !== null;
 
   return (
     <div className="space-y-4">
@@ -21,7 +22,7 @@ export const GenerateFormBasic = () => {
           variant="outline"
           className="w-full justify-between text-left font-normal"
           onClick={() => setIsProductModalOpen(true)}
-          disabled={isLoading}
+          disabled={isLoading || disabled}
         >
           <span
             className={
@@ -42,11 +43,11 @@ export const GenerateFormBasic = () => {
         <select
           className={cn(
             "w-full p-2 rounded-md text-sm border border-input bg-background-secondary text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-            isLoading && "opacity-50 cursor-not-allowed hover:bg-transparent"
+            isLoading ||
+              (disabled && "opacity-50 cursor-not-allowed hover:bg-transparent")
           )}
-          disabled={isLoading}
+          disabled={isLoading || disabled}
         >
-          <option value="">Select Ratio</option>
           {RATIO_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -60,11 +61,15 @@ export const GenerateFormBasic = () => {
         <label className="block text-sm font-medium mb-2">Category</label>
         <select
           value={basic?.category}
-          disabled={isLoading}
-          onChange={(e) => setBasic({ ...basic, category: e.target.value })}
+          disabled={isLoading || disabled}
+          onChange={(e) => {
+            if (disabled) return;
+            setBasic({ ...basic, category: e.target.value });
+          }}
           className={cn(
             "w-full p-2 rounded-md text-sm border border-input bg-background-secondary text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-            isLoading && "opacity-50 cursor-not-allowed hover:bg-transparent"
+            isLoading ||
+              (disabled && "opacity-50 cursor-not-allowed hover:bg-transparent")
           )}
         >
           {CATEGORY_OPTIONS.map((option) => (
@@ -78,14 +83,16 @@ export const GenerateFormBasic = () => {
           <input
             type="text"
             value={basic.customCategory}
-            disabled={isLoading}
+            disabled={isLoading || disabled}
             onChange={(e) =>
               setBasic({ ...basic, customCategory: e.target.value })
             }
             placeholder="Enter custom category"
             className={cn(
               "w-full p-2 mt-2 rounded-md text-sm border border-input bg-background-secondary text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-              isLoading && "opacity-50 cursor-not-allowed hover:bg-transparent"
+              isLoading ||
+                (disabled &&
+                  "opacity-50 cursor-not-allowed hover:bg-transparent")
             )}
           />
         )}
@@ -97,10 +104,11 @@ export const GenerateFormBasic = () => {
         <select
           value={basic.designStyle || ""}
           onChange={(e) => setBasic({ ...basic, designStyle: e.target.value })}
-          disabled={isLoading}
+          disabled={isLoading || disabled}
           className={cn(
             "w-full p-2 rounded-md text-sm border border-input bg-background-secondary text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-            isLoading && "opacity-50 cursor-not-allowed hover:bg-transparent"
+            isLoading ||
+              (disabled && "opacity-50 cursor-not-allowed hover:bg-transparent")
           )}
         >
           {DESIGN_STYLE_OPTIONS.map((option) => (
@@ -115,14 +123,16 @@ export const GenerateFormBasic = () => {
           <input
             type="text"
             value={basic.customDesignStyle}
-            disabled={isLoading}
+            disabled={isLoading || disabled}
             onChange={(e) =>
               setBasic({ ...basic, customDesignStyle: e.target.value })
             }
             placeholder="Enter custom design style"
             className={cn(
               "w-full p-2 mt-2 rounded-md text-sm border border-input bg-background-secondary text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-              isLoading && "opacity-50 cursor-not-allowed hover:bg-transparent"
+              isLoading ||
+                (disabled &&
+                  "opacity-50 cursor-not-allowed hover:bg-transparent")
             )}
           />
         )}

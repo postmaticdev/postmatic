@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { countBusiness } from "@/services/business.api";
-import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
+import { ACCESS_TOKEN_KEY, LOGIN_URL, REFRESH_TOKEN_KEY } from "@/constants";
+import { AxiosError } from "axios";
 
 export default function Home() {
   useCheckBusiness();
@@ -29,15 +30,25 @@ const useCheckBusiness = () => {
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshTokenFromParam);
     }
 
-    countBusiness().then((totalBusiness) => {
-      if (!totalBusiness || totalBusiness === 0) {
-        router.replace("/business/new-business");
-      } else if (rootBusinessIdFromParam) {
-        router.replace(`/business/${rootBusinessIdFromParam}`);
-      } else {
-        router.replace("/business");
-      }
-    });
+    countBusiness()
+      .then((totalBusiness) => {
+        if (!totalBusiness || totalBusiness === 0) {
+          router.replace("/business/new-business");
+        } else if (rootBusinessIdFromParam) {
+          router.replace(`/business/${rootBusinessIdFromParam}`);
+        } else {
+          router.replace("/business");
+        }
+      })
+      .catch((error) => {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) {
+            router.replace(LOGIN_URL);
+          }
+        } else {
+          router.replace("/business");
+        }
+      });
 
     return;
   }, [router]);

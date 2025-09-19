@@ -23,7 +23,11 @@ export function RoleKnowledge() {
 
   const addHashtag = () => {
     if (currentHashtag.trim()) {
-      updateField("hashtags", [...step3.hashtags, currentHashtag.trim()]);
+      let hashtag = currentHashtag.trim();
+      if (hashtag?.startsWith("#")) {
+        hashtag = hashtag.slice(1);
+      }
+      updateField("hashtags", [...step3.hashtags, hashtag]);
       setCurrentHashtag("");
     }
   };
@@ -45,12 +49,12 @@ export function RoleKnowledge() {
   };
 
   const defaultPlaceholders = {
-    targetAudience: "Masukkan sasaran audiens",
-    contentTone: "Masukkan nuansa konten",
-    persona: "Masukkan persona",
-    hashtagInput: "Masukkan hashtag",
-    callToAction: "Masukkan ajakan bertindak",
-    goals: "Masukkan tujuan konten",
+    targetAudience: "Pemilik UMKM",
+    contentTone: "Intuitif",
+    persona: "Pemilik UMKM",
+    hashtagInput: "#UMKM, #Bisnis, #DigitalMarketing",
+    callToAction: "Klik untuk melihat produk",
+    goals: "Meningkatkan penjualan",
   };
 
   const finalLabels = { ...defaultLabels };
@@ -94,8 +98,8 @@ export function RoleKnowledge() {
             className={`flex-1 bg-background-secondary ${
               errors.step3.hashtags ? "border-red-500 focus:border-red-500" : ""
             }`}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " " || e.key === ",") {
                 e.preventDefault();
                 addHashtag();
               }

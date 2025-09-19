@@ -29,7 +29,7 @@ export function WelcomeSection({
               {title}
             </h1>
             {showSubscription && (
-              <Badge className="text-xs w-fit">
+              <Badge className="text-xs text-white w-fit">
                 {subscription?.subscription?.productName || "Paket Gratis"}
               </Badge>
             )}

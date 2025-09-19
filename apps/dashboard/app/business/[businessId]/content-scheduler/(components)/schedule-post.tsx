@@ -46,6 +46,7 @@ import {
 import { showToast } from "@/helper/show-toast";
 import { NoContent } from "@/components/base/no-content";
 import { UpcomingPostsSkeleton } from "@/components/grid-skeleton/upcoming-posts-skeleton";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 
 interface PostToCancel {
   type: "auto" | "manual";
@@ -288,10 +289,23 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
         setPostType={setPostType}
         formData={formDataDraft}
         setFormData={setFormDataDraft}
+        isLoading={mDirectPostFromDraft.isPending || mSchedulerEdit.isPending}
       />
 
       {/* Confirmation Dialog */}
-      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+
+      <DeleteConfirmationModal
+        isOpen={isConfirmDialogOpen}
+        title="Hapus Jadwal Postingan"
+        description="Tindakan ini tidak dapat dibatalkan. Jadwal postingan ini akan dihapus secara permanen dari sistem."
+        onClose={() => setIsConfirmDialogOpen(false)}
+        onConfirm={handleConfirmCancel}
+        withDetailItem={false}
+        isLoading={mRemove.isPending || mReadyToPost.isPending}
+        itemName={postToCancel?.postId || ""}
+      />
+
+      {/* <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <div className="flex items-center space-x-2">
@@ -315,7 +329,7 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </Card>
   );
 }

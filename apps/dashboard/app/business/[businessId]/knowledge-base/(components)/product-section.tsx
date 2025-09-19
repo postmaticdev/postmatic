@@ -38,6 +38,7 @@ import { formatPriceWithCurrency } from "@/helper/price-formatter";
 import { NoContent } from "@/components/base/no-content";
 import { SearchNotFound } from "@/components/base/search-not-found";
 import { productKnowledgeSchema } from "@/validator/new-business";
+import { useRole } from "@/contexts/role-context";
 
 const initialProduct: ProductKnowledgePld & { id?: string } = {
   category: "",
@@ -63,6 +64,8 @@ export function ProductSection() {
   const [productErrors, setProductErrors] = useState<Record<string, string>>(
     {}
   );
+  const { access } = useRole();
+  const { productKnowledge } = access;
 
   const handleAddProduct = () => {
     setModalMode("add");
@@ -178,13 +181,15 @@ export function ProductSection() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button
-              className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
-              onClick={handleAddProduct}
-            >
-              <Plus className="w-4 h-4" />
-              Add Product
-            </Button>
+            {productKnowledge.write && (
+              <Button
+                className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+                onClick={handleAddProduct}
+              >
+                <Plus className="w-4 h-4" />
+                Tambah Produk
+              </Button>
+            )}
           </div>
 
           {/* Product List */}
@@ -244,32 +249,34 @@ export function ProductSection() {
                         </div>
                       </div>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleEditProduct(product)}
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteProduct(product)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {productKnowledge.write && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleEditProduct(product)}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteProduct(product)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

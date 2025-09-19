@@ -12,6 +12,7 @@ import {
   Redo,
   Send,
   Download,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -79,6 +80,107 @@ export function FullscreenImageModal({
   // history (mask)
   const [history, setHistory] = useState<ImageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  /** Promise helper untuk canvas.toBlob */
+  function canvasToBlob(
+    canvas: HTMLCanvasElement,
+    type = "image/png",
+    quality?: number
+  ): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("toBlob failed"));
+        },
+        type,
+        quality
+      );
+    });
+  }
+
+  /** Make OpenAI mask:
+   *  - background: opaque white (#fff, alpha=255)
+   *  - painted area (maskCanvas channel R > 0): transparent (alpha=0)
+   */
+  function createOpenAIBinaryWhiteMask(): HTMLCanvasElement | null {
+    const maskCanvas = maskCanvasRef.current;
+    const img = imageRef.current;
+    if (!maskCanvas || !img) return null;
+
+    const out = document.createElement("canvas");
+    out.width = img.naturalWidth;
+    out.height = img.naturalHeight;
+    const octx = out.getContext("2d");
+    const mctx = maskCanvas.getContext("2d");
+    if (!octx || !mctx) return null;
+
+    // Fill putih penuh
+    octx.fillStyle = "#ffffff";
+    octx.fillRect(0, 0, out.width, out.height);
+
+    // Ambil data mask (pakai channel merah)
+    const maskData = mctx.getImageData(
+      0,
+      0,
+      maskCanvas.width,
+      maskCanvas.height
+    );
+    const md = maskData.data;
+
+    // ImageData final untuk mask putih/transparent
+    const maskOut = octx.getImageData(0, 0, out.width, out.height);
+    const od = maskOut.data;
+
+    // Binary: jika md[i] (R) > 0 => transparan; selain itu tetap putih opaque
+    for (let i = 0; i < md.length; i += 4) {
+      const painted = md[i] > 0; // R channel
+      // Set warna putih
+      od[i] = 255; // R
+      od[i + 1] = 255; // G
+      od[i + 2] = 255; // B
+      // Alpha 0 jika digambar (area untuk diedit), 255 selainnya (dipertahankan)
+      od[i + 3] = painted ? 0 : 255;
+    }
+
+    octx.putImageData(maskOut, 0, 0);
+    return out;
+  }
+
+  function createTransparentImageFromMask(): string | null {
+    const maskCanvas = maskCanvasRef.current;
+    const img = imageRef.current;
+    if (!maskCanvas || !img) return null;
+
+    const out = document.createElement("canvas");
+    out.width = img.naturalWidth;
+    out.height = img.naturalHeight;
+    const octx = out.getContext("2d");
+    const mctx = maskCanvas.getContext("2d");
+    if (!octx || !mctx) return null;
+
+    // Gambar foto asli
+    octx.drawImage(img, 0, 0);
+
+    // Ambil mask & buat area bertopeng jadi transparan
+    const maskData = mctx.getImageData(
+      0,
+      0,
+      maskCanvas.width,
+      maskCanvas.height
+    );
+    const imageData = octx.getImageData(0, 0, out.width, out.height);
+    const md = maskData.data;
+    const id = imageData.data;
+
+    for (let i = 0; i < md.length; i += 4) {
+      const a = md[i] / 255; // R sebagai alpha mask
+      if (a > 0) id[i + 3] = Math.round(id[i + 3] * (1 - a));
+    }
+
+    octx.putImageData(imageData, 0, 0);
+    return out.toDataURL("image/png", 1.0);
+  }
 
   // ---------- geometry helpers ----------
   const calculateFitTransform = useCallback(
@@ -706,65 +808,19 @@ export function FullscreenImageModal({
     }
   };
 
-  const handleCreateFile = () => {
-    const maskCanvas = maskCanvasRef.current;
-    const img = imageRef.current;
-    if (!maskCanvas || !img) return;
-
-    const out = document.createElement("canvas");
-    out.width = img.naturalWidth;
-    out.height = img.naturalHeight;
-    const octx = out.getContext("2d");
-    if (!octx) return;
-
-    // Draw the original image
-    octx.drawImage(img, 0, 0);
-
-    // Get the mask data to make highlighted areas transparent
-    const mctx = maskCanvas.getContext("2d");
-    if (mctx) {
-      const maskData = mctx.getImageData(
-        0,
-        0,
-        maskCanvas.width,
-        maskCanvas.height
-      );
-
-      // Get the current image data from the output canvas
-      const imageData = octx.getImageData(0, 0, out.width, out.height);
-      const maskPixels = maskData.data;
-      const imagePixels = imageData.data;
-
-      // Apply transparency based on mask
-      for (let i = 0; i < maskPixels.length; i += 4) {
-        const maskAlpha = maskPixels[i] / 255; // Red channel as mask alpha
-
-        if (maskAlpha > 0) {
-          // Make the pixel transparent where mask exists
-          imagePixels[i + 3] = Math.round(imagePixels[i + 3] * (1 - maskAlpha));
-        }
-      }
-
-      // Put the modified image data back
-      octx.putImageData(imageData, 0, 0);
-    }
-
-    return out.toDataURL("image/png", 1.0);
-  };
-
   // download (gambar + overlay)
   const handleDownload = useCallback(() => {
-    const out = handleCreateFile();
-    const link = document.createElement("a");
-    const ts = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
-    link.download = `transparent-${
-      selectedHistory?.result?.images[0] || "image"
-    }-${ts}.png`;
-    if (!out) {
+    const dataUrl = createTransparentImageFromMask();
+    if (!dataUrl) {
       showToast("error", "Gagal membuat file");
       return;
     }
-    link.href = out;
+    const link = document.createElement("a");
+    const ts = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+    link.download = `transparent-${
+      selectedHistory?.result?.images[0] ?? "image"
+    }-${ts}.png`;
+    link.href = dataUrl;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -775,27 +831,32 @@ export function FullscreenImageModal({
     try {
       if (isLoading) return;
       setIsLoading(true);
-      const out = handleCreateFile();
-      if (!out) {
-        throw new Error("Terjadi kesalahan saat membuat file masking");
-      }
-      const file = new File([out], "image.png", { type: "image/png" });
-      const uploadImageRes = await helperService.uploadSingleImage({
-        image: file,
+      // 1) Buat MASK untuk OpenAI (putih penuh, area diubah transparan)
+      const maskCanvas = createOpenAIBinaryWhiteMask();
+      if (!maskCanvas) throw new Error("Gagal membuat mask untuk OpenAI");
+
+      // 2) Convert ke Blob → File
+      const maskBlob = await canvasToBlob(maskCanvas, "image/png", 1.0);
+      const maskFile = new File([maskBlob], "mask.png", { type: "image/png" });
+
+      // 3) Upload -> dapatkan URL
+      const uploadMaskUrl = await helperService.uploadSingleImage({
+        image: maskFile,
       });
-      form.setMask((prev) => (prev ? prev : uploadImageRes));
-      console.log("FORM_MASK_1", form.mask);
-      await sleep(1000);
-      console.log("FORM_MASK_2", form.mask);
-      await sleep(1000);
-      console.log("FORM_MASK_3", form.mask);
-      await onSubmitGenerate();
-      console.log("FORM_MASK_4", form.mask);
-      console.log("onSubmitGenerate");
-    } catch {
-      setIsLoading(false);
+
+      // 4) (opsional) update state agar UI lain bisa tahu, tapi JANGAN mengandalkan ini untuk submit
+      form.setMask(uploadMaskUrl);
+
+      // 5) Langsung submit dengan override; jangan menunggu state tersinkron
+      onSubmitGenerate({ mode: "mask", maskUrl: uploadMaskUrl });
+
+      onClose();
+    } catch (err) {
+      console.error(err);
+      showToast("error", "Gagal mengirim mask");
     }
   };
+
   const sleep = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -1072,7 +1133,11 @@ export function FullscreenImageModal({
             disabled={!(form?.basic?.prompt?.trim() || "") || isLoading}
             aria-label="Send comment"
           >
-            <Send className="h-8 w-8" />
+            {isLoading ? (
+              <Loader2 className="h-8 w-8 animate-spin" />
+            ) : (
+              <Send className="h-8 w-8" />
+            )}
           </Button>
         </div>
       </div>

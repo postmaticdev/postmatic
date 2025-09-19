@@ -84,6 +84,7 @@ interface DialogFooterWithButtonProps {
   onClick: () => void;
   className?: string;
   children?: React.ReactNode;
+  disabled?: boolean;
 }
 
 const DialogFooterWithButton = ({
@@ -91,12 +92,14 @@ const DialogFooterWithButton = ({
   onClick,
   className,
   children,
+  disabled,
 }: DialogFooterWithButtonProps) => (
   <DialogFooter className={className}>
     <div className="flex justify-end gap-2">
       {children}
       <Button
         onClick={onClick}
+        disabled={disabled}
         className="bg-primary hover:bg-blue-700 px-6 text-white"
       >
         {buttonMessage}
@@ -113,12 +116,12 @@ interface DialogFooterWithTwoButtonsProps {
     icon?: React.ReactNode;
     className?: string;
     variant?:
-    | "default"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link"
-    | "destructive";
+      | "default"
+      | "outline"
+      | "secondary"
+      | "ghost"
+      | "link"
+      | "destructive";
   };
   secondaryButton: {
     message: string;

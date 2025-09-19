@@ -17,6 +17,7 @@ import { TextField } from "@/components/forms/text-field";
 import { ProductCategoryDropdown } from "@/components/forms/product-category-dropdown";
 import { PriceInput } from "@/components/forms/price-input";
 import { CurrencyDropdown } from "@/components/forms/currency-dropdown";
+import { Label } from "@/components/ui/label";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -58,6 +59,14 @@ export function ProductModal({
     ? "Update informasi produk"
     : "Tambah produk baru ke basis pengetahuan";
   const buttonText = isEditMode ? "Ubah Perubahan" : "Tambah";
+
+  const placeholders = {
+    productName: "Kopi Kapal Langit",
+    productCategory: "Kopi",
+    productDescription: "Kopi Kapal adalah kopi yang berasal dari Kapal",
+    price: "100000",
+    currency: "IDR",
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -105,14 +114,14 @@ export function ProductModal({
                   label="Nama Produk"
                   value={formValue.name}
                   onChange={(value) => updateField("name", value)}
-                  placeholder="Masukkan nama produk"
+                  placeholder={placeholders.productName}
                   error={errors.name}
                 />
 
                 <ProductCategoryDropdown
                   value={formValue.category}
                   onChange={(value) => updateField("category", value)}
-                  placeholder="Pilih kategori produk"
+                  placeholder={placeholders.productCategory}
                   label="Kategori Produk"
                   error={errors.category}
                 />
@@ -123,28 +132,30 @@ export function ProductModal({
               label="Deskripsi Produk"
               value={formValue.description}
               onChange={(value) => updateField("description", value)}
-              placeholder="Masukkan deskripsi produk"
+              placeholder={placeholders.productDescription}
               multiline
               rows={3}
               error={errors.description}
             />
+            <Label className="text-sm font-medium text-foreground mb-1">
+              Harga Produk
+            </Label>
+            <div className="flex w-full gap-6 items-start justify-between">
+              <CurrencyDropdown
+                value={formValue.currency}
+                onChange={(value) => updateField("currency", value)}
+                placeholder={placeholders.currency}
+                error={errors.currency}
+              />
 
-            <CurrencyDropdown
-              value={formValue.currency}
-              onChange={(value) => updateField("currency", value)}
-              placeholder="Pilih mata uang"
-              label="Mata Uang"
-              error={errors.currency}
-            />
-
-            <PriceInput
-              value={formValue.price}
-              onChange={(value) => updateField("price", value)}
-              placeholder="Masukkan harga produk"
-              label="Harga Produk"
-              currency={formValue.currency || "IDR"}
-              error={errors.price}
-            />
+              <PriceInput
+                value={formValue.price}
+                onChange={(value) => updateField("price", value)}
+                placeholder={placeholders.price}
+                currency={formValue.currency || "IDR"}
+                error={errors.price}
+              />
+            </div>
           </div>
         </div>
 

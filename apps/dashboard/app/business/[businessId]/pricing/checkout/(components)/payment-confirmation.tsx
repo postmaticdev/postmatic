@@ -341,9 +341,7 @@ export function PaymentConfirmation({
     <div className="text-center">
       <div className="mb-4 sm:mb-6">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-          Pembayaran dengan{" "}
-          {checkoutResult?.method?.charAt(0).toUpperCase() +
-            checkoutResult?.method.slice(1)}
+          Pembayaran dengan {checkoutResult?.method?.toUpperCase()}
         </h1>
       </div>
 
@@ -375,7 +373,9 @@ export function PaymentConfirmation({
         onClick={handleCheckPaymentStatus}
         className={cn(
           "text-white text-sm sm:text-base lg:text-lg font-medium w-full py-3 sm:py-4 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors mb-4",
-          isChecking ? "bg-gray-500 dark:bg-gray-700" : "bg-blue-600 dark:bg-blue-500"
+          isChecking
+            ? "bg-gray-500 dark:bg-gray-700"
+            : "bg-blue-600 dark:bg-blue-500"
         )}
       >
         {isChecking ? "Memeriksa..." : "Cek Status Pembayaran"}

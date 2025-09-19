@@ -30,6 +30,7 @@ interface CreatePostModalProps {
   formData: FormDataDraft;
   setFormData: (formData: FormDataDraft) => void;
   onSave: () => void;
+  isLoading: boolean;
 }
 
 export function CreatePostModal({
@@ -41,6 +42,7 @@ export function CreatePostModal({
   formData,
   setFormData,
   onSave,
+  isLoading,
 }: CreatePostModalProps) {
   const { businessId } = useParams() as { businessId: string };
   const { data: dataPlatforms } = usePlatformKnowledgeGetAll(businessId);
@@ -82,7 +84,18 @@ export function CreatePostModal({
     onSave();
   };
 
-  const enabledCount = formData?.direct?.platforms?.length || 0;
+  const enabledCount =
+    formData?.direct?.platforms?.length ||
+    formData?.queue?.platforms?.length ||
+    0;
+  const disabled =
+    (postType === "schedule" &&
+      (!formData?.queue?.date ||
+        !formData?.queue?.time ||
+        !formData?.edit?.caption ||
+        !formData?.queue?.platforms?.length)) ||
+    (postType === "now" &&
+      (!formData?.edit?.caption || !formData?.direct?.platforms?.length));
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -140,12 +153,19 @@ export function CreatePostModal({
           <div className="space-y-2">
             <label className=" font-medium">Caption</label>
             <Textarea
-              value={formData?.edit?.caption || ""}
+              value={
+                (showScheduling
+                  ? formData?.queue?.caption
+                  : formData?.direct?.caption) ||
+                formData?.edit?.caption ||
+                ""
+              }
               onChange={(e) => {
-                console.log(formData);
                 setFormData({
                   ...formData,
                   edit: { ...formData.edit, caption: e.target.value },
+                  queue: { ...formData.queue, caption: e.target.value },
+                  direct: { ...formData.direct, caption: e.target.value },
                 });
               }}
               className="bg-card min-h-24 resize-none"
@@ -171,7 +191,10 @@ export function CreatePostModal({
                   onClick={() => togglePlatform(platform.id)}
                   disabled={!platform.isActive}
                 >
+                  <div className="bg-card p-1 rounded-md">
+                    
                   {mapEnumPlatform.getPlatformIcon(platform.id)}
+                    </div>
                   <span className="font-medium truncate">
                     {mapEnumPlatform.getPlatformLabel(platform.id)}
                   </span>
@@ -185,7 +208,7 @@ export function CreatePostModal({
             </div>
             {enabledCount === 0 && (
               <p className="text-red-400 text-sm">
-                Please select at least one platform
+                Silahkan pilih setidaknya satu platform
               </p>
             )}
           </div>
@@ -235,11 +258,14 @@ export function CreatePostModal({
 
         <DialogFooterWithButton
           buttonMessage={
-            showScheduling && postType === "schedule"
-              ? "Schedule Post"
-              : "Add to queue"
+            isLoading
+              ? "Memuat..."
+              : showScheduling && postType === "schedule"
+              ? "Jadwalkan"
+              : "Posting Sekarang"
           }
           onClick={handleSave}
+          disabled={disabled || isLoading}
         />
       </DialogContent>
     </Dialog>

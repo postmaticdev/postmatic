@@ -112,9 +112,9 @@ const CustomLegend = ({ payload }: CustomLegendProps) => {
             style={{ backgroundColor: entry.color }}
           />
           <span className="text-sm text-gray-600 dark:text-gray-300">
-            {entry.value === "Image" && "Gambar"}
+            {entry.value === "Gambar" && "Gambar"}
             {entry.value === "Video" && "Video"}
-            {entry.value === "LiveStream" && "Siaran Langsung"}
+            {entry.value === "Siaran Langsung" && "Siaran Langsung"}
             {entry.value === "Total" && "Total"}
           </span>
         </div>
@@ -242,7 +242,7 @@ export function AdvancedTokenChart() {
         </div>
 
         {/* Chart container */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-card rounded-lg p-4 border border-border">
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
@@ -280,8 +280,9 @@ export function AdvancedTokenChart() {
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#E5E7EB"
+                  stroke="var(--grid-color, #E5E7EB)"
                   strokeOpacity={0.3}
+                  className="dark:stroke-[#E5E7EB] stroke-[#000000]"
                 />
                 <XAxis
                   dataKey="date"

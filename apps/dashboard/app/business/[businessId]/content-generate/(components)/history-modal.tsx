@@ -142,15 +142,22 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                                   mapEnumJobStatus.getColor(item.status)
                                 )}
                               >
-                                {mapEnumJobStatus.getIcon(item.status)}
+                                {mapEnumJobStatus.getIcon(
+                                  item.status,
+                                  item.status === "processing"
+                                    ? "animate-spin"
+                                    : ""
+                                )}
                                 {mapEnumJobStatus.getLabel(item.status)}
                               </Badge>
                               <Badge variant="outline">
                                 {item?.input?.ratio}
                               </Badge>
-                              <Badge variant="outline">
-                                {item?.input?.designStyle}
-                              </Badge>
+                              {item?.input?.designStyle && (
+                                <Badge variant="outline">
+                                  {item?.input?.designStyle}
+                                </Badge>
+                              )}
                               <Badge variant="outline">
                                 {item?.input?.category}
                               </Badge>

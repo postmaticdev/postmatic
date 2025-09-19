@@ -22,7 +22,7 @@ export function BusinessKnowledge() {
     logoBrand: "Logo Bisnis",
     brandName: "Nama Bisnis",
     category: "Kategori Bisnis",
-    description1: "Deskripsi Bisnis",
+    description: "Deskripsi Bisnis",
     visionMission: "Visi dan Misi",
     uniqueSellingPoint: "Keunikan Bisnis",
     urlWebsite: "Link Website",
@@ -30,13 +30,15 @@ export function BusinessKnowledge() {
   };
 
   const defaultPlaceholders = {
-    brandName: "Masukkan nama bisnis",
-    category: "Masukkan kategori bisnis",
-    description1: "Masukkan deskripsi bisnis",
-    visionMission: "Masukkan visi dan misi",
-    uniqueSellingPoint: "Masukkan keunikan bisnis",
-    urlWebsite: "Masukkan link website",
-    location: "Masukkan lokasi bisnis",
+    brandName: "Postmatic",
+    category: "Digital Marketing",
+    description:
+      "Bisnis yang menyediakan layanan pembuatan konten untuk media sosial",
+    visionMission:
+      "Menjadi platform pembuatan konten terbaik untuk media sosial",
+    uniqueSellingPoint: "Automasi pembuatan konten untuk media sosial",
+    urlWebsite: "https://postmatic.id",
+    location: "Sleman, Yogyakarta",
   };
 
   const finalLabels = { ...defaultLabels };
@@ -81,10 +83,10 @@ export function BusinessKnowledge() {
       </div>
 
       <TextField
-        label={finalLabels.description1}
+        label={finalLabels.description}
         value={step1.description}
         onChange={(value) => updateField("description", value)}
-        placeholder={finalPlaceholders.description1}
+        placeholder={finalPlaceholders.description}
         multiline
         rows={3}
         error={errors.step1.description}

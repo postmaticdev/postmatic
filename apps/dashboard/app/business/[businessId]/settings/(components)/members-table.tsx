@@ -22,6 +22,7 @@ import { useState } from "react";
 import { MemberRole } from "@/models/api/business/index.type";
 import { showToast } from "@/helper/show-toast";
 import { MemberStatus } from "@/models/api/member/index.type";
+import { useRole } from "@/contexts/role-context";
 
 export function MembersTable() {
   const { businessId } = useParams() as { businessId: string };
@@ -31,6 +32,11 @@ export function MembersTable() {
 
   const mUpdateRole = useMemberUpdateRole();
   const mResend = useMemberResend();
+
+  const { access } = useRole();
+  const { invite, edit, delete: deleteMember } = access.member;
+
+  const isActionAble = invite || edit || deleteMember;
 
   const onInviteMember = () => {
     setIsMemberModalOpen(true);
@@ -72,12 +78,14 @@ export function MembersTable() {
             <CardTitle className="text-xl sm:text-2xl font-bold">
               Members
             </CardTitle>
-            <Button
-              onClick={onInviteMember}
-              className="w-full sm:w-auto text-white"
-            >
-              + Invite Member
-            </Button>
+            {invite && (
+              <Button
+                onClick={onInviteMember}
+                className="w-full sm:w-auto text-white"
+              >
+                + Invite Member
+              </Button>
+            )}
           </div>
           <div className="block lg:hidden p-4 space-y-3">
             {members.map((member) => (
@@ -111,18 +119,17 @@ export function MembersTable() {
                         {member.profile.email}
                       </div>
                       <Badge
-                    variant="secondary"
-                    className="bg-blue-100 text-blue-800 border-0 rounded-full flex-shrink-0"
-                  >
-                    {member.status}
-                  </Badge>
+                        variant="secondary"
+                        className="bg-blue-100 text-blue-800 border-0 rounded-full flex-shrink-0"
+                      >
+                        {member.status}
+                      </Badge>
                     </div>
                   </div>
-                 
                 </div>
-                
+
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  {JOINED_STATUS.includes(member.status) && (
+                  {JOINED_STATUS.includes(member.status) && isActionAble ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -146,8 +153,17 @@ export function MembersTable() {
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  )}
-                  {member.status === "Pending" && (
+                  ) : JOINED_STATUS.includes(member.status) ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center"
+                    >
+                      <Shield className="h-4 w-4 mr-1" />
+                      {member.role}
+                    </Button>
+                  ) : null}
+                  {member.status === "Pending" && isActionAble && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -180,9 +196,11 @@ export function MembersTable() {
                   <th className="p-4 font-medium text-muted-foreground">
                     Status
                   </th>
-                  <th className="p-4 font-medium text-muted-foreground">
-                    Actions
-                  </th>
+                  {isActionAble && (
+                    <th className="p-4 font-medium text-muted-foreground">
+                      Actions
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -265,7 +283,7 @@ export function MembersTable() {
                       </Badge>
                     </td>
                     <td className="p-4">
-                      {member.status === "Pending" && (
+                      {member.status === "Pending" && isActionAble && (
                         <div className="flex items-center space-x-2">
                           <Mail className="h-4 w-4 text-muted-foreground" />
                           <Button
@@ -273,7 +291,7 @@ export function MembersTable() {
                             size="sm"
                             onClick={() => onResendInvite(member.id)}
                           >
-                            Resend Invite
+                            Kirim Ulang Undangan
                           </Button>
                         </div>
                       )}

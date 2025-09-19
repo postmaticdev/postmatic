@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CardNoGap } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -15,12 +15,11 @@ import { useBusinessGetById } from "@/services/business.api";
 import { useParams } from "next/navigation";
 import { LogoLoader } from "@/components/base/logo-loader";
 import { Progress } from "@/components/ui/progress";
-import { useSocketCenter } from "@/provider/socket-provider";
 
 export function PreviewPanel() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isFullscreenImageOpen, setIsFullscreenImageOpen] = useState(false);
-
+  const previewPanelRef = useRef<HTMLDivElement>(null);
   const {
     form,
     selectedHistory,
@@ -32,11 +31,13 @@ export function PreviewPanel() {
     isDraftSaved,
   } = useContentGenerate();
   const { businessId } = useParams() as { businessId: string };
-  const { currentPercentage } = useSocketCenter();
   const { data: businessData } = useBusinessGetById(businessId);
   const businessName = businessData?.data?.data?.name;
 
   const onOpenFullscreenImage = () => {
+    if (selectedHistory?.result?.images.length === 0) {
+      return;
+    }
     setMode("mask");
     setIsFullscreenImageOpen(true);
     setIsHistoryModalOpen(false);
@@ -47,6 +48,19 @@ export function PreviewPanel() {
   const onCloseFullscreenImage = () => {
     setIsFullscreenImageOpen(false);
     setMode("regenerate");
+  };
+
+  const handleGenerateClick = () => {
+    onSubmitGenerate({
+      mode: selectedHistory ? "regenerate" : undefined,
+    });
+    // Scroll to preview panel on mobile, with a slight delay to ensure state updates
+    setTimeout(() => {
+      if (window.innerWidth < 1024) {
+        // For mobile and tablet views
+        previewPanelRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
   };
 
   return (
@@ -129,11 +143,11 @@ export function PreviewPanel() {
         </div>
 
         {isLoading &&
-          typeof currentPercentage === "number" &&
-          currentPercentage < 100 && (
+          typeof selectedHistory?.progress === "number" &&
+          selectedHistory?.progress < 100 && (
             <div className="p-4 flex flex-row items-center gap-4 border-b">
-              <Progress value={currentPercentage ?? 0} />
-              <span className="text-sm">{currentPercentage}%</span>
+              <Progress value={selectedHistory?.progress ?? 0} />
+              <span className="text-sm">{selectedHistory?.progress}%</span>
             </div>
           )}
 
@@ -151,21 +165,10 @@ export function PreviewPanel() {
               placeholder="Write a caption..."
             />
           </div>
-          {selectedHistory && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-fit self-end"
-              onClick={() => onSelectHistory(null)}
-            >
-              <RotateCcw className="h-5 w-5" />
-              Reset Form
-            </Button>
-          )}
         </div>
 
         {/* Optimize Prompt */}
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex flex-col ">
           <label className="block text-sm font-medium mb-2">
             Optimize Prompt
           </label>
@@ -178,22 +181,21 @@ export function PreviewPanel() {
             className="min-h-[60px] max-h-[120px] resize-none border-border text-sm focus:ring-0 p-4"
             placeholder="Write a optimize prompt..."
           />
+          {selectedHistory && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-fit self-end mt-4"
+              onClick={() => onSelectHistory(null)}
+            >
+              <RotateCcw className="h-5 w-5" />
+              Reset Form
+            </Button>
+          )}
         </div>
 
         {/* Generate/Regenerate Button */}
         <div className="p-4">
-          <Button
-            onClick={onSubmitGenerate}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-            disabled={isLoading}
-          >
-            {isLoading
-              ? "Loading..."
-              : selectedHistory
-              ? "Regenerate"
-              : "Generate"}
-          </Button>
-
           {/* Save as Draft Button - Only show after generation */}
           {selectedHistory && (
             <>
@@ -201,7 +203,7 @@ export function PreviewPanel() {
                 <Button
                   onClick={onSaveDraft}
                   variant="outline"
-                  className="w-full mt-2"
+                  className="w-full mb-2"
                   disabled={isLoading}
                 >
                   Save as a Draft
@@ -215,6 +217,17 @@ export function PreviewPanel() {
               )}
             </>
           )}
+          <Button
+            onClick={handleGenerateClick}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            disabled={isLoading}
+          >
+            {isLoading
+              ? "Loading..."
+              : selectedHistory
+              ? "Regenerate"
+              : "Generate"}
+          </Button>
         </div>
       </CardNoGap>
 

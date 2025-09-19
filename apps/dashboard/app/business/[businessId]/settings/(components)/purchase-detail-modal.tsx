@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Copy} from "lucide-react";
+import { Copy } from "lucide-react";
 import {
   BusinessPurchaseRes,
   PaymentAction,
@@ -21,12 +21,11 @@ import { showToast } from "@/helper/show-toast";
 import { formatIdr } from "@/helper/formatter";
 import Image from "next/image";
 import { dateFormat } from "@/helper/date-format";
-import {
-  businessPurchaseService
-} from "@/services/purchase.api";
+import { businessPurchaseService } from "@/services/purchase.api";
 import { useParams } from "next/navigation";
 import { mapEnumPaymentStatus } from "@/helper/map-enum-payment-status";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 interface PurchaseDetailModalProps {
   isOpen: boolean;
@@ -43,6 +42,8 @@ export function PurchaseDetailModal({
 }: PurchaseDetailModalProps) {
   const { businessId } = useParams() as { businessId: string };
   const queryClient = useQueryClient();
+  const [isChecking, setIsChecking] = useState(false);
+
   if (!transaction) return null;
 
   const { paymentDetails, paymentActions } = transaction;
@@ -147,6 +148,7 @@ export function PurchaseDetailModal({
 
   const handleCheckPaymentStatus = async () => {
     try {
+      setIsChecking(true);
       const { data: res } = await businessPurchaseService.getDetail(
         businessId,
         transaction.id
@@ -158,8 +160,9 @@ export function PurchaseDetailModal({
       );
       if (res.data.status !== transaction.status) {
         queryClient.invalidateQueries({
-          queryKey: ["businessPurchaseDetail"],
+          queryKey: ["businessPurchaseHistory"],
         });
+        onClose();
       }
       setTransaction(res.data);
 
@@ -167,6 +170,8 @@ export function PurchaseDetailModal({
     } catch (e) {
       console.log(e);
       showToast("error", "Gagal memeriksa status pembayaran");
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -250,13 +255,16 @@ export function PurchaseDetailModal({
                 <div className="font-bold">{transaction.productName}</div>
               </div>
               <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Type</div>
-                <div className="font-bold">{transaction.productType}</div>
+                <div className="text-sm text-muted-foreground">Tipe</div>
+                <div className="font-bold">
+                  {transaction.productType?.toUpperCase()}
+                </div>
               </div>
               <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Created At</div>
+                <div className="text-sm text-muted-foreground">Tanggal</div>
                 <div className="font-bold">
-                  {dateFormat.indonesianDate(new Date(transaction.createdAt))}
+                  {dateFormat.indonesianDate(new Date(transaction.createdAt))}{" "}
+                  {dateFormat.getHhMm(new Date(transaction.createdAt))}
                 </div>
               </div>
             </CardContent>
@@ -324,9 +332,14 @@ export function PurchaseDetailModal({
         {/* Footer */}
 
         <DialogFooterWithButton buttonMessage="Tutup" onClick={onClose}>
-          <Button variant="outline" onClick={() => handleCheckPaymentStatus()}>
-            Cek Status Pembayaran
-          </Button>
+          {transaction.status === "Pending" && (
+            <Button
+              variant="outline"
+              onClick={() => handleCheckPaymentStatus()}
+            >
+              {isChecking ? "Memeriksa..." : "Cek Status Pembayaran"}
+            </Button>
+          )}
         </DialogFooterWithButton>
       </DialogContent>
     </Dialog>

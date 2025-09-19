@@ -13,11 +13,14 @@ import {
   X,
   User,
   LogOut,
-  CreditCard,
+  Plus,
+  AlertTriangle,
+  Sun,
+  Moon,
+  Zap,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import {
   useAuthProfileGetProfile,
@@ -169,6 +172,11 @@ export function MobileMenu() {
     setIsOpen(false);
   };
 
+  const handleExternalClick = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setIsOpen(false);
+  };
+
   return (
     <>
       {/* Burger Button */}
@@ -209,57 +217,78 @@ export function MobileMenu() {
 
               {/* Profile Section */}
               <div className="p-4 border-b border-border">
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage
-                      src={profile?.image || DEFAULT_USER_AVATAR}
-                      alt={profile?.name || "U"}
-                    />
-                    <AvatarFallback className="bg-muted text-muted-foreground">
-                      {profile?.name?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
-                      {profile?.name || "Pengguna"}
-                    </span>
-                    {userRole && (
-                      <span className="text-xs text-muted-foreground">
-                        {userRole || "Pengguna"}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage
+                        src={profile?.image || DEFAULT_USER_AVATAR}
+                        alt={profile?.name || "U"}
+                      />
+                      <AvatarFallback className="bg-muted text-muted-foreground">
+                        {profile?.name?.[0] || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        {profile?.name || "Pengguna"}
                       </span>
-                    )}
+                      {userRole && (
+                        <span className="text-xs text-muted-foreground">
+                          {userRole || "Pengguna"}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  
+                  {/* Theme Toggle Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleThemeToggle(!isDarkMode)}
+                    className="p-2 h-8 w-8 border-border hover:bg-muted transition-all duration-200 rounded-lg"
+                    aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  >
+                    {isDarkMode ? (
+                      <Sun className="h-4 w-4 text-yellow-500" />
+                    ) : (
+                      <Moon className="h-4 w-4 text-slate-600" />
+                    )}
+                  </Button>
                 </div>
               </div>
 
-              {/* Subscription Info Section */}
-              {businessId && (
-                <div className="p-4 border-b border-border">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-sm text-muted-foreground">
-                        {subscription?.subscription?.productName || "Paket Gratis"}
-                      </span>
-                      {subscription?.expiredAt && (
-                        <span className="text-xs text-muted-foreground">
-                          Valid sampai{" "}
-                          {dateFormat.indonesianDate(new Date(subscription.expiredAt))}
-                        </span>
-                      )}
-                      <span className="text-sm font-bold">{credits}</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        router.push(`/business/${businessId}/pricing`);
-                        setIsOpen(false);
-                      }}
-                      className="w-8 h-8 bg-muted rounded-full flex items-center justify-center"
-                    >
-                      <CreditCard className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
+               {/* Subscription Info Section */}
+               {businessId && (
+                 <div className="p-4 border-b border-border">
+                   <div className="flex items-center justify-between">
+                     <div className="flex flex-col">
+                       <span className="text-sm text-muted-foreground">
+                         {subscription?.subscription?.productName || "Paket Gratis"}
+                       </span>
+                       {subscription?.expiredAt && (
+                         <span className="text-xs text-muted-foreground">
+                           Valid sampai{" "}
+                           {dateFormat.indonesianDate(new Date(subscription.expiredAt))}
+                         </span>
+                       )}
+                       <div className="flex items-center gap-2">
+                         <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{credits}</span>
+                         <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" strokeWidth={1.5} />
+                         <span className="text-xs text-muted-foreground">Token</span>
+                       </div>
+                     </div>
+                     <button
+                       onClick={() => {
+                         router.push(`/business/${businessId}/pricing`);
+                         setIsOpen(false);
+                       }}
+                       className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                     >
+                       <Plus className="w-4 h-4 text-white" />
+                     </button>
+                   </div>
+                 </div>
+               )}
 
               
 
@@ -303,17 +332,15 @@ export function MobileMenu() {
 
               {/* Footer Section */}
               <div className="p-4 border-t border-border space-y-3">
-                {/* Dark Mode Toggle */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Mode Gelap</span>
-                  </div>
-                  <Switch
-                    checked={isDarkMode}
-                    onCheckedChange={handleThemeToggle}
-                  />
-                </div>
+                {/* Report Problem Button */}
+                <Button
+                  variant="ghost"
+                  onClick={() => handleExternalClick("https://forms.gle/fZAF7zGQZcdvyVzy9")}
+                  className="w-full justify-start text-orange-600 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors duration-200"
+                >
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  <span>Laporkan Masalah</span>
+                </Button>
 
                 {/* Logout Button */}
                 <Button

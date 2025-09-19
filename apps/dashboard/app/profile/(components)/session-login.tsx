@@ -74,7 +74,7 @@ export function SessionLogin() {
               <Button
                 variant="destructive"
                 size="sm"
-                className="bg-pink-500 hover:bg-pink-600 text-white px-6"
+                className="text-white px-6"
                 onClick={() => handleLogout(session.refreshToken)}
               >
                 Keluar

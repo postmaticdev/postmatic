@@ -672,6 +672,7 @@ export class ImageContentService extends BaseService {
             take: 1,
             select: {
               schedulerManualPostings: true,
+              caption: true,
             },
           },
         },
@@ -679,6 +680,15 @@ export class ImageContentService extends BaseService {
       if (!check || check.deletedAt) return "Business tidak ditemukan";
       if (check.generatedImageContents.length === 0) {
         return "Konten tidak ditemukan";
+      }
+      if (data.caption) {
+        await db.generatedImageContent.update({
+          where: { id: data.generatedImageContentId },
+          data: {
+            caption: data.caption,
+          },
+        });
+        check.generatedImageContents[0].caption = data.caption || "";
       }
       const { unavailablePlatforms, availablePlatforms } =
         await this.deps.platformService.getPlatforms();

@@ -200,7 +200,7 @@ export class BusinessService extends BaseService {
 
       return returnData;
     } catch (err) {
-      this.handleError("getDetailBusiness", err);
+      this.handleError("BusinessService.getDetailBusiness", err);
     }
   }
 
@@ -308,7 +308,7 @@ export class BusinessService extends BaseService {
       }
       return business;
     } catch (err) {
-      this.handleError("createBusiness", err);
+      this.handleError("BusinessService.createBusiness", err);
     }
   }
 
@@ -354,7 +354,7 @@ export class BusinessService extends BaseService {
       }
       return business;
     } catch (err) {
-      this.handleError("deleteBusiness", err);
+      this.handleError("BusinessService.deleteBusiness", err);
     }
   }
 
@@ -382,7 +382,7 @@ export class BusinessService extends BaseService {
         return "Anda tidak menjadi anggota bisnis ini";
       }
       if (findYou.role === "Owner") {
-        return "Tidak dapat keluar dari bisnis";
+        return "Pemilik tidak dapat keluar dari bisnis";
       }
 
       const updatedMember = await db.member.delete({
@@ -390,7 +390,7 @@ export class BusinessService extends BaseService {
       });
       return updatedMember;
     } catch (error) {
-      this.handleError("outBusiness", error);
+      this.handleError("BusinessService.outBusiness", error);
     }
   }
 }

@@ -98,7 +98,8 @@ export class BusinessController extends BaseController {
         profileId!
       );
       if (!business) return this.notFound(res);
-      if (typeof business === "string") return this.sendError(res, business);
+      if (typeof business === "string")
+        return this.sendError(res, new Error(business), 400);
       return this.sendSuccess(res, business, "Berhasil keluar dari bisnis");
     } catch (err) {
       return this.sendError(res, err);

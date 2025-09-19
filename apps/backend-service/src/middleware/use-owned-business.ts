@@ -2,6 +2,29 @@ import { Request, Response, NextFunction } from "express";
 import db from "../config/db";
 import { cachedOwnedBusinesses } from "../config/cache";
 
+/** Ambil ulang dari DB lalu set ke cache */
+async function loadAndCacheOwnedBusinesses(
+  profileId: string
+): Promise<string[]> {
+  const businesses = await db.rootBusiness.findMany({
+    where: {
+      AND: [
+        { deletedAt: null },
+        {
+          members: {
+            some: { profileId },
+          },
+        },
+      ],
+    },
+    select: { id: true },
+  });
+
+  const owned = businesses.map((b) => b.id);
+  await cachedOwnedBusinesses.set(profileId, owned);
+  return owned;
+}
+
 export const useOwnedBusiness = async (
   req: Request,
   res: Response,
@@ -15,38 +38,26 @@ export const useOwnedBusiness = async (
       });
     }
 
-    const profileId = req.user.id;
-    const { rootBusinessId } = req.params;
+    const profileId = req.user.id as string;
+    const { rootBusinessId } = req.params as { rootBusinessId?: string };
 
-    if (!rootBusinessId) {
-      return next();
-    }
+    // Jika route tidak butuh rootBusinessId, lanjutkan saja
+    if (!rootBusinessId) return next();
 
+    // Attempt #1: pakai cache (atau isi cache jika miss)
     let ownedBusinesses = await cachedOwnedBusinesses.get(profileId);
-
     if (!ownedBusinesses) {
-      const businesses = await db.rootBusiness.findMany({
-        where: {
-          AND: [
-            {
-              members: {
-                some: {
-                  profileId,
-                },
-              },
-            },
-            {
-              deletedAt: null,
-            },
-          ],
-        },
-      });
-
-      ownedBusinesses = businesses.map((b) => b.id);
-      await cachedOwnedBusinesses.set(profileId, ownedBusinesses);
+      ownedBusinesses = await loadAndCacheOwnedBusinesses(profileId);
     }
 
-    const hasAccess = ownedBusinesses.includes(rootBusinessId);
+    // Cek akses dari attempt #1
+    let hasAccess = ownedBusinesses.includes(rootBusinessId);
+
+    // Jika gagal, Attempt #2: refresh paksa dari DB (handle cache stale)
+    if (!hasAccess) {
+      const refreshed = await loadAndCacheOwnedBusinesses(profileId);
+      hasAccess = refreshed.includes(rootBusinessId);
+    }
 
     if (!hasAccess) {
       return res.status(403).json({
@@ -57,10 +68,10 @@ export const useOwnedBusiness = async (
 
     return next();
   } catch (error) {
-    console.error("OWNED BUSINESS ERROR: ", error);
+    console.error("OWNED BUSINESS ERROR:", error);
     return res.status(500).json({
-      metaData: { code: 500, message: "Internal Servel Error" },
-      responseMessage: "Internal Servel Error",
+      metaData: { code: 500, message: "Internal Server Error" },
+      responseMessage: "Internal Server Error",
     });
   }
 };

@@ -140,7 +140,6 @@ export class ImageContentGenerateMockService extends ImageContentService {
         new Date().toISOString();
 
       // Selesai (tidak ada catat token usage / DB write)
-
       const jDone = await this.jobs.setResult(jobId, {
         caption,
         category: data.category,
@@ -150,6 +149,10 @@ export class ImageContentGenerateMockService extends ImageContentService {
         ratio: data.ratio,
         referenceImages: data.referenceImage || null,
         tokenUsed: 0,
+      });
+      await emit({
+        progress: 100,
+        stage: "done",
       });
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } catch (err) {
@@ -282,6 +285,10 @@ export class ImageContentGenerateMockService extends ImageContentService {
         ratio: data.ratio,
         referenceImages: data.referenceImage || null,
         tokenUsed: 0,
+      });
+      await emit({
+        progress: 100,
+        stage: "done",
       });
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } catch (err) {
@@ -452,6 +459,10 @@ export class ImageContentGenerateMockService extends ImageContentService {
       };
 
       const jDone = await this.jobs.setResult(jobId, result);
+      await emit({
+        progress: 100,
+        stage: "done",
+      });
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } catch (err) {
       const jErr = await this.jobs.setError(jobId, err);
@@ -551,6 +562,10 @@ export class ImageContentGenerateMockService extends ImageContentService {
         ratio: data.ratio,
         referenceImages: data.referenceImage || null,
         tokenUsed: 0,
+      });
+      await emit({
+        progress: 100,
+        stage: "done",
       });
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } catch (err) {

@@ -334,6 +334,7 @@ export class ImageContentGenerateService extends ImageContentService {
         },
         tokenUsed
       );
+      await this.emitProgress(rootBusinessId, jobId, 100, "done");
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } finally {
       this.deps.manip.removeIfExists(temps);
@@ -457,6 +458,7 @@ export class ImageContentGenerateService extends ImageContentService {
         },
         tokenUsed
       );
+      await this.emitProgress(rootBusinessId, jobId, 100, "done");
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } finally {
       this.deps.manip.removeIfExists(temps);
@@ -574,6 +576,7 @@ export class ImageContentGenerateService extends ImageContentService {
         },
         tokenUsed
       );
+      await this.emitProgress(rootBusinessId, jobId, 100, "done");
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } finally {
       this.deps.manip.removeIfExists(temps);
@@ -696,6 +699,7 @@ export class ImageContentGenerateService extends ImageContentService {
         },
         tokenUsed
       );
+      await this.emitProgress(rootBusinessId, jobId, 100, "done");
       this.io.to(this.room(rootBusinessId)).emit("imagegen:update", jDone);
     } finally {
       this.deps.manip.removeIfExists(temps);

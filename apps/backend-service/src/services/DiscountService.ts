@@ -76,12 +76,12 @@ export class DiscountService extends BaseService {
     const discount = await db.discountCode.create({
       data: {
         code: randomCodeSix,
-        discount: 30,
-        isReusable: true,
+        discount: 100,
+        isReusable: false,
         name: `Referral Code ${name}`,
         description: `Referral Code New User ${name}`,
         type: "Percentage",
-        expiredAt: new Date(Date.now() + this.MONTH * 6),
+        expiredAt: null,
         maxDiscount: 20000,
         maxUses: null,
         reward: 20000,

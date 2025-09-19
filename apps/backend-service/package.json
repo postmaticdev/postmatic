@@ -10,6 +10,8 @@
     "build": "tsc --project tsconfig.json && cp -r src/public dist/public && cp -r src/views dist/views",
     "backup": "ts-node-dev --transpile-only --exit-child ./src/scripts/database/backup.ts",
     "restore": "ts-node-dev --transpile-only --exit-child ./src/scripts/database/restore.ts",
+    "backup-app": "ts-node-dev --transpile-only --exit-child ./src/scripts/database/backup-app.ts",
+    "restore-app": "ts-node-dev --transpile-only --exit-child ./src/scripts/database/restore-app.ts",
     "seed-template": "ts-node-dev --transpile-only --exit-child ./src/scripts/database/seed-template.ts",
     "spam": "ts-node-dev --transpile-only --exit-child ./src/scripts/spam.ts",
     "ngrok": "ngrok http 2001"

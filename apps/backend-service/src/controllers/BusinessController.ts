@@ -88,4 +88,20 @@ export class BusinessController extends BaseController {
       return this.sendError(res, err);
     }
   };
+
+  outBusiness = async (req: Request, res: Response) => {
+    try {
+      const { rootBusinessId } = req.params;
+      const profileId = req.user?.id;
+      const business = await this.bkService.outBusiness(
+        rootBusinessId,
+        profileId!
+      );
+      if (!business) return this.notFound(res);
+      if (typeof business === "string") return this.sendError(res, business);
+      return this.sendSuccess(res, business, "Berhasil keluar dari bisnis");
+    } catch (err) {
+      return this.sendError(res, err);
+    }
+  };
 }

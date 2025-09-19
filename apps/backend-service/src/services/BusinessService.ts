@@ -348,4 +348,40 @@ export class BusinessService extends BaseService {
       this.handleError("deleteBusiness", err);
     }
   }
+
+  async outBusiness(id: string, profileId: string) {
+    try {
+      const check = await db.rootBusiness.findUnique({
+        where: { id },
+        select: {
+          members: {
+            select: {
+              profileId: true,
+              role: true,
+              id: true,
+            },
+          },
+        },
+      });
+      if (!check) {
+        return null;
+      }
+      const findYou = check.members.find(
+        (member) => member.profileId === profileId
+      );
+      if (!findYou) {
+        return "Anda tidak menjadi anggota bisnis ini";
+      }
+      if (findYou.role === "Owner") {
+        return "Tidak dapat keluar dari bisnis";
+      }
+
+      const updatedMember = await db.member.delete({
+        where: { id: findYou.id },
+      });
+      return updatedMember;
+    } catch (error) {
+      this.handleError("outBusiness", error);
+    }
+  }
 }

@@ -37,4 +37,10 @@ businessRoute.delete(
   businessController.deleteBusiness
 );
 
+businessRoute.delete(
+  "/:rootBusinessId/out",
+  useOwnedBusiness,
+  businessController.outBusiness
+);
+
 export default businessRoute;

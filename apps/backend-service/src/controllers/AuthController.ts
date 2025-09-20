@@ -456,7 +456,7 @@ export class AuthController extends BaseController {
       });
 
       if (!tokens)
-        return this.sendError(res, new Error("Token refresh tidak valid"), 400);
+        return this.sendError(res, new Error("Token refresh tidak valid"), 401);
       return this.sendSuccess(res, tokens, "Tokens berhasil diupdate");
     } catch (error) {
       this.sendError(res, error);

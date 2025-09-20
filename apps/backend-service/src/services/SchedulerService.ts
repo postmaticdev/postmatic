@@ -259,9 +259,54 @@ export class SchedulerService extends BaseService {
         }),
       };
 
+      const totalHhMm = data.schedulerAutoPostings
+        .flatMap((autoPosting) =>
+          autoPosting.schedulerAutoPostingTimes.flatMap((time) => ({
+            time: time.hhmm,
+            isActive: autoPosting.isActive,
+          }))
+        )
+        .filter((item) => item.isActive).length;
+      const isAllDisabled =
+        data.isAutoPosting === false ||
+        data.schedulerAutoPostings.every(
+          (autoPosting) => autoPosting.isActive === false
+        ) ||
+        totalHhMm === 0;
+
       // [CRON] Add or update cron tasks
-      if (!isAutoPosting) {
-        await AutoSchedulerTaskManager.instance.remove(rootBusinessId);
+      if (isAllDisabled) {
+        const [_, finds] = await Promise.all([
+          AutoSchedulerTaskManager.instance.remove(rootBusinessId),
+          db.generatedImageContent.findMany({
+            where: {
+              AND: [
+                {
+                  rootBusinessId: rootBusinessId,
+                },
+                {
+                  readyToPost: true,
+                },
+                {
+                  deletedAt: null,
+                },
+              ],
+            },
+            select: {
+              id: true,
+            },
+          }),
+        ]);
+        await db.generatedImageContent.updateMany({
+          where: {
+            id: {
+              in: finds.map((item) => item.id),
+            },
+          },
+          data: {
+            readyToPost: false,
+          },
+        });
       } else {
         await AutoSchedulerTaskManager.instance.add(rootBusinessId);
       }

@@ -97,11 +97,14 @@ export class ImageContentController extends BaseController {
 
   setReadyToPost = async (req: Request, res: Response) => {
     try {
-      const { generatedImageContentId } = req.params;
+      const { generatedImageContentId, rootBusinessId } = req.params;
       const business = await this.content.setReadyToPost(
+        rootBusinessId,
         generatedImageContentId
       );
       if (!business) return this.notFound(res);
+      if (typeof business === "string")
+        return this.sendError(res, new Error(business), 400);
       return this.sendSuccess(
         res,
         business,
@@ -210,7 +213,7 @@ export class ImageContentController extends BaseController {
     } catch (error) {
       return this.sendError(res, error);
     }
-  }
+  };
 
   // QUERY
 

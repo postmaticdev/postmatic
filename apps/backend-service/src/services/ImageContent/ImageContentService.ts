@@ -604,13 +604,57 @@ export class ImageContentService extends BaseService {
     }
   }
 
-  async setReadyToPost(generatedImageContentId: string) {
+  async setReadyToPost(
+    rootBusinessId: string,
+    generatedImageContentId: string
+  ) {
     try {
-      const check = await db.generatedImageContent.findUnique({
-        where: { id: generatedImageContentId },
-        select: { deletedAt: true, readyToPost: true },
-      });
+      const [check, autopost] = await Promise.all([
+        db.generatedImageContent.findUnique({
+          where: { id: generatedImageContentId },
+          select: { deletedAt: true, readyToPost: true },
+        }),
+        db.schedulerAutoPreference.findUnique({
+          where: {
+            rootBusinessId: rootBusinessId,
+          },
+          select: {
+            isAutoPosting: true,
+            schedulerAutoPostings: {
+              select: {
+                isActive: true,
+                schedulerAutoPostingTimes: {
+                  select: {
+                    hhmm: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]);
       if (!check || check.deletedAt) return null;
+      if (!autopost) return null;
+
+      const totalHhMm = autopost.schedulerAutoPostings
+        .flatMap((autoPosting) =>
+          autoPosting.schedulerAutoPostingTimes.flatMap((time) => ({
+            time: time.hhmm,
+            isActive: autoPosting.isActive,
+          }))
+        )
+        .filter((item) => item.isActive).length;
+
+      const isAllDisabled =
+        autopost.isAutoPosting === false ||
+        autopost.schedulerAutoPostings.every(
+          (autoPosting) => autoPosting.isActive === false
+        ) ||
+        totalHhMm === 0;
+
+      if (isAllDisabled && !check.readyToPost)
+        return "Semua waktu posting otomatis dinonaktifkan. Silakan aktifkan kembali untuk memposting konten ini.";
+
       const posted = await db.generatedImageContent.update({
         where: { id: generatedImageContentId },
         data: {

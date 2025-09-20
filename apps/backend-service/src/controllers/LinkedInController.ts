@@ -91,6 +91,25 @@ export class LinkedInController extends BaseController {
         });
       }
 
+      if (
+        callback.isLinked &&
+        callback.oldBusinessName &&
+        callback.newBusinessName &&
+        callback.code
+      ) {
+        return this.renderView(req, res, "social-confirmation", {
+          code: callback.code,
+          from: callback.from,
+          rootBusinessId: callback.rootBusinessId,
+          postmaticAccessToken: callback.postmaticAccessToken,
+          platform: "linked_in",
+          title: "Konfirmasi Penghubungan Akun",
+          message: `Akun LinkedIn anda terhubung ke bisnis "${callback.oldBusinessName}"`,
+          oldBusinessName: callback.oldBusinessName,
+          newBusinessName: callback.newBusinessName,
+        });
+      }
+
       return this.redirectToClient(
         res,
         `${from}?accessToken=${accessToken}&authorUrn=${authorUrn}&rootBusinessId=${rootBusinessId}&${POSTMATIC_ACCESS_TOKEN_KEY}=${postmaticAccessToken}`
@@ -102,6 +121,33 @@ export class LinkedInController extends BaseController {
         code: 500,
         ctaText: "Kembali ke Dashboard",
       });
+    }
+  };
+
+  fallbackBusinessExists = async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const fallbackCallback = await this.linkedin.fallbackBusinessExists(data);
+
+      if (fallbackCallback?.success !== true) {
+        return this.renderViewError(req, res, {
+          title: "Terjadi Kesalahan",
+          description:
+            fallbackCallback?.message ||
+            "Terjadi kesalahan saat melakukan login LinkedIn",
+          code: 400,
+          ctaText: "Kembali ke Dashboard",
+          ctaHref: DASHBOARD_URL,
+        });
+        return;
+      }
+
+      return this.redirectToClient(
+        res,
+        `${fallbackCallback?.from}?rootBusinessId=${fallbackCallback?.rootBusinessId}&${POSTMATIC_ACCESS_TOKEN_KEY}=${fallbackCallback?.postmaticAccessToken}`
+      );
+    } catch (error) {
+      return this.sendError(res, error);
     }
   };
 

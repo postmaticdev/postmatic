@@ -11,6 +11,23 @@ import {
 } from "../constant/meta";
 import { SocialPlatform } from "@prisma/client";
 import { CloudinaryService } from "./CloudinaryService";
+import jwt from "jsonwebtoken";
+import { z } from "zod";
+import { JWT_SECRET } from "../constant/auth";
+
+const FacebookPageCode = z.object({
+  facebookPageId: z.string(),
+  name: z.string(),
+  picture: z.string().nullable(),
+  accessToken: z.string(),
+  tokenExpiredAt: z.coerce.date(),
+  scopes: z.string(),
+  rootBusinessId: z.string(),
+  from: z.string(),
+  postmaticAccessToken: z.string(),
+});
+
+type FacebookPageCode = z.infer<typeof FacebookPageCode>;
 
 // ———————————————————————————————————————————————————————————————
 // Types
@@ -200,12 +217,17 @@ export class FacebookPageService extends BaseService {
       const [checkBusiness, checkFacebookPage] = await Promise.all([
         db.rootBusiness.findUnique({
           where: { id: rootBusinessId },
-          select: { socialFacebookPage: true },
+          select: { socialFacebookPage: true, name: true },
         }),
         db.socialFacebookPage.findUnique({
           where: { facebookPageId: page.id },
           select: {
             rootBusinessId: true,
+            rootBusiness: {
+              select: {
+                name: true,
+              },
+            },
           },
         }),
       ]);
@@ -216,15 +238,38 @@ export class FacebookPageService extends BaseService {
           from,
         };
 
+      const payloadCode: FacebookPageCode = {
+        facebookPageId: page.id,
+        accessToken: page.access_token,
+        name: page.name || "",
+        picture: pictureUrl || null,
+        scopes: page.tasks?.join(",") || "",
+        tokenExpiredAt: new Date(
+          Date.now() + (t2?.data?.expires_in || 60) * 1000
+        ),
+        rootBusinessId,
+        from,
+        postmaticAccessToken,
+      };
+
+      const createCode = jwt.sign(payloadCode, JWT_SECRET, {
+        expiresIn: "5m",
+      });
+
       if (
         checkFacebookPage &&
         checkFacebookPage.rootBusinessId &&
-        checkFacebookPage.rootBusinessId !== rootBusinessId
+        checkFacebookPage.rootBusinessId !== rootBusinessId &&
+        checkFacebookPage.rootBusiness?.name
       )
         return {
-          success: false,
+          success: true,
           message: "Facebook Page sudah terhubung ke business lain",
           from,
+          isLinked: true,
+          code: createCode,
+          oldBusinessName: checkFacebookPage.rootBusiness?.name,
+          newBusinessName: checkBusiness.name,
         };
 
       await db.rootBusiness.update({
@@ -275,6 +320,72 @@ export class FacebookPageService extends BaseService {
       };
     } catch (error) {
       this.handleError("FacebookPageService.callback", error);
+    }
+  }
+
+  async fallbackBusinessExists(data: { code: string }) {
+    try {
+      const decoded = jwt.decode(data?.code);
+      const parsedData = FacebookPageCode.parse(decoded);
+      await db.rootBusiness.update({
+        where: {
+          id: parsedData?.rootBusinessId,
+        },
+        data: {
+          socialFacebookPage: {
+            connectOrCreate: {
+              where: {
+                facebookPageId: parsedData?.facebookPageId,
+              },
+              create: {
+                facebookPageId: parsedData?.facebookPageId,
+                accessToken: parsedData?.accessToken,
+                name: parsedData?.name,
+                picture: parsedData?.picture || null,
+                tokenExpiredAt: new Date(
+                  parsedData?.tokenExpiredAt?.getTime() || 0
+                ),
+                deletedAt: null,
+              },
+            },
+            upsert: {
+              update: {
+                facebookPageId: parsedData?.facebookPageId,
+                accessToken: parsedData?.accessToken,
+                name: parsedData?.name,
+                picture: parsedData?.picture || null,
+                tokenExpiredAt: new Date(
+                  parsedData?.tokenExpiredAt?.getTime() || 0
+                ),
+                deletedAt: null,
+              },
+              create: {
+                facebookPageId: parsedData?.facebookPageId,
+                accessToken: parsedData?.accessToken || "",
+                name: parsedData?.name,
+                picture: parsedData?.picture || null,
+                tokenExpiredAt: new Date(
+                  parsedData?.tokenExpiredAt?.getTime() || 0
+                ),
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      });
+      return {
+        success: true,
+        message: "Berhasil menghubungkan akun Facebook Page",
+        from: parsedData?.from || "/",
+        postmaticAccessToken: parsedData?.postmaticAccessToken || "",
+        rootBusinessId: parsedData?.rootBusinessId || "",
+      };
+    } catch (error) {
+      this.handleError("FacebookPageService.fallbackCallback", error);
+      return {
+        success: false,
+        message: "Token tidak valid",
+      };
     }
   }
 

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Undangan Tim · Postmatic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <style>
+      :root {
+        --primary: oklch(51.59% 0.225 262.83);
+        --primary-foreground: oklch(0.4911 0.225 262.83);
+        --secondary: oklch(0.585 0.233 277.117);
+        --secondary-foreground: oklch(0.5 0.233 277.117);
+      }
+      .bg-primary {
+        background-color: var(--primary);
+      }
+      .bg-secondary {
+        background-color: var(--secondary);
+      }
+      .bg-brand-gradient {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+      }
+      .ring-brand:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 60%, #ffffff);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen bg-gray-50">
+    <div class="grid min-h-screen lg:grid-cols-2">
+      <!-- Panel Kiri (Brand) -->
+      <aside
+        class="hidden lg:flex flex-col justify-between p-10 bg-brand-gradient text-white"
+      >
+        <div>
+          <div class="flex items-center gap-3">
+            <div
+              class="h-12 w-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center"
+            >
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 7.5C5 5.57 6.57 4 8.5 4H14a5 5 0 1 1 0 10H9.5V18a2 2 0 0 1-2 2H5V7.5Z"
+                  stroke="white"
+                  stroke-width="1.6"
+                />
+              </svg>
+            </div>
+            <div class="text-2xl font-semibold tracking-tight">Postmatic</div>
+          </div>
+
+          <h1 class="mt-16 text-4xl font-semibold max-w-lg">
+            Konfirmasi Penghubungan Akun
+          </h1>
+          <p class="mt-4 text-white/90 max-w-xl">
+            Sepertinya akun anda terhubung ke bisnis bisnis lain.
+          </p>
+        </div>
+
+        <div class="text-white/80 text-sm">
+          &copy; <%= new Date().getFullYear() %> Postmatic. Hak cipta dilindungi
+          undang-undang.
+        </div>
+      </aside>
+
+      <!-- Panel Kanan (Konten Undangan) -->
+      <main class="flex items-center justify-center p-6 sm:p-10">
+        <div class="w-full max-w-md">
+          <div class="bg-white shadow-xl rounded-2xl p-8 text-center">
+            <div
+              class="mx-auto h-12 w-12 rounded-2xl bg-primary flex items-center justify-center"
+            >
+              <span class="text-white text-xl font-bold">T</span>
+            </div>
+
+            <h2 class="mt-5 text-2xl font-semibold text-gray-900">
+              <%= title %>
+            </h2>
+            <p class="mt-2 text-sm text-gray-600"><%= message %></p>
+
+            <div
+              class="mt-6 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 text-left"
+            >
+              <p>
+                Sebelumnya akun anda sudah terhubung ke bisnis
+                <strong><%= oldBusinessName %></strong>.
+              </p>
+              <p class="mt-1">
+                Jika anda ingin menghubungkan akun anda ke bisnis ini, silahkan
+                klik tombol hubungkan. Bisnis
+                <strong><%= newBusinessName %></strong> akan dihubungkan ke akun
+                anda. Lalu <strong><%= oldBusinessName %></strong> akan terhapus
+                dari akun anda.
+              </p>
+            </div>
+
+            <form
+              id="socialConfirmationForm"
+              class="mt-6 grid grid-cols-2 gap-3"
+              action="/api/auth/callback/<%= platform %>"
+              method="post"
+              novalidate
+            >
+              <input type="hidden" name="code" id="code" value="<%= code %>" />
+              <input type="hidden" name="from" id="from" value="<%= from %>" />
+              <input type="hidden" name="platform" id="platform" value="<%= platform %>" />
+              <input type="hidden" name="rootBusinessId" id="rootBusinessId" value="<%= rootBusinessId %>" />
+              <input type="hidden" name="postmaticAccessToken" id="postmaticAccessToken" value="<%= postmaticAccessToken %>" />
+              <!-- Buttons dengan loading state -->
+              <button
+                type="button"
+                id="rejectBtn"
+                onclick="window.location.href = '<%= from %>'"
+                data-answer="reject"
+                data-loading-text="Memproses..."
+                class="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 transition ring-brand"
+              >
+                <span class="inline-flex items-center justify-center gap-2">
+                  <svg
+                    class="spinner hidden animate-spin h-5 w-5"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                      fill="none"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v3.5a4.5 4.5 0 00-4.5 4.5H4z"
+                    ></path>
+                  </svg>
+                  <span class="btn-label">Batal</span>
+                </span>
+              </button>
+
+              <button
+                type="submit"
+                id="socialConfirmationAcceptBtn"
+                data-answer="accept"
+                data-loading-text="Memproses..."
+                class="inline-flex items-center justify-center rounded-xl bg-brand-gradient py-2.5 text-sm font-medium text-white shadow hover:opacity-95 transition ring-brand"
+              >
+                <span class="inline-flex items-center justify-center gap-2">
+                  <svg
+                    class="spinner hidden animate-spin h-5 w-5 text-white"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                      fill="none"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v3.5a4.5 4.5 0 00-4.5 4.5H4z"
+                    ></path>
+                  </svg>
+                  <span class="btn-label">Hubungkan</span>
+                </span>
+              </button>
+            </form>
+
+            <p class="mt-6 text-xs text-gray-500">
+              Belum punya akun? Anda bisa membuat akun dengan email yang sama
+              saat login.
+            </p>
+          </div>
+
+          <!-- Footer kebijakan -->
+          <footer class="mt-6 text-center text-xs text-gray-500">
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/cookie-policy"
+              >Kebijakan Cookie</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/data-deletion"
+              >Penghapusan Data</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/privacy-policy"
+              >Kebijakan Privasi</a
+            >
+            ·
+            <a
+              class="hover:underline"
+              href="<%= LANDINGPAGE_URL %>/terms-of-service"
+              >Syarat Layanan</a
+            >
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <!-- Loading state + set answer -->
+    <script nonce="<%= cspNonce %>">
+      (function () {
+        const btnReject = document.getElementById("rejectBtn");
+        btnReject &&
+          btnReject.addEventListener("click", () => {
+            window.location.href = "<%= DASHBOARD_URL %>/<%= from %>";
+          });
+
+        const form = document.getElementById("socialConfirmationForm");
+        if (!form) return;
+
+        const btnAccept = document.getElementById("socialConfirmationAcceptBtn");
+        const answerField = document.getElementById("answerField");
+
+        let clickedBtn = null;
+
+        function setAnswerFromBtn(btn) {
+          if (!btn || !answerField) return;
+          const val = btn.getAttribute("data-answer");
+          if (val) answerField.value = val;
+        }
+
+        btnReject &&
+          btnReject.addEventListener("click", () => {
+            clickedBtn = btnReject;
+            setAnswerFromBtn(clickedBtn);
+          });
+        btnAccept &&
+          btnAccept.addEventListener("click", () => {
+            clickedBtn = btnAccept;
+            setAnswerFromBtn(clickedBtn);
+          });
+
+        function setBtnLoading(btn, isLoading) {
+          if (!btn) return;
+          const spinner = btn.querySelector(".spinner");
+          const label = btn.querySelector(".btn-label");
+          if (isLoading) {
+            btn.disabled = true; // aman sekarang karena nilai 'answer' sudah di hidden
+            btn.setAttribute("aria-busy", "true");
+            btn.classList.add("opacity-75", "cursor-not-allowed");
+            if (spinner) spinner.classList.remove("hidden");
+            if (label) {
+              btn.setAttribute("data-original-text", label.textContent || "");
+              label.textContent =
+                btn.getAttribute("data-loading-text") || "Memproses...";
+            }
+          } else {
+            btn.disabled = false;
+            btn.removeAttribute("aria-busy");
+            btn.classList.remove("opacity-75", "cursor-not-allowed");
+            if (spinner) spinner.classList.add("hidden");
+            const original = btn.getAttribute("data-original-text");
+            if (label && original != null) label.textContent = original;
+          }
+        }
+
+        function setBtnDisabled(btn) {
+          if (!btn) return;
+          btn.disabled = true;
+          btn.classList.add("opacity-50", "cursor-not-allowed");
+        }
+
+        function resetButtons() {
+          setBtnLoading(btnReject, false);
+          setBtnLoading(btnAccept, false);
+        }
+
+        let submitting = false;
+        form.addEventListener("submit", function (e) {
+          if (submitting) {
+            e.preventDefault();
+            return;
+          }
+          submitting = true;
+
+          // Pastikan answer terisi (misal submit via Enter)
+          if (answerField && !answerField.value) {
+            if (clickedBtn) setAnswerFromBtn(clickedBtn);
+            if (!answerField.value) answerField.value = "accept"; // fallback default
+          }
+
+          // Tampilkan loading hanya pada tombol yang diklik, nonaktifkan tombol lainnya
+          if (clickedBtn) {
+            setBtnLoading(clickedBtn, true);
+            const other = clickedBtn === btnAccept ? btnReject : btnAccept;
+            if (other) setBtnDisabled(other);
+          } else {
+            // submit via Enter: nonaktifkan keduanya supaya tak dobel
+            setBtnDisabled(btnReject);
+            setBtnDisabled(btnAccept);
+          }
+          // biarkan form submit
+        });
+
+        // Pulihkan state saat kembali via bfcache
+        window.addEventListener("pageshow", function (e) {
+          if (!e.persisted) return;
+          submitting = false;
+          clickedBtn = null;
+          resetButtons();
+          if (answerField) answerField.value = "";
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,11 +1,31 @@
 import { BaseService } from "./BaseService";
 import crypto from "crypto";
-import { LINKEDIN_CLIENT_ID, LINKEDIN_REDIRECT_URI } from "../constant/auth";
+import {
+  JWT_SECRET,
+  LINKEDIN_CLIENT_ID,
+  LINKEDIN_REDIRECT_URI,
+} from "../constant/auth";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import db from "../config/db";
 import { PostDTO } from "../validators/PostValidator";
 import { SocialPlatform } from "@prisma/client";
+import { z } from "zod";
+
+const LinkedInCode = z.object({
+  linkedInId: z.string(),
+  authorUrn: z.string(),
+  accessToken: z.string(),
+  name: z.string(),
+  picture: z.string().nullable(),
+  scopes: z.string(),
+  tokenExpiredAt: z.coerce.date(),
+  rootBusinessId: z.string(),
+  from: z.string(),
+  postmaticAccessToken: z.string(),
+});
+
+type LinkedInCode = z.infer<typeof LinkedInCode>;
 
 interface LinkedInAccessToken {
   access_token: string;
@@ -101,6 +121,7 @@ export class LinkedInService extends BaseService {
           success: false,
           message: "Token tidak valid",
           from,
+          isLinked: false,
         };
       }
       const accessToken = response.access_token;
@@ -118,6 +139,7 @@ export class LinkedInService extends BaseService {
           success: false,
           message: "Token tidak valid",
           from,
+          isLinked: false,
         };
       }
 
@@ -138,6 +160,7 @@ export class LinkedInService extends BaseService {
           success: false,
           message: "Token tidak valid",
           from,
+          isLinked: false,
         };
       }
       const authorUrn = `urn:li:person:${decoded.sub}`;
@@ -148,6 +171,7 @@ export class LinkedInService extends BaseService {
             id: rootBusinessId,
           },
           select: {
+            name: true,
             socialLinkedIn: true,
           },
         }),
@@ -157,6 +181,11 @@ export class LinkedInService extends BaseService {
           },
           select: {
             rootBusinessId: true,
+            rootBusiness: {
+              select: {
+                name: true,
+              },
+            },
           },
         }),
       ]);
@@ -166,8 +195,26 @@ export class LinkedInService extends BaseService {
           success: false,
           message: "Business tidak ditemukan",
           from,
+          isLinked: false,
         };
       }
+
+      const payloadCode: LinkedInCode = {
+        linkedInId: decoded?.sub || "",
+        authorUrn,
+        accessToken,
+        name: decoded?.name || "",
+        picture: decoded?.picture || null,
+        scopes: response?.scope || "",
+        tokenExpiredAt: new Date(decoded.exp * 1000),
+        rootBusinessId,
+        from,
+        postmaticAccessToken,
+      };
+
+      const createCode = jwt.sign(payloadCode, JWT_SECRET, {
+        expiresIn: "5m",
+      });
 
       if (
         checkIsLinkedAlready &&
@@ -175,9 +222,13 @@ export class LinkedInService extends BaseService {
         checkIsLinkedAlready.rootBusinessId !== rootBusinessId
       ) {
         return {
-          success: false,
+          success: true,
           message: "Akun LinkedIn sudah terhubung ke business lain",
           from,
+          isLinked: true,
+          code: createCode,
+          oldBusinessName: checkIsLinkedAlready.rootBusiness?.name,
+          newBusinessName: checkBusiness.name,
         };
       }
 
@@ -236,9 +287,83 @@ export class LinkedInService extends BaseService {
         decoded,
         from,
         rootBusinessId,
+        isLinked: false,
+        code: createCode,
       };
     } catch (error) {
       this.handleError("LinkedInService.callback", error);
+    }
+  }
+
+  async fallbackBusinessExists(data: { code: string }) {
+    try {
+      const decoded = jwt.decode(data?.code);
+      const parsedData = LinkedInCode.parse(decoded);
+      await db.rootBusiness.update({
+        where: {
+          id: parsedData?.rootBusinessId,
+        },
+        data: {
+          socialLinkedIn: {
+            connectOrCreate: {
+              where: {
+                linkedInId: parsedData?.linkedInId,
+              },
+              create: {
+                linkedInId: parsedData?.linkedInId,
+                authorUrn: parsedData?.authorUrn,
+                accessToken: parsedData?.accessToken,
+                name: parsedData?.name,
+                picture: parsedData?.picture || null,
+                scopes: parsedData?.scopes || "",
+                tokenExpiredAt: new Date(
+                  parsedData?.tokenExpiredAt?.getTime() || 0
+                ),
+                deletedAt: null,
+              },
+            },
+            upsert: {
+              update: {
+                linkedInId: parsedData?.linkedInId,
+                authorUrn: parsedData?.authorUrn,
+                accessToken: parsedData?.accessToken,
+                name: parsedData?.name,
+                picture: parsedData?.picture || null,
+                scopes: parsedData?.scopes || "",
+                tokenExpiredAt: new Date(
+                  parsedData?.tokenExpiredAt?.getTime() || 0
+                ),
+                deletedAt: null,
+              },
+              create: {
+                linkedInId: parsedData?.linkedInId,
+                authorUrn: parsedData?.authorUrn,
+                accessToken: parsedData?.accessToken || "",
+                name: parsedData?.name,
+                picture: parsedData?.picture || null,
+                scopes: parsedData?.scopes || "",
+                tokenExpiredAt: new Date(
+                  parsedData?.tokenExpiredAt?.getTime() || 0
+                ),
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      });
+      return {
+        success: true,
+        message: "Berhasil menghubungkan akun LinkedIn",
+        from: parsedData?.from || "/",
+        postmaticAccessToken: parsedData?.postmaticAccessToken || "",
+        rootBusinessId: parsedData?.rootBusinessId || "",
+      };
+    } catch (error) {
+      this.handleError("LinkedInService.fallbackCallback", error);
+      return {
+        success: false,
+        message: "Token tidak valid",
+      };
     }
   }
 

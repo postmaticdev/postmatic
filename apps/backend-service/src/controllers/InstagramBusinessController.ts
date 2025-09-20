@@ -64,7 +64,8 @@ export class InstagramBusinessController extends BaseController {
       if (!result) {
         return this.renderViewError(req, res, {
           title: "Terjadi Kesalahan",
-          description: "Terjadi kesalahan saat melakukan login Facebook Page",
+          description:
+            "Terjadi kesalahan saat melakukan login Instagram Business",
           code: 500,
           ctaText: "Kembali ke Dashboard",
           ctaHref: DASHBOARD_URL,
@@ -85,10 +86,29 @@ export class InstagramBusinessController extends BaseController {
           title: "Terjadi Kesalahan",
           description:
             result?.message ||
-            "Terjadi kesalahan saat melakukan login Facebook Page",
+            "Terjadi kesalahan saat melakukan login Instagram Business",
           code: 400,
           ctaText: "Kembali ke Dashboard",
           ctaHref: DASHBOARD_URL + String(from),
+        });
+      }
+
+      if (
+        result.isLinked &&
+        result.oldBusinessName &&
+        result.newBusinessName &&
+        result.code
+      ) {
+        return this.renderView(req, res, "social-confirmation", {
+          code: result.code,
+          from,
+          rootBusinessId,
+          postmaticAccessToken,
+          platform: "instagram_business",
+          title: "Konfirmasi Penghubungan Akun",
+          message: `Akun Instagram Business anda terhubung ke bisnis "${result.oldBusinessName}"`,
+          oldBusinessName: result.oldBusinessName,
+          newBusinessName: result.newBusinessName,
         });
       }
 
@@ -113,6 +133,35 @@ export class InstagramBusinessController extends BaseController {
         code: 500,
         ctaText: "Kembali ke Dashboard",
       });
+    }
+  };
+
+  fallbackBusinessExists = async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const fallbackCallback = await this.instagram.fallbackBusinessExists(
+        data
+      );
+
+      if (fallbackCallback?.success !== true) {
+        return this.renderViewError(req, res, {
+          title: "Terjadi Kesalahan",
+          description:
+            fallbackCallback?.message ||
+            "Terjadi kesalahan saat melakukan login Instagram Business",
+          code: 400,
+          ctaText: "Kembali ke Dashboard",
+          ctaHref: DASHBOARD_URL,
+        });
+        return;
+      }
+
+      return this.redirectToClient(
+        res,
+        `${fallbackCallback?.from}?rootBusinessId=${fallbackCallback?.rootBusinessId}&${POSTMATIC_ACCESS_TOKEN_KEY}=${fallbackCallback?.postmaticAccessToken}`
+      );
+    } catch (error) {
+      return this.sendError(res, error);
     }
   };
 

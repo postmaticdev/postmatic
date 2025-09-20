@@ -136,7 +136,7 @@ export class BaseController {
         LANDINGPAGE_URL,
         BACKEND_URL,
         LOGO,
-        csrfToken: req?.csrfToken(),
+        csrfToken: req?.csrfToken?.(),
         metaData: this.metaData(200),
       });
     } catch (error) {

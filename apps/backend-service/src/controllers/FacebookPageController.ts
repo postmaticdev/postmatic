@@ -91,6 +91,25 @@ export class FacebookPageController extends BaseController {
         });
       }
 
+      if (
+        result.isLinked &&
+        result.oldBusinessName &&
+        result.newBusinessName &&
+        result.code
+      ) {
+        return this.renderView(req, res, "social-confirmation", {
+          code: result.code,
+          from,
+          rootBusinessId,
+          postmaticAccessToken,
+          platform: "facebook_page",
+          title: "Konfirmasi Penghubungan Akun",
+          message: `Akun Facebook Page anda terhubung ke bisnis "${result.oldBusinessName}"`,
+          oldBusinessName: result.oldBusinessName,
+          newBusinessName: result.newBusinessName,
+        });
+      }
+
       // kamu bisa hilangkan pageAccessToken di query jika tak ingin expose ke client
       return this.redirectToClient(
         res,
@@ -113,6 +132,33 @@ export class FacebookPageController extends BaseController {
         code: 500,
         ctaText: "Kembali ke Dashboard",
       });
+    }
+  };
+
+  fallbackBusinessExists = async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const fallbackCallback = await this.facebook.fallbackBusinessExists(data);
+
+      if (fallbackCallback?.success !== true) {
+        return this.renderViewError(req, res, {
+          title: "Terjadi Kesalahan",
+          description:
+            fallbackCallback?.message ||
+            "Terjadi kesalahan saat melakukan login Facebook Page",
+          code: 400,
+          ctaText: "Kembali ke Dashboard",
+          ctaHref: DASHBOARD_URL,
+        });
+        return;
+      }
+
+      return this.redirectToClient(
+        res,
+        `${fallbackCallback?.from}?rootBusinessId=${fallbackCallback?.rootBusinessId}&${POSTMATIC_ACCESS_TOKEN_KEY}=${fallbackCallback?.postmaticAccessToken}`
+      );
+    } catch (error) {
+      return this.sendError(res, error);
     }
   };
 

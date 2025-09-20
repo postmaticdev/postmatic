@@ -12,8 +12,11 @@ const callbackRoute = express.Router();
 
 callbackRoute.get("/google", authController.googleCallback);
 callbackRoute.get("/linked_in", linkedInController.callback);
+callbackRoute.post("/linked_in", linkedInController.fallbackBusinessExists);
 callbackRoute.get("/facebook_page", facebookPageController.callback);
+callbackRoute.post("/facebook_page", facebookPageController.fallbackBusinessExists);
 callbackRoute.get("/instagram_business", instagramBusinessController.callback);
+callbackRoute.post("/instagram_business", instagramBusinessController.fallbackBusinessExists);
 
 callbackRoute.post(
   "/refresh",

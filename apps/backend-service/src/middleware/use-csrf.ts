@@ -15,8 +15,8 @@ const protection = csurf({
 function exposeToken(req: Request, res: Response, next: NextFunction) {
   const method = req.method.toUpperCase();
   if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
-    const hasFn = typeof (req as any).csrfToken === "function";
-    res.locals.csrfToken = hasFn ? req?.csrfToken() : ""; // selalu terdefinisi
+    const hasFn = typeof req.csrfToken === "function";
+    res.locals.csrfToken = hasFn ? req?.csrfToken?.() : ""; // selalu terdefinisi
   }
   res.setHeader("Cache-Control", "no-store");
   next();

@@ -591,7 +591,7 @@ export class AuthService extends BaseService {
       if (!user)
         return {
           success: false,
-          errros: {
+          errors: {
             email: "Pengguna tidak ditemukan",
           },
           email: data.email,

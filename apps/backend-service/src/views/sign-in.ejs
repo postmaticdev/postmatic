@@ -35,6 +35,10 @@
         outline: none;
         box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 60%, #ffffff);
       }
+      button[disabled] {
+        cursor: not-allowed;
+        opacity: 0.75;
+      }
     </style>
   </head>
 
@@ -118,12 +122,6 @@
               aria-label="Masuk dengan Google"
               role="button"
               id="google-signin"
-              data-action="google-signin"
-              data-method="GET"
-              data-redirect="/auth/signin"
-              data-analytics-event="click"
-              data-analytics-category="auth"
-              data-analytics-label="google-signin"
             >
               <img
                 id="google-icon"
@@ -159,7 +157,6 @@
                 name="_csrf"
                 value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>"
               />
-
               <% if (typeof redirect !== 'undefined' && redirect) { %>
               <input type="hidden" name="redirect" value="<%= redirect %>" />
               <% } %>
@@ -271,36 +268,6 @@
               </div>
 
               <div class="flex items-center justify-between">
-                <div></div>
-                <a
-                  href="/api/auth/page/reset-password"
-                  class="text-sm font-medium text-gray-700 hover:text-gray-900"
-                >
-                  Lupa kata sandi?
-                </a>
-              </div>
-
-              <!-- Cooldown info (mirip reset-password) -->
-              <div class="space-y-3">
-                <p id="cooldownText" class="text-sm text-gray-600 hidden">
-                  Anda dapat mencoba lagi dalam
-                  <span id="cooldownTime" class="font-medium text-gray-900"
-                    >00:00</span
-                  >
-                </p>
-
-                <% if (TURNSTILE_ENABLED) { %>
-                <div class="w-full flex items-center justify-center">
-                  <div
-                    class="cf-turnstile"
-                    data-sitekey="<%= TURNSTILE_SITE_KEY %>"
-                    data-theme="auto"
-                    data-callback="pmOnTsOk"
-                    data-error-callback="pmOnTsErr"
-                    data-expired-callback="pmOnTsExp"
-                  ></div>
-                </div>
-                <!-- error/success line untuk captcha -->
                 <p
                   id="captcha-error"
                   class="mt-2 text-sm text-red-600 <%= errors?.captcha ? '' : 'hidden' %>"
@@ -311,7 +278,34 @@
                   id="captcha-status"
                   class="mt-2 text-sm text-green-600 hidden"
                 ></p>
+                <div></div>
+                <a
+                  href="/api/auth/page/reset-password"
+                  class="text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >Lupa kata sandi?</a
+                >
+              </div>
 
+              <div class="space-y-3">
+                <p id="cooldownText" class="text-sm text-gray-600 hidden">
+                  Anda dapat mencoba lagi dalam
+                  <span id="cooldownTime" class="font-medium text-gray-900"
+                    >00:00</span
+                  >
+                </p>
+
+                <% if (TURNSTILE_ENABLED) { %>
+                <!-- PENTING: widget berada DI DALAM <form> agar Turnstile menyuntik input hidden cf-turnstile-response -->
+                <div class="w-full flex items-center justify-center">
+                  <div
+                    class="cf-turnstile"
+                    data-sitekey="<%= TURNSTILE_SITE_KEY %>"
+                    data-theme="auto"
+                    data-callback="pmOnTsOk"
+                    data-error-callback="pmOnTsErr"
+                    data-expired-callback="pmOnTsExp"
+                  ></div>
+                </div>
                 <script
                   src="https://challenges.cloudflare.com/turnstile/v0/api.js"
                   async
@@ -363,7 +357,6 @@
             </p>
           </div>
 
-          <!-- Footer -->
           <footer class="mt-6 text-center text-xs text-gray-500">
             <a
               class="hover:underline"
@@ -396,63 +389,53 @@
     <!-- Zod -->
     <script src="https://cdn.jsdelivr.net/npm/zod@3.23.8/lib/index.umd.min.js"></script>
 
-    <!-- Callback Turnstile (opsional, UX) -->
+    <!-- Turnstile callbacks: set flag + trigger recompute -->
     <script nonce="<%= cspNonce %>">
       (function () {
         var errEl = document.getElementById("captcha-error");
         var statEl = document.getElementById("captcha-status");
 
         function showErr(msg) {
-          if (statEl) {
-            statEl.textContent = "";
-            statEl.classList.add("hidden");
-          }
-          if (errEl) {
-            errEl.textContent = msg || "Captcha tidak valid.";
-            errEl.classList.remove("hidden");
-          }
+          if (statEl) { statEl.textContent = ""; statEl.classList.add("hidden"); }
+          if (errEl) { errEl.textContent = msg || "Captcha tidak valid."; errEl.classList.remove("hidden"); }
         }
         function showOk(msg) {
-          if (errEl) {
-            errEl.textContent = "";
-            errEl.classList.add("hidden");
-          }
-          if (statEl) {
-            statEl.textContent = msg || "Captcha terverifikasi.";
-            statEl.classList.remove("hidden");
-          }
+          if (errEl) { errEl.textContent = ""; errEl.classList.add("hidden"); }
+          if (statEl) { statEl.textContent = msg || "Captcha terverifikasi."; statEl.classList.remove("hidden"); }
         }
 
-        window.pmOnTsOk = function () {
-          showOk();
-        };
-        window.pmOnTsErr = function () {
-          showErr("Captcha gagal dimuat. Silakan muat ulang atau coba lagi.");
-        };
-        window.pmOnTsExp = function () {
-          showErr("Captcha kedaluwarsa. Silakan selesaikan ulang captcha.");
-        };
+        window.__PM_TS_ENABLED__ = <%- JSON.stringify(!!TURNSTILE_ENABLED) %>;
+        window.__PM_TS_OK__ = !window.__PM_TS_ENABLED__;
+
+        function recomputeIfReady(){ if (typeof window.__pmRecompute === "function") window.__pmRecompute(); }
+
+        window.pmOnTsOk = function () { window.__PM_TS_OK__ = true;  showOk();  recomputeIfReady(); };
+        window.pmOnTsErr = function () { window.__PM_TS_OK__ = false; showErr("Captcha gagal dimuat. Silakan muat ulang atau coba lagi."); recomputeIfReady(); };
+        window.pmOnTsExp = function () { window.__PM_TS_OK__ = false; showErr("Captcha kedaluwarsa. Silakan selesaikan ulang captcha."); recomputeIfReady(); };
+
+        // Safety: jika 6 detik tidak ada token, tetap terkunci
+        if (window.__PM_TS_ENABLED__) {
+          setTimeout(function () {
+            if (!window.__PM_TS_OK__) { showErr("Captcha belum diverifikasi. Selesaikan captcha untuk melanjutkan."); }
+          }, 6000);
+        }
       })();
     </script>
 
-    <!-- Interaksi: toggle password + form login + google loading -->
+    <!-- Interaksi: toggle password + form login + spinner + cooldown + CAPTCHA GATE -->
     <script nonce="<%= cspNonce %>">
       (function () {
-        // === Toggle Password (single, robust) ===
+        // Toggle password
         document.querySelectorAll("[data-toggle-password]").forEach(function (btn) {
-          var targetId = btn.getAttribute("data-target");
-          var input = document.getElementById(targetId);
+          var input = document.getElementById(btn.getAttribute("data-target"));
           if (!input) return;
-
           btn.addEventListener("click", function () {
             var toText = input.type === "password";
             input.type = toText ? "text" : "password";
-
-            var visible = toText; // sekarang visible kalau sebelumnya password
+            var visible = toText;
             btn.setAttribute("aria-pressed", String(visible));
             btn.setAttribute("aria-label", visible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi");
             btn.title = visible ? "Sembunyikan kata sandi" : "Tampilkan kata sandi";
-
             var eye = btn.querySelector(".icon-eye");
             var eyeOff = btn.querySelector(".icon-eye-off");
             if (eye) eye.classList.toggle("hidden", visible);
@@ -460,7 +443,7 @@
           });
         });
 
-        // === Login: Validasi, Loading, Unified Error, + Countdown Throttling ===
+        // Form logic
         var form = document.getElementById("loginForm");
         if (!form) return;
 
@@ -473,12 +456,26 @@
         var passErr = document.getElementById("password-error");
         var cooldownText = document.getElementById("cooldownText");
         var cooldownTime = document.getElementById("cooldownTime");
+        var captchaErr = document.getElementById("captcha-error");
 
         var loadingText = (btn && btn.getAttribute("data-loading-text")) || "Masuk...";
 
-        // === Server-provided wait (detik) -> diambil dari errors.wait ===
-        var WAIT_SEC = <%- JSON.stringify((typeof errors !== 'undefined' && errors && typeof errors.wait === 'number') ? Number(errors.wait) : null) %>;
-        var WAIT_UNTIL = (typeof WAIT_SEC === "number" && WAIT_SEC > 0) ? (Date.now() + WAIT_SEC * 1000) : null;
+        var lockByCooldown = false;
+        function setBtn(disabled) {
+          if (!btn) return;
+          btn.disabled = disabled;
+          btn.classList.toggle("opacity-75", disabled);
+          btn.classList.toggle("cursor-not-allowed", disabled);
+          if (disabled) btn.setAttribute("aria-disabled","true"); else btn.removeAttribute("aria-disabled");
+        }
+        function recomputeDisabled() {
+          var lockByCaptcha = !!window.__PM_TS_ENABLED__ && !window.__PM_TS_OK__;
+          var disabled = lockByCooldown || lockByCaptcha;
+          setBtn(disabled);
+          window.__PM_CAN_SUBMIT__ = !disabled;
+        }
+        window.__pmRecompute = recomputeDisabled;
+        recomputeDisabled();
 
         var z = window.zod || window.Zod;
         var Schema = z.object({
@@ -495,7 +492,6 @@
           inputEl.classList.toggle("border-gray-300", !msg);
         }
         function clearError(inputEl, errEl) { setError(inputEl, errEl, ""); }
-
         function fmt(ms) {
           ms = Math.max(0, ms|0);
           var s = Math.floor(ms/1000);
@@ -503,52 +499,48 @@
           var ss = String(s%60).padStart(2,"0");
           return mm + ":" + ss;
         }
-        function setBtnDisabled(disabled) {
-          if (!btn) return;
-          btn.disabled = disabled;
-          if (disabled) {
-            btn.classList.add("opacity-75", "cursor-not-allowed");
-            btn.setAttribute("aria-disabled", "true");
-          } else {
-            btn.classList.remove("opacity-75", "cursor-not-allowed");
-            btn.removeAttribute("aria-disabled");
-          }
-        }
+
+        // Cooldown dari server
+        var WAIT_SEC = <%- JSON.stringify((typeof errors !== 'undefined' && errors && typeof errors.wait === 'number') ? Number(errors.wait) : null) %>;
+        var WAIT_UNTIL = (typeof WAIT_SEC === "number" && WAIT_SEC > 0) ? (Date.now() + WAIT_SEC * 1000) : null;
 
         var timer = null;
         function startCountdown(until) {
-          if (!until || !btn) return;
+          if (!until) return;
           var tick = function () {
             var left = until - Date.now();
-            if (left <= 0) {
+            lockByCooldown = left > 0;
+            if (!lockByCooldown) {
               if (timer) { clearInterval(timer); timer = null; }
               if (cooldownText) cooldownText.classList.add("hidden");
               if (label) label.textContent = "Masuk";
-              setBtnDisabled(false);
+              recomputeDisabled();
               return;
             }
             if (cooldownText) cooldownText.classList.remove("hidden");
             if (cooldownTime) cooldownTime.textContent = fmt(left);
             if (label) label.textContent = "Tunggu " + fmt(left);
-            setBtnDisabled(true);
+            recomputeDisabled();
           };
           tick();
           timer = setInterval(tick, 250);
         }
-
-        if (WAIT_UNTIL) {
-          startCountdown(WAIT_UNTIL);
-        } else {
-          if (cooldownText) cooldownText.classList.add("hidden");
-          setBtnDisabled(false);
-        }
+        if (WAIT_UNTIL) startCountdown(WAIT_UNTIL);
 
         var submitting = false;
-
         form.addEventListener("submit", function (e) {
           e.preventDefault();
           if (submitting) return;
-          if (btn && btn.disabled) return;
+
+          // Kunci jika belum boleh submit
+          recomputeDisabled();
+          if (!window.__PM_CAN_SUBMIT__) {
+            if (window.__PM_TS_ENABLED__ && !window.__PM_TS_OK__ && captchaErr) {
+              captchaErr.textContent = "Harap selesaikan captcha terlebih dahulu.";
+              captchaErr.classList.remove("hidden");
+            }
+            return;
+          }
 
           clearError(emailInput, emailErr);
           clearError(passInput, passErr);
@@ -558,7 +550,6 @@
             password: passInput ? passInput.value : "",
           };
           var result = Schema.safeParse(data);
-
           if (!result.success) {
             var issues = result.error.issues;
             var eIssue = issues.find(function (i) { return i.path[0] === "email"; });
@@ -568,18 +559,29 @@
             return;
           }
 
+          // Ambil token dari input yang DISISIPKAN Turnstile
+          if (window.__PM_TS_ENABLED__) {
+            var tokenInput = form.querySelector('input[name="cf-turnstile-response"]');
+            var token = tokenInput ? tokenInput.value.trim() : "";
+            if (!token) {
+              if (captchaErr) {
+                captchaErr.textContent = "Token captcha tidak ditemukan. Silakan verifikasi ulang.";
+                captchaErr.classList.remove("hidden");
+              }
+              return;
+            }
+          }
+
           submitting = true;
+          setBtn(true);
           if (btn) {
-            btn.disabled = true;
             btn.setAttribute("aria-busy", "true");
-            btn.classList.add("opacity-75", "cursor-not-allowed");
             if (spinner) spinner.classList.remove("hidden");
             if (label) {
               btn.setAttribute("data-original-text", label.textContent || "");
               label.textContent = loadingText;
             }
           }
-
           requestAnimationFrame(function () { form.submit(); });
         });
 
@@ -590,25 +592,22 @@
           if (!e.persisted) return;
           submitting = false;
           if (btn) {
-            btn.disabled = false;
             btn.removeAttribute("aria-busy");
-            btn.classList.remove("opacity-75", "cursor-not-allowed");
-            if (spinner) spinner.classList.add("hidden");
             var original = btn.getAttribute("data-original-text");
+            if (spinner) spinner.classList.add("hidden");
             if (label && original != null) label.textContent = original;
           }
           if (WAIT_UNTIL && Date.now() < WAIT_UNTIL) startCountdown(WAIT_UNTIL);
+          recomputeDisabled();
         });
 
-        // === Google button: replace icon with spinner (not both) ===
+        // Google spinner
         var g = document.getElementById("google-signin");
         if (g) {
           g.addEventListener("click", function () {
             g.classList.add("opacity-75", "cursor-wait", "pointer-events-none");
             g.setAttribute("aria-busy", "true");
-
             var img = g.querySelector("#google-icon");
-            // buat spinner
             var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             svg.setAttribute("viewBox", "0 0 24 24");
             svg.setAttribute("class", "animate-spin h-5 w-5");
@@ -616,14 +615,7 @@
             svg.innerHTML =
               '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>' +
               '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v3.5a4.5 4.5 0 00-4.5 4.5H4z"></path>';
-
-            if (img) {
-              // ganti img -> spinner di posisi yang sama
-              img.replaceWith(svg);
-            } else {
-              // fallback: prepend kalau img tidak ditemukan
-              g.prepend(svg);
-            }
+            if (img) img.replaceWith(svg); else g.prepend(svg);
           }, { once: true });
         }
       })();

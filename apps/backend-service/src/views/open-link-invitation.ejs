@@ -29,6 +29,10 @@
         outline: none;
         box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 60%, #ffffff);
       }
+      button[disabled] {
+        cursor: not-allowed;
+        opacity: 0.75;
+      }
     </style>
   </head>
 
@@ -125,13 +129,16 @@
               method="post"
               novalidate
             >
-              <!-- Turnstile (tanpa UI error) -->
+              <!-- Turnstile (di dalam form; tombol terkunci hingga verifikasi) -->
               <% if (TURNSTILE_ENABLED) { %>
               <div class="w-full flex items-center justify-center col-span-2">
                 <div
                   class="cf-turnstile"
                   data-sitekey="<%= TURNSTILE_SITE_KEY %>"
                   data-theme="auto"
+                  data-callback="pmOnTsOk"
+                  data-error-callback="pmOnTsErr"
+                  data-expired-callback="pmOnTsExp"
                 ></div>
                 <script
                   src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -140,6 +147,7 @@
                 ></script>
               </div>
               <% } %>
+
               <!-- CSRF -->
               <input
                 type="hidden"
@@ -156,6 +164,7 @@
                 data-answer="reject"
                 data-loading-text="Memproses..."
                 class="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 transition ring-brand"
+                title="Selesaikan captcha untuk melanjutkan"
               >
                 <span class="inline-flex items-center justify-center gap-2">
                   <svg
@@ -188,6 +197,7 @@
                 data-answer="accept"
                 data-loading-text="Memproses..."
                 class="inline-flex items-center justify-center rounded-xl bg-brand-gradient py-2.5 text-sm font-medium text-white shadow hover:opacity-95 transition ring-brand"
+                title="Selesaikan captcha untuk melanjutkan"
               >
                 <span class="inline-flex items-center justify-center gap-2">
                   <svg
@@ -251,7 +261,35 @@
       </main>
     </div>
 
-    <!-- Loading state + set answer -->
+    <!-- Turnstile callbacks + GATE: kunci tombol sampai captcha OK -->
+    <script nonce="<%= cspNonce %>">
+      (function () {
+        // Flags global untuk gate
+        window.__PM_TS_ENABLED__ = <%- JSON.stringify(!!TURNSTILE_ENABLED) %>;
+        window.__PM_TS_OK__ = !window.__PM_TS_ENABLED__; // jika captcha dimatikan, anggap OK
+
+        function recomputeIfReady() {
+          if (typeof window.__pmRecompute === "function") window.__pmRecompute();
+        }
+
+        // Callback dipanggil oleh widget Turnstile
+        window.pmOnTsOk  = function () { window.__PM_TS_OK__ = true;  recomputeIfReady(); };
+        window.pmOnTsErr = function () { window.__PM_TS_OK__ = false; recomputeIfReady(); };
+        window.pmOnTsExp = function () { window.__PM_TS_OK__ = false; recomputeIfReady(); };
+
+        // Safety: beri hint jika 6 detik belum ada token (tanpa UI khusus)
+        if (window.__PM_TS_ENABLED__) {
+          setTimeout(function () {
+            if (!window.__PM_TS_OK__) {
+              var btns = [document.getElementById("inviteRejectBtn"), document.getElementById("inviteAcceptBtn")];
+              btns.forEach(function(b){ if (b) b.title = "Captcha belum diverifikasi. Selesaikan captcha untuk melanjutkan."; });
+            }
+          }, 6000);
+        }
+      })();
+    </script>
+
+    <!-- Loading state + set answer + CAPTCHA GATE enforcement -->
     <script nonce="<%= cspNonce %>">
       (function () {
         const form = document.getElementById("inviteForm");
@@ -261,14 +299,39 @@
         const btnAccept = document.getElementById("inviteAcceptBtn");
         const answerField = document.getElementById("answerField");
 
-        let clickedBtn = null;
+        // ===== Gate: disable kedua tombol hingga captcha OK =====
+        function setBtnDisabled(btn, disabled) {
+          if (!btn) return;
+          btn.disabled = disabled;
+          btn.classList.toggle("opacity-75", disabled);
+          btn.classList.toggle("cursor-not-allowed", disabled);
+          if (disabled) {
+            btn.setAttribute("aria-disabled", "true");
+            // hint aksesibilitas ringan via title
+            if (!btn.title) btn.title = "Selesaikan captcha untuk melanjutkan";
+          } else {
+            btn.removeAttribute("aria-disabled");
+            // biarkan title tetap sebagai hint non-intrusif
+          }
+        }
 
+        function recomputeDisabled() {
+          const lockByCaptcha =
+            !!window.__PM_TS_ENABLED__ && !window.__PM_TS_OK__;
+          setBtnDisabled(btnReject, lockByCaptcha);
+          setBtnDisabled(btnAccept, lockByCaptcha);
+          window.__PM_CAN_SUBMIT__ = !lockByCaptcha;
+        }
+        window.__pmRecompute = recomputeDisabled;
+        recomputeDisabled(); // initial
+
+        // ===== Pilih jawaban dari tombol =====
+        let clickedBtn = null;
         function setAnswerFromBtn(btn) {
           if (!btn || !answerField) return;
           const val = btn.getAttribute("data-answer");
           if (val) answerField.value = val;
         }
-
         btnReject &&
           btnReject.addEventListener("click", () => {
             clickedBtn = btnReject;
@@ -285,7 +348,7 @@
           const spinner = btn.querySelector(".spinner");
           const label = btn.querySelector(".btn-label");
           if (isLoading) {
-            btn.disabled = true; // aman sekarang karena nilai 'answer' sudah di hidden
+            btn.disabled = true;
             btn.setAttribute("aria-busy", "true");
             btn.classList.add("opacity-75", "cursor-not-allowed");
             if (spinner) spinner.classList.remove("hidden");
@@ -303,20 +366,41 @@
             if (label && original != null) label.textContent = original;
           }
         }
-
-        function setBtnDisabled(btn) {
+        function hardDisable(btn) {
           if (!btn) return;
           btn.disabled = true;
           btn.classList.add("opacity-50", "cursor-not-allowed");
+          btn.setAttribute("aria-disabled", "true");
         }
 
-        function resetButtons() {
-          setBtnLoading(btnReject, false);
-          setBtnLoading(btnAccept, false);
-        }
-
+        // ===== Submit handler =====
         let submitting = false;
         form.addEventListener("submit", function (e) {
+          // Gate terlebih dahulu
+          recomputeDisabled();
+          if (!window.__PM_CAN_SUBMIT__) {
+            e.preventDefault();
+            return;
+          }
+
+          // Pastikan token Turnstile tersisip (jika aktif)
+          if (window.__PM_TS_ENABLED__) {
+            var tokenInput = form.querySelector(
+              'input[name="cf-turnstile-response"]'
+            );
+            var token = tokenInput ? tokenInput.value.trim() : "";
+            if (!token) {
+              e.preventDefault();
+              // hint ringan via title
+              [btnReject, btnAccept].forEach(function (b) {
+                if (b)
+                  b.title =
+                    "Token captcha belum tersedia. Verifikasi captcha lalu coba lagi.";
+              });
+              return;
+            }
+          }
+
           if (submitting) {
             e.preventDefault();
             return;
@@ -333,13 +417,13 @@
           if (clickedBtn) {
             setBtnLoading(clickedBtn, true);
             const other = clickedBtn === btnAccept ? btnReject : btnAccept;
-            if (other) setBtnDisabled(other);
+            if (other) hardDisable(other);
           } else {
             // submit via Enter: nonaktifkan keduanya supaya tak dobel
-            setBtnDisabled(btnReject);
-            setBtnDisabled(btnAccept);
+            hardDisable(btnReject);
+            hardDisable(btnAccept);
           }
-          // biarkan form submit
+          // biarkan form lanjut submit
         });
 
         // Pulihkan state saat kembali via bfcache
@@ -347,8 +431,10 @@
           if (!e.persisted) return;
           submitting = false;
           clickedBtn = null;
-          resetButtons();
+          setBtnLoading(btnReject, false);
+          setBtnLoading(btnAccept, false);
           if (answerField) answerField.value = "";
+          recomputeDisabled();
         });
       })();
     </script>

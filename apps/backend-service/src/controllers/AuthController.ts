@@ -93,7 +93,6 @@ export class AuthController extends BaseController {
     try {
       const data = req.body as SignInDTO;
       if (req.turnstile?.ok === false) {
-        console.log("captcha tidak valid");
         console.log({ turnstile: req.turnstile });
         return this.renderView(
           req,

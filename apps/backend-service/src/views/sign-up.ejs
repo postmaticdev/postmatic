@@ -373,16 +373,6 @@
                 ></ul>
               </div>
 
-              <!-- Turnstile (jika aktif) -->
-              <% if (TURNSTILE_ENABLED) { %>
-              <div
-                class="cf-turnstile mt-2"
-                data-sitekey="<%= TURNSTILE_SITE_KEY %>"
-                data-theme="auto"
-                data-callback="pmOnTsOk"
-                data-error-callback="pmOnTsErr"
-                data-expired-callback="pmOnTsExp"
-              ></div>
               <p
                 id="captcha-error"
                 class="mt-2 text-xs text-red-600 <%= errors?.captcha ? '' : 'hidden' %>"
@@ -393,6 +383,18 @@
                 id="captcha-status"
                 class="mt-2 text-sm text-green-600 hidden"
               ></p>
+              <!-- Turnstile (jika aktif) -->
+              <% if (TURNSTILE_ENABLED) { %>
+              <div class="w-full flex items-center justify-center">
+                <div
+                  class="cf-turnstile mt-2"
+                  data-sitekey="<%= TURNSTILE_SITE_KEY %>"
+                  data-theme="auto"
+                  data-callback="pmOnTsOk"
+                  data-error-callback="pmOnTsErr"
+                  data-expired-callback="pmOnTsExp"
+                ></div>
+              </div>
 
               <script
                 src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -503,39 +505,42 @@
     </script>
 
     <!-- Script 1.5: Turnstile callbacks (UX opsional) -->
+    <!-- Script 1.5: Turnstile callbacks + GATE (REPLACE THIS BLOCK) -->
     <script nonce="<%= cspNonce %>">
       (function () {
         var errEl = document.getElementById("captcha-error");
         var statEl = document.getElementById("captcha-status");
+
         function showErr(msg) {
-          if (statEl) {
-            statEl.textContent = "";
-            statEl.classList.add("hidden");
-          }
-          if (errEl) {
-            errEl.textContent = msg || "Captcha tidak valid.";
-            errEl.classList.remove("hidden");
-          }
+          if (statEl) { statEl.textContent = ""; statEl.classList.add("hidden"); }
+          if (errEl) { errEl.textContent = msg || "Captcha tidak valid."; errEl.classList.remove("hidden"); }
         }
         function showOk(msg) {
-          if (errEl) {
-            errEl.textContent = "";
-            errEl.classList.add("hidden");
-          }
-          if (statEl) {
-            statEl.textContent = msg || "Captcha terverifikasi.";
-            statEl.classList.remove("hidden");
-          }
+          if (errEl) { errEl.textContent = ""; errEl.classList.add("hidden"); }
+          if (statEl) { statEl.textContent = msg || "Captcha terverifikasi."; statEl.classList.remove("hidden"); }
         }
-        window.pmOnTsOk = function (token) {
-          showOk();
-        };
-        window.pmOnTsErr = function () {
-          showErr("Captcha gagal dimuat. Silakan muat ulang atau coba lagi.");
-        };
-        window.pmOnTsExp = function () {
-          showErr("Captcha kedaluwarsa. Silakan selesaikan ulang captcha.");
-        };
+
+        // === Gate flags (sinkron dengan halaman login) ===
+        window.__PM_TS_ENABLED__ = <%- JSON.stringify(!!TURNSTILE_ENABLED) %>;
+        window.__PM_TS_OK__ = !window.__PM_TS_ENABLED__; // kalau tidak enable, anggap OK
+
+        function recomputeIfReady(){
+          if (typeof window.__pmRecompute === "function") window.__pmRecompute();
+        }
+
+        // Dipanggil oleh widget
+        window.pmOnTsOk = function () { window.__PM_TS_OK__ = true;  showOk();  recomputeIfReady(); };
+        window.pmOnTsErr = function () { window.__PM_TS_OK__ = false; showErr("Captcha gagal dimuat. Silakan muat ulang atau coba lagi."); recomputeIfReady(); };
+        window.pmOnTsExp = function () { window.__PM_TS_OK__ = false; showErr("Captcha kedaluwarsa. Silakan selesaikan ulang captcha."); recomputeIfReady(); };
+
+        // Safety: jika 6 detik tidak ada token, tampilkan pesan
+        if (window.__PM_TS_ENABLED__) {
+          setTimeout(function () {
+            if (!window.__PM_TS_OK__) {
+              showErr("Captcha belum diverifikasi. Selesaikan captcha untuk melanjutkan.");
+            }
+          }, 6000);
+        }
       })();
     </script>
 
@@ -551,6 +556,27 @@
         const label = btn ? btn.querySelector(".btn-label") : null;
         const loadingText =
           (btn && btn.getAttribute("data-loading-text")) || "Membuat akun...";
+
+        // ===== [NEW] CAPTCHA GATE: kunci tombol sampai verifikasi =====
+        function setBtn(disabled) {
+          if (!btn) return;
+          btn.disabled = disabled;
+          btn.classList.toggle("opacity-75", disabled);
+          btn.classList.toggle("cursor-not-allowed", disabled);
+          if (disabled) btn.setAttribute("aria-disabled", "true");
+          else btn.removeAttribute("aria-disabled");
+        }
+        function recomputeDisabled() {
+          var lockByCaptcha =
+            !!window.__PM_TS_ENABLED__ && !window.__PM_TS_OK__;
+          var disabled = lockByCaptcha;
+          setBtn(disabled);
+          window.__PM_CAN_SUBMIT__ = !disabled;
+        }
+        // expose supaya Script 1.5 bisa memicu ulang
+        window.__pmRecompute = recomputeDisabled;
+        // initial state
+        recomputeDisabled();
 
         const givenName = document.getElementById("givenName");
         const familyName = document.getElementById("familyName");
@@ -610,7 +636,6 @@
           setError(email, errEmail, "");
           setError(password, errPass, "");
           setError(confirmPassword, errCPass, "");
-          // bersihkan pesan captcha client-side jika ada
           var capErr = document.getElementById("captcha-error");
           var capStat = document.getElementById("captcha-status");
           capErr && capErr.classList.add("hidden");
@@ -734,10 +759,42 @@
           });
 
         let submitting = false;
-
         form.addEventListener("submit", function (e) {
           e.preventDefault();
           if (submitting) return;
+
+          // [NEW] Recompute: hormati gate captcha
+          recomputeDisabled();
+          if (!window.__PM_CAN_SUBMIT__) {
+            var captchaErr = document.getElementById("captcha-error");
+            if (
+              window.__PM_TS_ENABLED__ &&
+              !window.__PM_TS_OK__ &&
+              captchaErr
+            ) {
+              captchaErr.textContent =
+                "Harap selesaikan captcha terlebih dahulu.";
+              captchaErr.classList.remove("hidden");
+            }
+            return;
+          }
+
+          // [NEW] Jika Turnstile aktif, pastikan token tersisip
+          if (window.__PM_TS_ENABLED__) {
+            var tokenInput = form.querySelector(
+              'input[name="cf-turnstile-response"]'
+            );
+            var token = tokenInput ? tokenInput.value.trim() : "";
+            if (!token) {
+              var captchaErr2 = document.getElementById("captcha-error");
+              if (captchaErr2) {
+                captchaErr2.textContent =
+                  "Token captcha tidak ditemukan. Silakan verifikasi ulang.";
+                captchaErr2.classList.remove("hidden");
+              }
+              return;
+            }
+          }
 
           clearAllErrors();
 
@@ -810,6 +867,8 @@
             const original = btn.getAttribute("data-original-text");
             if (label && original != null) label.textContent = original;
           }
+          // Pastikan state gate disinkronkan saat BFCache restore
+          recomputeDisabled();
         });
       })();
     </script>

@@ -22,8 +22,6 @@ import {
 import { useTokenGetTokenUsage } from "@/services/tier/token.api";
 import { useEffect, useMemo, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useSubscribtionGetSubscription } from "@/services/tier/subscribtion.api";
-import { dateFormat } from "@/helper/date-format";
 
 export function Header() {
   const router = useRouter();

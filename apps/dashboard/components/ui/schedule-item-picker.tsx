@@ -133,7 +133,9 @@ export function ScheduleItemPicker({
                           : "hover:bg-muted"
                       )}
                     >
-                      {mapEnumPlatform.getPlatformIcon(p)}
+                      <div className="bg-background-secondary p-1 rounded-md">
+                        {mapEnumPlatform.getPlatformIcon(p)}
+                      </div>
                       <span
                         className={cn(
                           "text-xs font-medium",

@@ -31,6 +31,7 @@ import { usePlatformKnowledgeGetAll } from "@/services/knowledge.api";
 import { SearchNotFound } from "@/components/base/search-not-found";
 import { NoContent } from "@/components/base/no-content";
 import { ContentLibrarySkeleton } from "@/components/grid-skeleton/content-library-skeleton";
+import { useContentSchedulerTab } from "../page";
 
 export interface FormDataDraft {
   direct: DirectPostContentPld;
@@ -236,6 +237,8 @@ export function ContentLibrary({
     setModalView(true);
   };
 
+  const { setActiveTab } = useContentSchedulerTab();
+
   const handleSave = async () => {
     try {
       switch (initialPostType) {
@@ -246,6 +249,7 @@ export function ContentLibrary({
           });
           showToast("success", resDirect.data.responseMessage);
           onCloseModalPost();
+          setActiveTab("history");
           break;
         case "schedule":
           const resSchedule = await mSchedulePost.mutateAsync({
@@ -339,6 +343,9 @@ export function ContentLibrary({
                       variant="outline"
                       className="flex-1 "
                       onClick={() => handleAddToQueue(content)}
+                      disabled={
+                        mAddToQueue.isPending || mSchedulePost.isPending
+                      }
                     >
                       Add to queue
                     </Button>

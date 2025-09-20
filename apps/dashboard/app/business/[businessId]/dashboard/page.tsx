@@ -53,7 +53,7 @@ export default function Dashboard() {
     useContentOverviewGetCountUpcoming(businessId, {
       dateStart: dateManipulation.ymd(new Date()),
       dateEnd: dateManipulation.ymd(
-        new Date(new Date().setDate(new Date().getDate() + 7))
+        new Date(new Date().setDate(new Date().getDate() + 30))
       ),
     });
 
@@ -109,7 +109,7 @@ export default function Dashboard() {
 
           <AnalyticsCard
             title="Konten mendatang"
-            subtitle="Terjadwal untuk terbit dalam 7 hari"
+            subtitle="Terjadwal untuk terbit dalam 30 hari"
             value={totalCountUpcoming.toString()}
             breakdown={mappedCountUpcoming}
           />

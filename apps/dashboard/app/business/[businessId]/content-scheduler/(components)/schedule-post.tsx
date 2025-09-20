@@ -47,6 +47,8 @@ import { showToast } from "@/helper/show-toast";
 import { NoContent } from "@/components/base/no-content";
 import { UpcomingPostsSkeleton } from "@/components/grid-skeleton/upcoming-posts-skeleton";
 import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
+import { dateManipulation } from "@/helper/date-manipulation";
+import { mapEnumPlatform } from "@/helper/map-enum-platform";
 
 interface PostToCancel {
   type: "auto" | "manual";
@@ -68,7 +70,16 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
     number | null
   >(null);
   const { data: dataUpcoming, isLoading: isLoadingUpcoming } =
-    useContentOverviewGetUpcoming(businessId);
+    useContentOverviewGetUpcoming(businessId, {
+      dateStart: dateManipulation.ymd(new Date()),
+      dateEnd: onDashboard
+        ? dateManipulation.ymd(
+            new Date(new Date().setDate(new Date().getDate() + 30))
+          )
+        : dateManipulation.ymd(
+            new Date(new Date().setDate(new Date().getDate() + 365))
+          ),
+    });
   const upcomings = dataUpcoming?.data.data || [];
 
   const [formDataDraft, setFormDataDraft] = useState<FormDataDraft>({
@@ -117,7 +128,6 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
   };
 
   const mDirectPostFromDraft = useContentDraftDirectPostFromDraft();
-  // const mSchedulePost = useContentSchedulerManualAddToQueue();
   const mSchedulerEdit = useContentSchedulerManualEditQueue();
   const mRemove = useContentSchedulerManualRemove();
   const mReadyToPost = useContentDraftSetReadyToPost();
@@ -195,7 +205,7 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
     <Card className={onDashboard ? "h-fit" : "h-full"}>
       <CardContent className="p-6">
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col justify-between">
             <h2
               className={
                 onDashboard ? "text-lg font-semibold" : "text-2xl font-bold"
@@ -203,6 +213,9 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
             >
               Penjadwalan Postingan
             </h2>
+            <span className="text-sm text-muted-foreground">
+              {onDashboard ? "Terjadwal untuk terbit dalam 30 hari" : ""}
+            </span>
           </div>
 
           {isLoadingUpcoming ? (
@@ -238,6 +251,9 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
                             ? "Penjadwalan Otomatis"
                             : "Penjadwalan Manual"}{" "}
                           {dateFormat.getHhMm(new Date(post.date))}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {post.platforms.map((platform) => mapEnumPlatform.getPlatformIcon(platform))}
                         </div>
                       </div>
 
@@ -325,7 +341,7 @@ export function SchedulePost({ onDashboard = false }: SchedulePostProps) {
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleConfirmCancel}>
-              Yes, Cancel Queue
+              Yes, Cancel Queue 
             </Button>
           </DialogFooter>
         </DialogContent>

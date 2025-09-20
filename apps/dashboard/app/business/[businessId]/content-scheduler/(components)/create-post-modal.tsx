@@ -184,7 +184,7 @@ export function CreatePostModal({
                   className={`h-10 sm:h-12 justify-start space-x-2 sm:space-x-3 text-xs sm:text-sm ${
                     isSelectedPlatform(platform.id)
                       ? "bg-blue-600 hover:bg-blue-700 "
-                      : "bg-card text-muted- hover:bg-background"
+                      : "bg-card text-muted- hover:bg-background-secondary"
                   } ${
                     !platform.isActive ? "opacity-50 cursor-not-allowed" : ""
                   }`}
@@ -192,9 +192,8 @@ export function CreatePostModal({
                   disabled={!platform.isActive}
                 >
                   <div className="bg-card p-1 rounded-md">
-                    
-                  {mapEnumPlatform.getPlatformIcon(platform.id)}
-                    </div>
+                    {mapEnumPlatform.getPlatformIcon(platform.id)}
+                  </div>
                   <span className="font-medium truncate">
                     {mapEnumPlatform.getPlatformLabel(platform.id)}
                   </span>

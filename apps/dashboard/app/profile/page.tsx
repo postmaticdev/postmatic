@@ -15,8 +15,6 @@ export default function Profile() {
   const greeting = `Selamat datang, ${userName}`;
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       <main className="py-4 sm:py-6 px-4 sm:px-6">
         <WelcomeSection message="Atur dan edit profil anda." title={greeting} />
 

@@ -7,12 +7,11 @@ import { Calendar } from "lucide-react";
 import { useContentSchedulerAutoGetSettings } from "@/services/content/content.api";
 import { useParams } from "next/navigation";
 import { PlatformEnum } from "@/models/api/knowledge/platform.type";
-import {
-  AutoSchedulerAutosaveProvider,
-  useAutoSchedulerAutosave,
-} from "@/contexts/auto-scheduler-autosave-context";
+import { useAutoSchedulerAutosave } from "@/contexts/auto-scheduler-autosave-context";
+import { Button } from "@/components/ui/button";
+import { LogoLoader } from "@/components/base/logo-loader";
 
-function AutoPostingInner() {
+export function AutoPosting() {
   const {
     enabled: globalEnabled,
     schedules,
@@ -20,7 +19,22 @@ function AutoPostingInner() {
     toggleDay,
     addTime,
     removeTime,
+    isValueChanged,
+    loading,
+    onUpsert,
   } = useAutoSchedulerAutosave();
+  const { businessId } = useParams() as { businessId: string };
+  const { isLoading } = useContentSchedulerAutoGetSettings(businessId);
+
+  if (isLoading) {
+    return (
+      <Card className="h-full flex items-center justify-center">
+        <CardContent className="py-6 flex items-center justify-center">
+          <LogoLoader />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="h-full">
@@ -28,15 +42,20 @@ function AutoPostingInner() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Auto Posting</h2>
-            <Switch
-              checked={globalEnabled}
-              onCheckedChange={(v) => setGlobalEnabled(v)}
-            />
+            <div className="flex flex-row gap-2 items-center">
+              <Switch
+                checked={globalEnabled}
+                onCheckedChange={(v) => setGlobalEnabled(v)}
+              />
+              <Button onClick={onUpsert} disabled={loading || !isValueChanged}>
+                {loading ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto">
             {schedules.schedulerAutoPostings.map((schedule) => (
-              <Card key={schedule.day} className="bg-gray-50 dark:bg-gray-800">
+              <Card key={schedule.day} className="bg-background-secondary">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -77,37 +96,5 @@ function AutoPostingInner() {
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-export function AutoPosting() {
-  const { businessId } = useParams() as { businessId: string };
-  const { data: scheduleData, isLoading } =
-    useContentSchedulerAutoGetSettings(businessId);
-
-  const globalEnabled = scheduleData?.data.data.isAutoPosting || false;
-  const schedules = scheduleData?.data.data || {
-    id: 0,
-    isAutoPosting: false,
-    rootBusinessId: "",
-    schedulerAutoPostings: [],
-  };
-
-  if (isLoading) {
-    return (
-      <Card className="h-full">
-        <CardContent className="py-6">Loading…</CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <AutoSchedulerAutosaveProvider
-      businessId={businessId}
-      initialEnabled={globalEnabled}
-      initialSchedules={schedules}
-    >
-      <AutoPostingInner />
-    </AutoSchedulerAutosaveProvider>
   );
 }

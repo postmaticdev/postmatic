@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { ContentLibrary } from "@/app/business/[businessId]/content-scheduler/(components)/content-library";
 import { SchedulePost } from "@/app/business/[businessId]/content-scheduler/(components)/schedule-post";
 import { AutoPosting } from "@/app/business/[businessId]/content-scheduler/(components)/auto-posting";
 import { TabNavigation } from "@/app/business/[businessId]/content-scheduler/(components)/tab-navigation";
 import { WelcomeSection } from "@/components/base/welcome-section";
 
-export default function ContentScheduler() {
-  const [activeTab, setActiveTab] = useState("manual");
+function ContentSchedulerInner() {
+  const { activeTab, setActiveTab } = useContentSchedulerTab();
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -74,4 +74,34 @@ export default function ContentScheduler() {
       <div className=" h-full">{renderTabContent()}</div>
     </main>
   );
+}
+
+export default function ContentScheduler() {
+  const [activeTab, setActiveTab] = useState<"manual" | "auto" | "history">(
+    "manual"
+  );
+  return (
+    <ContentSchedulerTabContext.Provider value={{ activeTab, setActiveTab }}>
+      <ContentSchedulerInner />
+    </ContentSchedulerTabContext.Provider>
+  );
+}
+
+interface ContentSchedulerTabContext {
+  activeTab: "manual" | "auto" | "history";
+  setActiveTab: (tab: "manual" | "auto" | "history") => void;
+}
+
+const ContentSchedulerTabContext = createContext<
+  ContentSchedulerTabContext | undefined
+>(undefined);
+
+export function useContentSchedulerTab() {
+  const context = useContext(ContentSchedulerTabContext);
+  if (!context) {
+    throw new Error(
+      "useContentSchedulerTab must be used within a ContentSchedulerTabProvider"
+    );
+  }
+  return context;
 }

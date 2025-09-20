@@ -68,6 +68,14 @@ imageJobRoute.post(
   imageContentController.enqueueGenerateMockContentBasedOnRss
 );
 
+// BY MOCK MASK
+imageJobRoute.post(
+  "/:rootBusinessId/mock-mask",
+  useOwnedBusiness,
+  useValidate({ body: ImageContentMaskSchema }),
+  imageContentController.enqueueGenerateMockContentMask
+);
+
 // Poll satu job
 imageJobRoute.get(
   "/:rootBusinessId/:jobId",

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ClientLayoutWrapper } from "./client-layout-wrapper";
 import { QueryProvider } from "@/provider/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { FormNewBusinessProvider } from "@/contexts/form-new-business-context";
@@ -12,6 +11,8 @@ import { ContentGenerateProvider } from "@/contexts/content-generate-context";
 import { Suspense } from "react";
 import { BusinessGridFilterProvider } from "@/contexts/business-grid-context";
 import { RoleProvider } from "@/contexts/role-context";
+import { AutoSchedulerAutosaveProvider } from "@/contexts/auto-scheduler-autosave-context";
+import BusinessClientLayout from "./client-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,36 +36,38 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <Suspense fallback={<div>loading...</div>}>
-        <ClientLayoutWrapper>
+      <Suspense fallback={null}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <QueryProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <RoleProvider>
+            <RoleProvider>
+              <AutoSchedulerAutosaveProvider>
                 <ContentGenerateProvider>
                   <FormNewBusinessProvider>
                     <ManageKnowledgeProvider>
                       <CheckoutProvider>
                         <BusinessGridFilterProvider>
-                          <main
-                            className={`${geistSans.variable} ${geistMono.variable}`}
-                          >
-                            {children}
-                          </main>
+                          <BusinessClientLayout>
+                            <main
+                              className={`${geistSans.variable} ${geistMono.variable}`}
+                            >
+                              {children}
+                            </main>
+                          </BusinessClientLayout>
                         </BusinessGridFilterProvider>
                       </CheckoutProvider>
                     </ManageKnowledgeProvider>
                   </FormNewBusinessProvider>
                 </ContentGenerateProvider>
-              </RoleProvider>
-              <Toaster />
-            </ThemeProvider>
+              </AutoSchedulerAutosaveProvider>
+            </RoleProvider>
+            <Toaster />
           </QueryProvider>
-        </ClientLayoutWrapper>
+        </ThemeProvider>
       </Suspense>
     </html>
   );

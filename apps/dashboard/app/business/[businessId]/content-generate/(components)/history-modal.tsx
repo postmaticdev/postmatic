@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { ChevronDown, ChevronUp, Eye } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, Trash2 } from "lucide-react";
 import { useContentGenerate } from "@/contexts/content-generate-context";
 import { DEFAULT_PLACEHOLDER_IMAGE } from "@/constants";
 import { dateFormat } from "@/helper/date-format";
@@ -21,6 +21,9 @@ import { mapEnumJobStatus } from "@/helper/map-enum-job-status";
 import { JobData } from "@/models/socket-content";
 import { showToast } from "@/helper/show-toast";
 import { mapEnumJobType } from "@/helper/map-enum-job-type";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
+import { useContentJobDeleteHistoryJob } from "@/services/content/content.api";
+import { useParams } from "next/navigation";
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -29,6 +32,9 @@ interface HistoryModalProps {
 
 export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedItemToDelete, setSelectedItemToDelete] =
+    useState<JobData | null>(null);
   const { histories, onSelectHistory } = useContentGenerate();
 
   const toggleExpanded = (itemId: string) => {
@@ -53,6 +59,31 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
     }
     onSelectHistory(item);
     onClose();
+  };
+
+  const handleDelete = (item: JobData) => {
+    setSelectedItemToDelete(item);
+    setDeleteModalOpen(true);
+  };
+  const { businessId } = useParams() as { businessId: string };
+  const mutationDelete = useContentJobDeleteHistoryJob();
+
+  const handleDeleteConfirm = async () => {
+    if (selectedItemToDelete) {
+      // TODO: Implement actual delete logic here
+      await mutationDelete.mutateAsync({
+        rootBusinessId: businessId,
+        jobId: selectedItemToDelete.id,
+      });
+      showToast("success", "Item berhasil dihapus");
+      setDeleteModalOpen(false);
+      setSelectedItemToDelete(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModalOpen(false);
+    setSelectedItemToDelete(null);
   };
 
   return (
@@ -179,14 +210,26 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                               </span>
                             </div>
                           </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleView(item)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View
-                          </Button>
+                          <div className="flex flex-col items-center gap-2">
+                            <Button
+                              variant="outline"
+                              className="w-full"
+                              size="sm"
+                              onClick={() => handleView(item)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              className="w-full"
+                              size="sm"
+                              onClick={() => handleDelete(item)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Hapus
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -199,6 +242,16 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
 
         <DialogFooterWithButton buttonMessage="Close" onClick={onClose} />
       </DialogContent>
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Hapus Item"
+        description="Apakah Anda yakin ingin menghapus item ini? Tindakan ini tidak dapat dibatalkan."
+        itemName={selectedItemToDelete?.product?.name || "Item"}
+        withDetailItem={false}
+      />
     </Dialog>
   );
 }

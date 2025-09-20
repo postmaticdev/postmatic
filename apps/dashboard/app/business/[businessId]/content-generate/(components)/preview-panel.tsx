@@ -165,10 +165,21 @@ export function PreviewPanel() {
               placeholder="Write a caption..."
             />
           </div>
+          {selectedHistory && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-fit self-end lg:hidden"
+              onClick={() => onSelectHistory(null)}
+            >
+              <RotateCcw className="h-5 w-5" />
+              Reset Form
+            </Button>
+          )}
         </div>
 
         {/* Optimize Prompt */}
-        <div className="p-4 border-b flex flex-col ">
+        <div className="p-4 border-b lg:border-none flex flex-col mb-2">
           <label className="block text-sm font-medium mb-2">
             Optimize Prompt
           </label>
@@ -181,21 +192,10 @@ export function PreviewPanel() {
             className="min-h-[60px] max-h-[120px] resize-none border-border text-sm focus:ring-0 p-4"
             placeholder="Write a optimize prompt..."
           />
-          {selectedHistory && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-fit self-end mt-4"
-              onClick={() => onSelectHistory(null)}
-            >
-              <RotateCcw className="h-5 w-5" />
-              Reset Form
-            </Button>
-          )}
         </div>
 
-        {/* Generate/Regenerate Button */}
-        <div className="p-4">
+        {/* Generate/Regenerate Button MOBILE*/}
+        <div className="lg:hidden p-4 ">
           {/* Save as Draft Button - Only show after generation */}
           {selectedHistory && (
             <>
@@ -230,6 +230,54 @@ export function PreviewPanel() {
           </Button>
         </div>
       </CardNoGap>
+      <div className="hidden lg:block sticky bottom-0 right-0  border border-border space-y-2 bg-card py-2 px-4 -mt-3 rounded-b-md">
+        {/* Save as Draft Button - Only show after generation */}
+
+        <div className="flex w-full gap-4">
+          {selectedHistory && (
+            <>
+              {!isDraftSaved ? (
+                <Button
+                onClick={onSaveDraft}
+                variant="outline"
+                className="flex-grow"
+                disabled={isLoading}
+                >
+                  Save as a Draft
+                </Button>
+              ) : (
+                <Link href={`/business/${businessId}/content-scheduler`}>
+                  <Button variant="outline" className="w-full">
+                    Lihat di Pustaka Konten
+                  </Button>
+                </Link>
+              )}
+              {selectedHistory && (
+                <Button
+                  variant="outline"
+                  className="w-1/3"
+                  disabled={isLoading}
+                  onClick={() => onSelectHistory(null)}
+                >
+                  <RotateCcw className="h-5 w-5" />
+                  Reset Form
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+        <Button
+          onClick={handleGenerateClick}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+          disabled={isLoading}
+        >
+          {isLoading
+            ? "Loading..."
+            : selectedHistory
+            ? "Regenerate"
+            : "Generate"}
+        </Button>
+      </div>
 
       {/* History Modal */}
       <HistoryModal

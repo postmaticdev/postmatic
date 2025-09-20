@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface TabNavigationProps {
-  activeTab: string
-  onTabChange: (tab: string) => void
+  activeTab: "manual" | "auto" | "history";
+  onTabChange: (tab: "manual" | "auto" | "history") => void;
 }
 
-const tabs = [
+const tabs: { id: "manual" | "auto" | "history"; label: string }[] = [
   { id: "manual", label: "Posting Manual" },
   { id: "auto", label: "Posting Otomatis" },
-  { id: "history", label: "Riwayat" }
-]
+  { id: "history", label: "Riwayat" },
+];
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
@@ -25,8 +25,8 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
           onClick={() => onTabChange(tab.id)}
           className={cn(
             "flex-1 p-4 sm:p-6 text-xs sm:text-sm",
-            activeTab === tab.id 
-              ? "bg-primary text-white" 
+            activeTab === tab.id
+              ? "bg-primary text-white"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
@@ -34,5 +34,5 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
         </Button>
       ))}
     </div>
-  )
+  );
 }

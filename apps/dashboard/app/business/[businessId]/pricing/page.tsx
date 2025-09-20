@@ -89,8 +89,6 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background flex">
       <div className="flex-1 flex flex-col">
-        <Header />
-
         <main className="flex-1 p-6">
           <div className="max-w-6xl mx-auto">
             {/* Header */}
@@ -286,8 +284,8 @@ export default function Pricing() {
                             {formatIdr(selectedItem?.price || 0)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {selectedItem?.tokenImage} token •{" "}
-                            Valid untuk {selectedItem?.subscriptionValidFor} hari
+                            {selectedItem?.tokenImage} token • Valid untuk{" "}
+                            {selectedItem?.subscriptionValidFor} hari
                           </div>
                         </div>
 
@@ -316,12 +314,16 @@ export default function Pricing() {
                               ? "bg-gray-400 hover:bg-gray-400 text-white cursor-not-allowed opacity-60"
                               : "bg-blue-600 hover:bg-blue-700 text-white"
                           }`}
-                          disabled={plan.appProductSubscriptionItems?.[0]?.isClaimed}
+                          disabled={
+                            plan.appProductSubscriptionItems?.[0]?.isClaimed
+                          }
                           onClick={() => {
-                            if (plan.appProductSubscriptionItems?.[0]?.isClaimed) {
+                            if (
+                              plan.appProductSubscriptionItems?.[0]?.isClaimed
+                            ) {
                               return; // Prevent action if already claimed
                             }
-                            
+
                             if (selectedItem?.price === 0) {
                               checkoutFreeProduct(selectedItem?.id);
                             } else {

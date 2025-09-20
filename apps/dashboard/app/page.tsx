@@ -3,12 +3,16 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { countBusiness } from "@/services/business.api";
-import { ACCESS_TOKEN_KEY, LOGIN_URL, REFRESH_TOKEN_KEY } from "@/constants";
-import { AxiosError } from "axios";
+import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/constants";
+import { LogoLoader } from "@/components/base/logo-loader";
 
 export default function Home() {
   useCheckBusiness();
-  return null;
+  return (
+    <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+      <LogoLoader />
+    </div>
+  );
 }
 
 const useCheckBusiness = () => {
@@ -33,22 +37,21 @@ const useCheckBusiness = () => {
     countBusiness()
       .then((totalBusiness) => {
         if (!totalBusiness || totalBusiness === 0) {
+          console.log("no business");
           router.replace("/business/new-business");
         } else if (rootBusinessIdFromParam) {
+          console.log("rootBusinessIdFromParam", rootBusinessIdFromParam);
           router.replace(`/business/${rootBusinessIdFromParam}`);
         } else {
+          console.log("business");
           router.replace("/business");
         }
       })
       .catch((error) => {
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 401) {
-            router.replace(LOGIN_URL);
-          }
-        } else {
-          router.replace("/business");
-        }
+        console.log("error", error);
       });
+
+    console.log("done");
 
     return;
   }, [router]);

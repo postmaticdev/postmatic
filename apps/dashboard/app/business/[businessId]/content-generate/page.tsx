@@ -31,7 +31,7 @@ export default function ContentGenerate() {
         <div
           className={cn(
             "w-full border-r bg-card relative",
-            mode === "regenerate" ? "w-full lg:w-3/5" : "w-full lg:w-1/3"
+            mode === "regenerate" ? "w-full lg:w-2/3" : "w-full lg:w-1/3"
           )}
         >
           <GenerationPanel />
@@ -44,7 +44,7 @@ export default function ContentGenerate() {
         <div
           className={cn(
             "w-full bg-card",
-            mode === "regenerate" ? "w-full lg:w-2/5" : "w-full lg:w-1/3"
+            mode === "regenerate" ? "w-full lg:w-1/3" : "w-full lg:w-1/3"
           )}
         >
           <PreviewPanel />

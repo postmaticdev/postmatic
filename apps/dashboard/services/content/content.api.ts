@@ -142,15 +142,18 @@ export const useContentDraftSetReadyToPost = () => {
       businessId: string;
       generatedImageContentId: string;
     }) => draftService.setReadyToPost(businessId, generatedImageContentId),
-    onSuccess: ({ data }) => {
+    onSuccess: ({}) => {
       queryClient.invalidateQueries({
-        queryKey: ["contentDraftGetAllDraftImage", data?.data?.rootBusinessId],
+        queryKey: ["contentDraftGetAllDraftImage"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["contentOverviewCountUpcoming", data?.data?.rootBusinessId],
+        queryKey: ["contentOverviewCountUpcoming"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["contentOverviewUpcoming", data?.data?.rootBusinessId],
+        queryKey: ["contentOverviewUpcoming"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["contentPostedGetAllPostedImage"],
       });
     },
   });
@@ -176,6 +179,9 @@ export const useContentDraftDirectPostFromDraft = () => {
       queryClient.invalidateQueries({
         queryKey: ["contentOverviewUpcoming"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["contentPostedGetAllPostedImage"],
+      });
     },
   });
 };
@@ -184,19 +190,18 @@ export const useContentDraftDeleteDraft = (generatedImageContentId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => draftService.deleteDraft(generatedImageContentId),
-    onSuccess: ({ data }) => {
+    onSuccess: ({}) => {
       queryClient.invalidateQueries({
-        queryKey: [
-          "contentDraftGetAllDraftImage",
-          generatedImageContentId,
-          data.data.rootBusinessId,
-        ],
+        queryKey: ["contentDraftGetAllDraftImage"],
       });
       queryClient.invalidateQueries({
         queryKey: ["contentOverviewCountUpcoming"],
       });
       queryClient.invalidateQueries({
         queryKey: ["contentOverviewUpcoming"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["contentPostedGetAllPostedImage"],
       });
     },
   });
@@ -483,7 +488,7 @@ export const jobContentService = {
   },
   rssOnJob: (businessId: string, formData: GenerateContentRssPld) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/mock-rss`,
+      `/content/image/job/${businessId}/rss`,
       formData
     );
   },
@@ -492,7 +497,7 @@ export const jobContentService = {
     formData: GenerateContentRegeneratePld
   ) => {
     return api.post<BaseResponse<JobRes>>(
-      `/content/image/job/${businessId}/mock-regenerate`,
+      `/content/image/job/${businessId}/regenerate`,
       formData
     );
   },
@@ -583,6 +588,18 @@ export const useContentJobMaskOnJob = () => {
       formData: GenerateContentMaskPld;
     }) => jobContentService.maskOnJob(businessId, formData),
     onSuccess: ({}) => {
+      queryClient.invalidateQueries({
+        queryKey: ["contentJobGetAllJob"],
+      });
+    },
+  });
+};
+
+export const useContentJobDeleteHistoryJob = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ rootBusinessId, jobId }: { rootBusinessId: string; jobId: string }) => jobContentService.deleteHistoryJob(rootBusinessId, jobId),
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["contentJobGetAllJob"],
       });

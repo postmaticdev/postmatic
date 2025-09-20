@@ -366,6 +366,7 @@ export class OpenAiService extends BaseService {
       prompt: finalPrompt,
       mask: maskImage,
       quality: "high",
+      size: this.getImageSize(body.ratio),
     });
 
     const base64Image = result?.data?.[0]?.b64_json ?? "";

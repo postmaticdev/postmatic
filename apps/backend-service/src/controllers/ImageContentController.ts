@@ -294,6 +294,23 @@ export class ImageContentController extends BaseController {
     }
   };
 
+  enqueueGenerateMockContentMask = async (req: Request, res: Response) => {
+    try {
+      const { rootBusinessId } = req.params;
+      const data = req.body as ImageContentMaskDTO;
+      const content = await this.mock.enqueueGenerateMockContentMask(
+        data,
+        rootBusinessId
+      );
+      if (!content) return this.notFound(res);
+      if (typeof content === "string")
+        return this.sendError(res, new Error(content), 400);
+      return this.sendSuccess(res, content, "Konten berhasil dibuat");
+    } catch (err) {
+      return this.sendError(res, err);
+    }
+  };
+
   deleteJobById = async (req: Request, res: Response) => {
     try {
       const { rootBusinessId, jobId } = req.params;

@@ -197,7 +197,8 @@ export class ImageContentService extends BaseService {
 
   /** Penentu retry — default FALSE supaya tidak retry membabi-buta */
   protected isRetryable(err: unknown): boolean {
-    let retry = false;
+    // for now add true
+    let retry = true;
     const e = err as { code?: string; name?: string; message?: string };
     const msg = String(e?.message || err || "");
     const code = String(e?.code || e?.name || "");

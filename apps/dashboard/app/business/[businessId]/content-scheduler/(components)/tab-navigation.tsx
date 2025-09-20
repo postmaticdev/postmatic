@@ -24,7 +24,7 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
           size="sm"
           onClick={() => onTabChange(tab.id)}
           className={cn(
-            "flex-1 p-4 sm:p-6",
+            "flex-1 p-4 sm:p-6 text-xs sm:text-sm",
             activeTab === tab.id 
               ? "bg-primary text-white" 
               : "text-muted-foreground hover:text-foreground"

@@ -58,11 +58,11 @@ export function ProductModal({
   const description = isEditMode
     ? "Update informasi produk"
     : "Tambah produk baru ke basis pengetahuan";
-  const buttonText = isEditMode ? "Ubah Perubahan" : "Tambah";
+  const buttonText = isEditMode ? "Simpan Perubahan" : "Tambah";
 
   const placeholders = {
     productName: "Kopi Kapal Langit",
-    productCategory: "Kopi",
+    productCategory: "Contoh : Makanan & Minuman",
     productDescription: "Kopi Kapal adalah kopi yang berasal dari Kapal",
     price: "100000",
     currency: "IDR",

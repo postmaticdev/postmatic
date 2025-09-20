@@ -46,7 +46,7 @@ const initialProduct: ProductKnowledgePld & { id?: string } = {
   images: [],
   name: "",
   price: 0,
-  currency: "",
+  currency: "IDR",
   id: "",
 };
 
@@ -170,27 +170,28 @@ export function ProductSection() {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground">Produk Anda</h2>
 
-          {/* Search and Add Button */}
-          <div className="flex flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Cari referensi di sini..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            {productKnowledge.write && (
-              <Button
-                className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
-                onClick={handleAddProduct}
-              >
-                <Plus className="w-4 h-4" />
-                Tambah Produk
-              </Button>
-            )}
-          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    type="text"
+                    placeholder="Cari produk anda..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-background"
+                  />
+                </div>
+                {productKnowledge.write && (
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 whitespace-nowrap"
+                    onClick={handleAddProduct}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Tambah Produk
+                  </Button>
+                )}
+              </div>
+
 
           {/* Product List */}
           {products.length === 0 && searchQuery === "" ? (
@@ -202,7 +203,7 @@ export function ProductSection() {
               onButtonClick={handleAddProduct}
             />
           ) : products.length === 0 ? (
-            <SearchNotFound description=" tambah produk baru" />
+            <SearchNotFound description="atau tambah produk baru" />
           ) : (
             <div
               className={`space-y-3 ${
@@ -212,19 +213,32 @@ export function ProductSection() {
               {products.map((product) => (
                 <Card key={product.id} className="bg-background-secondary">
                   <CardContent className="py-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center  gap-4">
-                        <div className="relative  w-32  h-32 rounded-lg overflow-hidden flex-shrink-0">
-                          <Image
-                            src={product.images[0] || DEFAULT_PRODUCT_IMAGE}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                          />
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="relative w-16 h-16 sm:w-32  sm:h-32 rounded-lg overflow-hidden flex-shrink-0">
+                            <Image
+                              src={product.images[0] || DEFAULT_PRODUCT_IMAGE}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex flex-col sm:hidden items-start ">
+                            <h3 className="font-medium text-foreground mb-1 text-sm line-clamp-1">
+                              {product.name}
+                            </h3>
+
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded-full">
+                                {product.category}
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <div className="flex flex-col lg:flex-row lg:gap-2">
+                          <div className="hidden sm:flex flex-col lg:flex-row lg:gap-2">
                             <h3 className="font-medium text-foreground mb-1">
                               {product.name}
                             </h3>
@@ -236,7 +250,7 @@ export function ProductSection() {
                             </div>
                           </div>
 
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2">
                             {product.description}
                           </p>
 

@@ -51,12 +51,12 @@ export function RoleKnowledgeForm() {
   };
 
   const defaultPlaceholders = {
-    targetAudience: "Pemilik UMKM",
-    contentTone: "Intuitif",
-    persona: "Pemilik UMKM",
-    hashtagInput: "#UMKM, #Bisnis, #DigitalMarketing",
-    callToAction: "Klik untuk melihat produk",
-    goals: "Meningkatkan penjualan",
+    targetAudience: "Contoh : Pemilik UMKM",
+    contentTone: "Contoh : Intuitif",
+    persona: "Contoh : Pemilik UMKM",
+    hashtagInput: "Contoh : #UMKM, #Bisnis, #DigitalMarketing",
+    callToAction: "Contoh : Klik untuk melihat produk",
+    goals: "Contoh : Meningkatkan penjualan",
   };
 
   const finalLabels = { ...defaultLabels };

@@ -61,7 +61,7 @@ export function FormNewBusinessProvider({
       name: "",
       category: "",
       description: "",
-      currency: "",
+      currency: "IDR",
       images: [],
       price: 0,
     },

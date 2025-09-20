@@ -57,7 +57,7 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent>
         {/* Header */}
         <DialogHeader>
           <div>
@@ -110,10 +110,10 @@ export function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
 
                   {/* Expanded Content */}
                   {isExpanded && (
-                    <div className="p-4">
+                    <div className="border-t border-border space-y-2">
                       {item.jobs.map((item, index) => (
                         <div
-                          className="flex flex-col sm:flex-row sm:items-start gap-3"
+                          className="flex p-4 flex-col sm:flex-row sm:items-start gap-3 border-b border-border"
                           key={item.id + index}
                         >
                           <div className="relative w-16 h-16 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">

@@ -388,7 +388,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
           )}
         </div>
 
-        <div className="flex items-center justify-between p-6 pt-0">
+        <div className="flex items-center justify-between p-6 pt-4 border-t border-border">
           {currentView === "password" && (
             <Button
               variant="outline"

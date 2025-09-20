@@ -24,16 +24,19 @@ interface ProductCategoryDropdownProps {
 const PRODUCT_CATEGORIES = [
   "Makanan & Minuman",
   "Fashion & Pakaian",
+  "Kecantikan & Perawatan Pribadi",
   "Elektronik & Gadget",
-  "Kesehatan & Kecantikan",
-  "Rumah & Taman",
+  "Rumah & Tempat Tinggal",
+  "Kesehatan & Kesejahteraan",
+  "Bayi & Anak-anak",
+  "Otomotif & Aksesoris",
   "Olahraga & Outdoor",
-  "Buku & Media",
-  "Mainan & Hobi",
-  "Otomotif",
+  "Buku & Alat Tulis",
   "Perhiasan & Aksesoris",
-  "Kantor & Bisnis",
-  "Travel & Wisata",
+  "Perlengkapan Hewan Peliharaan",
+  "Furnitur & Dekorasi",
+  "Alat & Perkakas",
+  "Produk Digital & Langganan",
   "Lainnya",
 ];
 
@@ -83,7 +86,7 @@ export function ProductCategoryDropdown({
               className={error ? "border-red-500 focus:border-red-500" : ""}
               onFocus={onFocus}
             >
-              <SelectValue placeholder={placeholder} />
+              <SelectValue placeholder={isOtherSelected || shouldShowLainnya ? "Lainnya" : placeholder} />
             </SelectTrigger>
             <SelectContent>
               {PRODUCT_CATEGORIES.map((category) => (

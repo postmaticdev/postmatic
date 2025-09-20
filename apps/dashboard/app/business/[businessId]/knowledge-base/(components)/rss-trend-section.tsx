@@ -243,7 +243,7 @@ export function RSSTrendSection({
                   <Card key={trend.id} className="bg-background-secondary">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-4">
-                        <div className=" w-10 h-10  lg:w-16 lg:h-16 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="hidden sm:block w-10 h-10  lg:w-16 lg:h-16 rounded-lg overflow-hidden flex-shrink-0">
                           <Image
                             src={getRssSourceImage(trend?.masterRss?.publisher)}
                             alt={trend.title}
@@ -254,22 +254,38 @@ export function RSSTrendSection({
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <div className="flex flex-col lg:flex-row lg:gap-2">
-                            <h3 className="font-medium text-foreground mb-1">
-                              {trend.title}
-                            </h3>
+                          <div className="flex gap-2">
+                            <div className="block sm:hidden w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                              <Image
+                                src={getRssSourceImage(
+                                  trend?.masterRss?.publisher
+                                )}
+                                alt={trend.title}
+                                width={40}
+                                height={40}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-col">
+                              <div className="flex flex-col lg:flex-row lg:gap-2">
+                                <h3 className="font-medium text-foreground mb-1 text-sm sm:text-base line-clamp-1">
+                                  {trend.title}
+                                </h3>
 
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded-full">
-                                {trend?.masterRss?.masterRssCategory?.name}
-                              </span>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded-full">
+                                    {trend?.masterRss?.masterRssCategory?.name}
+                                  </span>
+                                </div>
+                              </div>
+
+                              
                             </div>
                           </div>
-
-                          <p className="text-sm text-muted-foreground mb-3">
-                            Source: {trend?.masterRss?.publisher?.toUpperCase()}
-                          </p>
-
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-3">
+                                Source:{" "}
+                                {trend?.masterRss?.publisher?.toUpperCase()}
+                              </p>
                           {/* Status Toggle */}
                           <div className="flex items-center gap-3">
                             {rssKnowledge.write && (

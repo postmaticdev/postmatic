@@ -75,7 +75,7 @@ export default function Pricing() {
       });
       queryClient.clear();
       showToast("success", "Berhasil mengklaim free trial");
-      router.push(`/business/${businessId}/dashboard`);
+      router.push(`/business/${businessId}/content-generate`);
     } catch {}
   };
 

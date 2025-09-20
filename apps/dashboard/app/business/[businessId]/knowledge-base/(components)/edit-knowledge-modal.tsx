@@ -135,10 +135,8 @@ export function EditKnowledgeModal({
           <DialogDescription>
             Update your business and role knowledge informationaa
           </DialogDescription>
-        </DialogHeader>
 
-        {/* Tab Bar */}
-        <div className="flex justify-center">
+          <div className="flex justify-center">
           <div className="flex bg-background rounded-lg w-full">
             <button
               onClick={() => handleTabChange("business")}
@@ -162,6 +160,10 @@ export function EditKnowledgeModal({
             </button>
           </div>
         </div>
+        </DialogHeader>
+
+        {/* Tab Bar */}
+        
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">

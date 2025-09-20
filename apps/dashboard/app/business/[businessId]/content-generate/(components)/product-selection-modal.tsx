@@ -83,7 +83,9 @@ export function ProductSelectionModal({
                 }}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-2 mb-1">
+
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                       <Image
                         src={product.images[0] || DEFAULT_PRODUCT_IMAGE}
@@ -92,9 +94,18 @@ export function ProductSelectionModal({
                         className="object-cover"
                       />
                     </div>
+                    <div className="flex flex-col sm:hidden items-start gap-2 mb-1">
+                        <h3 className="font-medium text-foreground">
+                          {product.name}
+                        </h3>
+                        <span className="bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded-full">
+                          {product.category}
+                        </span>
+                      </div>
+                    </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="hidden sm:flex items-center gap-2 mb-1">
                         <h3 className="font-medium text-foreground">
                           {product.name}
                         </h3>

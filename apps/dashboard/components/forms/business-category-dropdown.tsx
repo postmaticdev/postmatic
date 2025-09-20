@@ -22,12 +22,21 @@ interface BusinessCategoryDropdownProps {
 }
 
 const BUSINESS_CATEGORIES = [
-  "Food & Beverage",
-  "Retail",
-  "Technology",
-  "Services",
-  "Education",
-  "Healthcare",
+  "Makanan & Minuman",
+  "Ritel & E-commerce",
+  "Teknologi & Perangkat Lunak",
+  "Kesehatan & Farmasi",
+  "Layanan Keuangan & Finansial",
+  "Real Estate & Properti",
+  "Konstruksi & Infrastruktur",
+  "Transportasi & Logistik",
+  "Perjalanan & Perhotelan",
+  "Energi & Pertambangan",
+  "Pendidikan & Pelatihan",
+  "Media & Hiburan",
+  "Pertanian & Peternakan",
+  "Fashion & Pakaian",
+  "Konsultasi & Layanan Profesional",
   "Lainnya",
 ];
 
@@ -77,7 +86,7 @@ export function BusinessCategoryDropdown({
               className={error ? "border-red-500 focus:border-red-500" : ""}
               onFocus={onFocus}
             >
-              <SelectValue placeholder={placeholder} />
+              <SelectValue placeholder={isOtherSelected || shouldShowLainnya ? "Lainnya" : placeholder} />
             </SelectTrigger>
             <SelectContent>
               {BUSINESS_CATEGORIES.map((category) => (

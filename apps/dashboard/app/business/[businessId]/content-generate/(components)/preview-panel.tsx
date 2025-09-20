@@ -210,7 +210,7 @@ export function PreviewPanel() {
                 </Button>
               ) : (
                 <Link href={`/business/${businessId}/content-scheduler`}>
-                  <Button variant="outline" className="w-full mt-2">
+                  <Button variant="outline" className="w-full mb-2">
                     Lihat di Pustaka Konten
                   </Button>
                 </Link>

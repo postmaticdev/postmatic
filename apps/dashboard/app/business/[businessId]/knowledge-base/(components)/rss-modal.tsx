@@ -73,10 +73,17 @@ export function RSSModal({
   const description = isEditMode
     ? "Update RSS feed information"
     : "Add new RSS feed to your knowledge base";
-  const buttonText = isEditMode ? "Ubah Perubahan" : "Tambah";
+  const buttonText = isEditMode ? "Simpan Perubahan" : "Tambah";
 
   const selectedRssUrl =
     dataLib.find((data) => data.id === formValue.masterRssId)?.url || "";
+
+    const placeholders = {
+      title: "Contoh : Kesehatan",
+      masterRssCategoryId: "Contoh : Health",
+      masterRssId: "Contoh : ANTARA News",
+      urlPreview: "URL preview akan otomatis tergenerate",
+    };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -113,7 +120,7 @@ export function RSSModal({
                 label="Judul Feed"
                 value={formValue?.title}
                 onChange={(value) => updateRssField("title", value)}
-                placeholder="Masukkan judul feed"
+                placeholder={placeholders.title}
                 error={errors.title}
               />
 
@@ -128,7 +135,7 @@ export function RSSModal({
                   }
                 >
                   <SelectTrigger className={errors.masterRssCategoryId ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder={placeholders.masterRssCategoryId} />
                   </SelectTrigger>
                   <SelectContent>
                     {categoryLib.map((category) => (
@@ -154,7 +161,7 @@ export function RSSModal({
                   }
                 >
                   <SelectTrigger className={errors.masterRssId ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select RSS source" />
+                    <SelectValue placeholder={placeholders.masterRssId} />
                   </SelectTrigger>
                   <SelectContent>
                     {dataLib.map((data) => (
@@ -176,7 +183,7 @@ export function RSSModal({
                 <input
                   type="text"
                   value={selectedRssUrl}
-                  placeholder="URL preview will be generated automatically"
+                  placeholder={placeholders.urlPreview}
                   disabled
                   className="w-full px-3 py-2 border border-input bg-muted rounded-md text-sm text-muted-foreground cursor-not-allowed"
                 />

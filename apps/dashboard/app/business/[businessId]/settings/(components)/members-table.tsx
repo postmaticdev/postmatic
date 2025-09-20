@@ -129,7 +129,7 @@ export function MembersTable() {
                 </div>
 
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  {JOINED_STATUS.includes(member.status) && isActionAble ? (
+                {isActionAble && member.role !== "Owner" ?  (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -236,8 +236,7 @@ export function MembersTable() {
                       {member.profile.email}
                     </td>
                     <td className="p-4">
-                      {JOINED_STATUS.includes(member.status) &&
-                      member.role !== "Owner" ? (
+                      {isActionAble && member.role !== "Owner" ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button

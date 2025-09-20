@@ -15,7 +15,7 @@ export const productKnowledgeSchema = z
     price: z
       .number()
       .min(1, "Harap masukkan harga produk")
-      .max(999999999, "Price is too high"),
+      .max(Number.MAX_SAFE_INTEGER, "Price is too high"),
     currency: z.string().min(1, "Harap masukkan mata uang"),
   })
 

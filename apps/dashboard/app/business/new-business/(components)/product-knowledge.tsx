@@ -34,11 +34,11 @@ export function ProductKnowledge() {
   };
 
   const defaultPlaceholders = {
-    productName: "Kopi Kapal Langit",
-    productCategory: "Kopi",
-    productDescription: "Kopi Kapal adalah kopi yang berasal dari Kapal",
-    price: "100000",
-    currency: "IDR",
+    productName: "Contoh : Kopi Kapal Langit",
+    productCategory: "Contoh : Makanan & Minuman",
+    productDescription: "Contoh : Kopi Kapal adalah kopi yang berasal dari Kapal",
+    price: "Contoh : 100000",
+    currency: "Contoh : IDR",
   };
 
   const finalLabels = { ...defaultLabels };
@@ -74,7 +74,7 @@ export function ProductKnowledge() {
           <ProductCategoryDropdown
             value={step2.category}
             onChange={(value) => updateField("category", value)}
-            placeholder="Pilih kategori produk"
+            placeholder={finalPlaceholders.productCategory}
             label="Kategori Produk"
             error={errors.step2.category}
             onFocus={() => clearFieldError(1, "category")}

@@ -153,20 +153,44 @@ const CATEGORY_OPTIONS = [
     value: "Default",
   },
   {
-    label: "Product",
-    value: "Product",
+    label: "Promosi & Diskon",
+    value: "Promosi & Diskon",
   },
   {
-    label: "Promotion",
-    value: "Promotion",
+    label: "Product Showcase",
+    value: "Product Showcase",
   },
   {
-    label: "Branding",
-    value: "Branding",
+    label: "Testimoni & Review Pelanggan",
+    value: "Testimoni & Review Pelanggan",
   },
   {
-    label: "Social Media",
-    value: "Social Media",
+    label: "Behind the Scenes",
+    value: "Behind the Scenes",
+  },
+  {
+    label: "Edukasi & Tips",
+    value: "Edukasi & Tips",
+  },
+  {
+    label: "Event & Aktivitas",
+    value: "Event & Aktivitas",
+  },
+  {
+    label: "Branding Story",
+    value: "Branding Story",
+  },
+  {
+    label: "Tutorial & Cara Pakai",
+    value: "Tutorial & Cara Pakai",
+  },
+  {
+    label: "Entertainment & Konten Viral",
+    value: "Entertainment & Konten Viral",
+  },
+  {
+    label: "Pengumuman & Pembaruan",
+    value: "Pengumuman & Pembaruan",
   },
 ];
 
@@ -180,24 +204,56 @@ const DESIGN_STYLE_OPTIONS = [
     value: "Minimalist",
   },
   {
-    label: "Modern",
-    value: "Modern",
+    label: "Flat Design",
+    value: "Flat Design",
   },
   {
-    label: "Bold",
-    value: "Bold",
+    label: "3D Design",
+    value: "3D Design",
   },
   {
-    label: "Vintage",
-    value: "Vintage",
+    label: "Futuristic",
+    value: "Futuristic",
   },
   {
-    label: "Corporate",
-    value: "Corporate",
+    label: "Retro / Vintage",
+    value: "Retro / Vintage",
   },
   {
-    label: "Social Media",
-    value: "Social Media",
+    label: "Cartoon / Character",
+    value: "Cartoon / Character",
+  },
+  {
+    label: "Realistic / Photorealism",
+    value: "Realistic / Photorealism",
+  },
+  {
+    label: "Abstract",
+    value: "Abstract",
+  },
+  {
+    label: "Typography-based",
+    value: "Typography-based",
+  },
+  {
+    label: "Gradient / Colorful",
+    value: "Gradient / Colorful",
+  },
+  {
+    label: "Cyberpunk",
+    value: "Cyberpunk",
+  },
+  {
+    label: "Line Art",
+    value: "Line Art",
+  },
+  {
+    label: "Geometric",
+    value: "Geometric",
+  },
+  {
+    label: "Hand-drawn / Sketch",
+    value: "Hand-drawn / Sketch",
   },
 ];
 

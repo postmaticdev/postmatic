@@ -31,15 +31,15 @@ export function BusinessKnowledgeForm() {
   };
 
   const defaultPlaceholders = {
-    brandName: "Postmatic",
-    category: "Digital Marketing",
+    brandName: "Contoh : Postmatic",
+    category: "Contoh : Digital Marketing",
     description:
-      "Bisnis yang menyediakan layanan pembuatan konten untuk media sosial",
+      "Contoh : Bisnis yang menyediakan layanan pembuatan konten untuk media sosial",
     visionMission:
-      "Menjadi platform pembuatan konten terbaik untuk media sosial",
-    uniqueSellingPoint: "Automasi pembuatan konten untuk media sosial",
-    urlWebsite: "https://postmatic.id",
-    location: "Sleman, Yogyakarta",
+      "Contoh : Menjadi platform pembuatan konten terbaik untuk media sosial",
+    uniqueSellingPoint: "Contoh : Automasi pembuatan konten untuk media sosial",
+    urlWebsite: "Contoh : https://postmatic.id",
+    location: "Contoh : Sleman, Yogyakarta",
   };
 
   const finalLabels = { ...defaultLabels };
@@ -72,7 +72,7 @@ export function BusinessKnowledgeForm() {
           <BusinessCategoryDropdown
             value={formKnowledge?.business?.category}
             onChange={(value) => updateField("category", value)}
-            placeholder="Pilih kategori produk"
+            placeholder={finalPlaceholders.category}
             label="Kategori Produk"
             error={errors.business.category}
           />

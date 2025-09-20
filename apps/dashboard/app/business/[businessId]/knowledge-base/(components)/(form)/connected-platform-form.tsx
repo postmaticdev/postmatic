@@ -82,7 +82,7 @@ export function ConnectedPlatformForm() {
         <div key={platform.name} className="p-4 border rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm flex-shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-background to-background-secondary rounded-lg flex items-center justify-center text-white text-sm flex-shrink-0">
                 {mapEnumPlatform.getPlatformIcon(platform.platform)}
               </div>
               <div>

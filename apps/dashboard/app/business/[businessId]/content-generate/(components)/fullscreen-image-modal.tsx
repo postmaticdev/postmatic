@@ -64,7 +64,8 @@ export function FullscreenImageModal({
     offsetX: 0,
     offsetY: 0,
   });
-  const [minZoom, setMinZoom] = useState(1);
+  const [minZoom, setMinZoom] = useState(0.5); // Allow zoom out more
+  const [maxZoom, setMaxZoom] = useState(3);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [canvasSizeCSS, setCanvasSizeCSS] = useState({ width: 0, height: 0 });
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
@@ -76,6 +77,10 @@ export function FullscreenImageModal({
   const [dragStart, setDragStart] = useState<Point>({ x: 0, y: 0 });
   const [mousePosition, setMousePosition] = useState<Point>({ x: 0, y: 0 });
   const [showBrushPreview, setShowBrushPreview] = useState(false);
+  
+  // touch gestures
+  const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
+  const [lastTouchCenter, setLastTouchCenter] = useState<Point | null>(null);
 
   // history (mask)
   const [history, setHistory] = useState<ImageData[]>([]);
@@ -195,8 +200,8 @@ export function FullscreenImageModal({
 
   const clampOffset = useCallback(
     (ox: number, oy: number, scale: number) => {
-      const minScale = minZoom * 0.8;
-      if (scale <= minScale) return { offsetX: 0, offsetY: 0 };
+      // Allow free movement when zoomed out
+      if (scale <= minZoom) return { offsetX: 0, offsetY: 0 };
 
       const scaledW = imageSize.width * scale;
       const scaledH = imageSize.height * scale;
@@ -274,6 +279,36 @@ export function FullscreenImageModal({
     [imageSize]
   );
 
+  // Touch gesture helpers
+  const getTouchDistance = useCallback((touches: React.TouchList) => {
+    if (touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }, []);
+
+  const getTouchCenter = useCallback((touches: React.TouchList) => {
+    if (touches.length === 0) return { x: 0, y: 0 };
+    if (touches.length === 1) {
+      const canvas = canvasRef.current;
+      if (!canvas) return { x: 0, y: 0 };
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: touches[0].clientX - rect.left,
+        y: touches[0].clientY - rect.top,
+      };
+    }
+    const x = (touches[0].clientX + touches[1].clientX) / 2;
+    const y = (touches[0].clientY + touches[1].clientY) / 2;
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: x - rect.left,
+      y: y - rect.top,
+    };
+  }, []);
+
   // ---------- init & resize ----------
   useEffect(() => {
     if (!isOpen) return;
@@ -323,8 +358,9 @@ export function FullscreenImageModal({
         canvasSizeCSS.width,
         canvasSizeCSS.height
       );
-      setMinZoom(fit.scale);
-      setTransform({ scale: fit.scale * 0.9, offsetX: 0, offsetY: 0 });
+      setMinZoom(fit.scale * 0.3); // Allow zoom out to 30% of fit size
+      setMaxZoom(fit.scale * 3); // Allow zoom in to 300% of fit size
+      setTransform({ scale: fit.scale * 0.8, offsetX: 0, offsetY: 0 }); // Start at 80% of fit size
 
       // reset mask/hist
       const mctx = maskCanvas.getContext("2d");
@@ -441,11 +477,9 @@ export function FullscreenImageModal({
       };
 
       const zoomFactor = deltaY > 0 ? 0.9 : 1.1;
-      const minScale = minZoom * 0.8;
-      const maxScale = minZoom * 2.6;
       const newScale = Math.max(
-        minScale,
-        Math.min(maxScale, transform.scale * zoomFactor)
+        minZoom,
+        Math.min(maxZoom, transform.scale * zoomFactor)
       );
       if (newScale === transform.scale) return;
 
@@ -460,7 +494,7 @@ export function FullscreenImageModal({
         offsetY: clamped.offsetY,
       });
     },
-    [transform, minZoom, clampOffset]
+    [transform, minZoom, maxZoom, clampOffset]
   );
 
   const handleWheel = useCallback(
@@ -672,54 +706,104 @@ export function FullscreenImageModal({
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       e.preventDefault();
-      const t = e.touches[0];
-      if (!t) return;
+      const touches = e.touches;
+      
+      if (touches.length === 1) {
+        const t = touches[0];
+        // Update mouse position for brush preview
+        const pos = getMousePosition({
+          clientX: t.clientX,
+          clientY: t.clientY,
+        } as unknown as React.MouseEvent);
+        setMousePosition(pos);
 
-      // Update mouse position for brush preview
-      const pos = getMousePosition({
-        clientX: t.clientX,
-        clientY: t.clientY,
-      } as unknown as React.MouseEvent);
-      setMousePosition(pos);
+        // Show brush preview for brush tools
+        if (activeTool === "brush-add" || activeTool === "brush-remove") {
+          setShowBrushPreview(true);
+        }
 
-      // Show brush preview for brush tools
-      if (activeTool === "brush-add" || activeTool === "brush-remove") {
-        setShowBrushPreview(true);
+        handleMouseDown({
+          clientX: t.clientX,
+          clientY: t.clientY,
+        } as unknown as React.MouseEvent);
+      } else if (touches.length === 2) {
+        // Start pinch gesture
+        const distance = getTouchDistance(touches);
+        const center = getTouchCenter(touches);
+        setLastTouchDistance(distance);
+        setLastTouchCenter(center);
+        setShowBrushPreview(false);
       }
-
-      handleMouseDown({
-        clientX: t.clientX,
-        clientY: t.clientY,
-      } as unknown as React.MouseEvent);
     },
-    [handleMouseDown, getMousePosition, activeTool]
+    [handleMouseDown, getMousePosition, activeTool, getTouchDistance, getTouchCenter]
   );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
       e.preventDefault();
-      const t = e.touches[0];
-      if (!t) return;
+      const touches = e.touches;
+      
+      if (touches.length === 1) {
+        const t = touches[0];
+        // Update mouse position for brush preview
+        const pos = getMousePosition({
+          clientX: t.clientX,
+          clientY: t.clientY,
+        } as unknown as React.MouseEvent);
+        setMousePosition(pos);
 
-      // Update mouse position for brush preview
-      const pos = getMousePosition({
-        clientX: t.clientX,
-        clientY: t.clientY,
-      } as unknown as React.MouseEvent);
-      setMousePosition(pos);
-
-      handleMouseMove({
-        clientX: t.clientX,
-        clientY: t.clientY,
-      } as unknown as MouseEvent);
+        handleMouseMove({
+          clientX: t.clientX,
+          clientY: t.clientY,
+        } as unknown as MouseEvent);
+      } else if (touches.length === 2 && lastTouchDistance && lastTouchCenter) {
+        // Handle pinch-to-zoom
+        const distance = getTouchDistance(touches);
+        const center = getTouchCenter(touches);
+        
+        if (distance > 0 && lastTouchDistance > 0) {
+          const scaleChange = distance / lastTouchDistance;
+          const newScale = Math.max(
+            minZoom,
+            Math.min(maxZoom, transform.scale * scaleChange)
+          );
+          
+          if (newScale !== transform.scale) {
+            const canvas = canvasRef.current;
+            if (canvas) {
+              const rect = canvas.getBoundingClientRect();
+              const zoomPoint = {
+                x: center.x - rect.width / 2,
+                y: center.y - rect.height / 2,
+              };
+              
+              const ratio = newScale / transform.scale;
+              const newOX = transform.offsetX * ratio + zoomPoint.x * (1 - ratio);
+              const newOY = transform.offsetY * ratio + zoomPoint.y * (1 - ratio);
+              const clamped = clampOffset(newOX, newOY, newScale);
+              
+              setTransform({
+                scale: newScale,
+                offsetX: clamped.offsetX,
+                offsetY: clamped.offsetY,
+              });
+            }
+          }
+        }
+        
+        setLastTouchDistance(distance);
+        setLastTouchCenter(center);
+      }
     },
-    [handleMouseMove, getMousePosition]
+    [handleMouseMove, getMousePosition, lastTouchDistance, lastTouchCenter, getTouchDistance, getTouchCenter, minZoom, maxZoom, transform, clampOffset]
   );
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       e.preventDefault();
       setShowBrushPreview(false);
+      setLastTouchDistance(null);
+      setLastTouchCenter(null);
       handleMouseUp();
     },
     [handleMouseUp]
@@ -737,10 +821,23 @@ export function FullscreenImageModal({
         );
         setTransform(fit);
       } else {
-        handleZoom(-100, e.clientX, e.clientY);
+        // Zoom to fit or zoom in
+        const fit = calculateFitTransform(
+          imageSize.width,
+          imageSize.height,
+          canvasSizeCSS.width,
+          canvasSizeCSS.height
+        );
+        if (Math.abs(transform.scale - fit.scale) < 0.1) {
+          // If already at fit size, zoom in
+          handleZoom(-100, e.clientX, e.clientY);
+        } else {
+          // Zoom to fit
+          setTransform(fit);
+        }
       }
     },
-    [calculateFitTransform, imageSize, canvasSizeCSS, handleZoom]
+    [calculateFitTransform, imageSize, canvasSizeCSS, handleZoom, transform.scale]
   );
 
   // events bind/unbind
@@ -857,8 +954,6 @@ export function FullscreenImageModal({
     }
   };
 
-  const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSend();
   };

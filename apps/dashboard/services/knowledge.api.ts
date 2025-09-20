@@ -295,6 +295,9 @@ export const useRssKnowledgeUpdate = () => {
       queryClient.invalidateQueries({
         queryKey: ["rssKnowledge"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["libraryRSSArticle"],
+      });
     },
   });
 };
@@ -307,6 +310,9 @@ export const useRssKnowledgeDelete = () => {
     onSuccess: ({}) => {
       queryClient.invalidateQueries({
         queryKey: ["rssKnowledge"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["libraryRSSArticle"],
       });
     },
   });

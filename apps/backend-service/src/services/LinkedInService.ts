@@ -86,6 +86,13 @@ export class LinkedInService extends BaseService {
     try {
       let from = "/";
       if (!stateFromLinkedIn || stateFromLinkedIn !== sessionState) {
+        console.log(
+          "CALLBACK FROM LINKEDIN SERVICE ERROR [stateFromLinkedIn or stateFromLinkedIn !== sessionState] ",
+          {
+            stateFromLinkedIn,
+            sessionState,
+          }
+        );
         return {
           success: false,
           message: "State tidak valid",
@@ -112,11 +119,6 @@ export class LinkedInService extends BaseService {
         console.log(
           "=========== CALLBACK LINKEDIN ERROR [no response] ==========="
         );
-        console.log("response", response);
-        console.log("code", code);
-        console.log("stateFromLinkedIn", stateFromLinkedIn);
-        console.log("sessionState", sessionState);
-        console.log("================================================");
         return {
           success: false,
           message: "Token tidak valid",
@@ -130,11 +132,6 @@ export class LinkedInService extends BaseService {
         console.log(
           "=========== CALLBACK LINKEDIN ERROR [no accessToken or idToken] ==========="
         );
-        console.log("response", response);
-        console.log("code", code);
-        console.log("stateFromLinkedIn", stateFromLinkedIn);
-        console.log("sessionState", sessionState);
-        console.log("================================================");
         return {
           success: false,
           message: "Token tidak valid",
@@ -144,18 +141,10 @@ export class LinkedInService extends BaseService {
       }
 
       const decoded = jwt.decode(idToken) as LinkedInDecoded;
-      if (!decoded.sub || !decoded.name || !decoded.picture || !decoded.exp) {
+      if (!decoded.sub || !decoded.name || !decoded.exp) {
         console.log(
           "=========== CALLBACK LINKEDIN ERROR [no decoded.sub or decoded.name or decoded.picture or decoded.exp] ==========="
         );
-        console.log("response", response);
-        console.log("code", code);
-        console.log("stateFromLinkedIn", stateFromLinkedIn);
-        console.log("sessionState", sessionState);
-        console.log("decoded", decoded);
-        console.log("idToken", idToken);
-        console.log("accessToken", accessToken);
-        console.log("================================================");
         return {
           success: false,
           message: "Token tidak valid",

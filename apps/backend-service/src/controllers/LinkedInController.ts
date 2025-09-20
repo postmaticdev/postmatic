@@ -12,6 +12,7 @@ export class LinkedInController extends BaseController {
 
   oauth = async (req: Request, res: Response) => {
     try {
+      console.log("OAUTH FROM LINKEDIN CONTROLLER ", req.query);
       const {
         from = "/",
         [POSTMATIC_ACCESS_TOKEN_KEY]: postmaticAccessToken = "",
@@ -23,6 +24,7 @@ export class LinkedInController extends BaseController {
         String(postmaticAccessToken)
       );
       if (!oauth) {
+        console.log("OAUTH IS NULL", oauth);
         return this.renderViewError(req, res, {
           title: "Terjadi Kesalahan",
           description: "Terjadi kesalahan saat melakukan login LinkedIn",
@@ -48,6 +50,11 @@ export class LinkedInController extends BaseController {
       const { state, code } = req.query;
       const stateSession = req.session.oauth_state;
       if (!state || !code || !stateSession) {
+        console.log("STATE OR CODE OR STATE SESSION IS NULL", {
+          state,
+          code,
+          stateSession,
+        });
         return this.renderViewError(req, res, {
           title: "Terjadi Kesalahan",
           description: "Terjadi kesalahan saat melakukan login LinkedIn",
@@ -62,6 +69,7 @@ export class LinkedInController extends BaseController {
         stateSession
       );
       if (!callback) {
+        console.log("CALLBACK IS NULL", callback);
         return this.renderViewError(req, res, {
           title: "Terjadi Kesalahan",
           description: "Terjadi kesalahan saat melakukan login LinkedIn",
@@ -139,7 +147,6 @@ export class LinkedInController extends BaseController {
           ctaText: "Kembali ke Dashboard",
           ctaHref: DASHBOARD_URL,
         });
-        return;
       }
 
       return this.redirectToClient(
